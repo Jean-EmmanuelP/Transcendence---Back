@@ -4,6 +4,7 @@ import { GraphQLModule } from "@nestjs/graphql";
 import { UserService } from "./user/services/user/user.service";
 import { UserModule } from "./user/user.module";
 import { PrismaService } from "./prisma/services/prisma/prisma.service";
+import { PrismaModule } from './prisma/prisma.module';
 
 @Module({
   imports: [
@@ -13,8 +14,8 @@ import { PrismaService } from "./prisma/services/prisma/prisma.service";
       installSubscriptionHandlers: true,
     }),
     UserModule,
+    PrismaModule
   ],
   providers: [UserService, PrismaService, PrismaService],
-  exports: [PrismaService],
 })
 export class AppModule {}
