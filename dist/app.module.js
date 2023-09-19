@@ -10,9 +10,10 @@ exports.AppModule = void 0;
 const apollo_1 = require("@nestjs/apollo");
 const common_1 = require("@nestjs/common");
 const graphql_1 = require("@nestjs/graphql");
-const user_controller_1 = require("./user/controllers/user/user.controller");
 const user_service_1 = require("./user/services/user/user.service");
 const user_module_1 = require("./user/user.module");
+const prisma_service_1 = require("./prisma/services/prisma/prisma.service");
+const prisma_module_1 = require("./prisma/prisma.module");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -21,13 +22,13 @@ exports.AppModule = AppModule = __decorate([
         imports: [
             graphql_1.GraphQLModule.forRoot({
                 driver: apollo_1.ApolloDriver,
-                autoSchemaFile: 'schema.gql',
+                autoSchemaFile: "schema.gql",
                 installSubscriptionHandlers: true,
             }),
             user_module_1.UserModule,
+            prisma_module_1.PrismaModule
         ],
-        controllers: [user_controller_1.UserController],
-        providers: [user_service_1.UserService],
+        providers: [user_service_1.UserService, prisma_service_1.PrismaService, prisma_service_1.PrismaService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
