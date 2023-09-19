@@ -17,4 +17,3 @@ export class UserResolver {
     return this.userService.create(data);
   }
 }
-
