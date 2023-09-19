@@ -9,20 +9,20 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserType = void 0;
+exports.UserModel = void 0;
 const graphql_1 = require("@nestjs/graphql");
-let UserType = class UserType {
+let UserModel = class UserModel {
 };
-exports.UserType = UserType;
+exports.UserModel = UserModel;
 __decorate([
     (0, graphql_1.Field)(() => graphql_1.Int),
     __metadata("design:type", Number)
-], UserType.prototype, "id", void 0);
+], UserModel.prototype, "id", void 0);
 __decorate([
     (0, graphql_1.Field)(),
     __metadata("design:type", String)
-], UserType.prototype, "name", void 0);
-exports.UserType = UserType = __decorate([
+], UserModel.prototype, "name", void 0);
+exports.UserModel = UserModel = __decorate([
     (0, graphql_1.ObjectType)()
-], UserType);
+], UserModel);
 //# sourceMappingURL=user.model.js.map

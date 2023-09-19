@@ -1,4 +1,4 @@
-export declare class UserType {
+export declare class UserModel {
     id: number;
     name: string;
 }

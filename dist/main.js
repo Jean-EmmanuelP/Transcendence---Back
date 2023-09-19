@@ -7,7 +7,8 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useGlobalPipes(new common_1.ValidationPipe());
     await app.listen(3000);
-    console.log(`Application is running on: ${await app.getUrl()}`);
+    console.log(`Application is running on: http://localhost:3000`);
+    console.log(`Check the GraphQL Playground : http://localhost:3000/graphql`);
 }
 bootstrap();
 //# sourceMappingURL=main.js.map
