@@ -13,7 +13,7 @@ async function bootstrap() {
   );
   console.log(
     "\x1b[33m%s\x1b[0m",
-    "Application is running on: http://localhost:3000"
+    "Application : http://localhost:3000"
   );
   console.log(
     "\x1b[33m%s\x1b[0m",
@@ -26,7 +26,7 @@ async function bootstrap() {
   );
   console.log(
     "\x1b[31m%s\x1b[0m",
-    "Check the GraphQL Playground : http://localhost:3000/graphql"
+    "GQL Playground : http://localhost:3000/graphql"
   );
   console.log(
     "\x1b[31m%s\x1b[0m",
