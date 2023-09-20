@@ -14,6 +14,9 @@ const user_service_1 = require("./user/services/user/user.service");
 const user_module_1 = require("./user/user.module");
 const prisma_service_1 = require("./prisma/services/prisma/prisma.service");
 const prisma_module_1 = require("./prisma/prisma.module");
+const auth_service_1 = require("./auth/services/auth/auth.service");
+const auth_module_1 = require("./auth/auth.module");
+const jwt_1 = require("@nestjs/jwt");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
@@ -26,9 +29,10 @@ exports.AppModule = AppModule = __decorate([
                 installSubscriptionHandlers: true,
             }),
             user_module_1.UserModule,
-            prisma_module_1.PrismaModule
+            prisma_module_1.PrismaModule,
+            auth_module_1.AuthModule
         ],
-        providers: [user_service_1.UserService, prisma_service_1.PrismaService, prisma_service_1.PrismaService],
+        providers: [jwt_1.JwtService, user_service_1.UserService, prisma_service_1.PrismaService, auth_service_1.AuthService],
     })
 ], AppModule);
 //# sourceMappingURL=app.module.js.map
