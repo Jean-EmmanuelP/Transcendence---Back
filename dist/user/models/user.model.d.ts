@@ -1,4 +1,4 @@
 export declare class UserModel {
-    id: number;
+    id: string;
     name: string;
 }

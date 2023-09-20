@@ -15,8 +15,8 @@ let UserModel = class UserModel {
 };
 exports.UserModel = UserModel;
 __decorate([
-    (0, graphql_1.Field)(() => graphql_1.Int),
-    __metadata("design:type", Number)
+    (0, graphql_1.Field)(() => String),
+    __metadata("design:type", String)
 ], UserModel.prototype, "id", void 0);
 __decorate([
     (0, graphql_1.Field)(),
