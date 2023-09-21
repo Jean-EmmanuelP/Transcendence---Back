@@ -24,7 +24,6 @@ export class AuthController {
   @Get("42-redirect")
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
-    const user = await this.authService.fortyTwoLogin(req);
-    res.send(user);
+    const user = await this.authService.OauthLogin(req, '42');
   } 
 }

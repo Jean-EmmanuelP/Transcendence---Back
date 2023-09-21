@@ -31,8 +31,10 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
     console.log(apiResponse.data.first_name);
     console.log(accessToken);
     return {
-      accessToken,
-      apiData: apiResponse.data
+      apiData: {
+        ...apiResponse.data,
+        accessToken
+      }
     };
   }
 }

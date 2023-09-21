@@ -21,17 +21,17 @@ export class UserService {
     return this.prisma.user.create({ data });
   }
 
-  async upsertGoogleUser({
+  async upsertOAuthUser({
     email,
     firstName,
     lastName,
-    picture,
+    avatar,
     accessToken,
   }: {
     email: string;
     firstName: string;
     lastName: string;
-    picture: string;
+    avatar: string;
     accessToken: string;
   }): Promise<UserModel> {
     let user = await this.findByEmail(email);
@@ -41,7 +41,7 @@ export class UserService {
         data: {
           email: email,
           name: `${firstName} ${lastName}`,
-          avatar: picture,
+          avatar: avatar,
           oauth: {
             create: {
               accessToken: accessToken,

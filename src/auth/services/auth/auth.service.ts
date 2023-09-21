@@ -45,40 +45,49 @@ export class AuthService {
     };
   }
 
-  async OauthLogin(req, oauthService: string) {
+  async OauthLogin(req, oauthService: "google" | "42") {
     if (!req.user) {
       return `No user from ${oauthService}`;
     }
-    const { email, firstName, lastName, picture, accessToken } =
-      req.user;
 
-    const user = await this.userService.upsertGoogleUser({
+    const {
       email,
-      firstName,
-      lastName,
-      picture,
+      first_name: firstName,
+      last_name: lastName,
+      image,
       accessToken,
-    });
+    } = req.user.apiData;
+    let user;
+
+    if (oauthService === "google") {
+      const avatar = req.user.picture || null; // Supposons que pour Google, vous avez un champ `picture`.
+      user = await this.userService.upsertOAuthUser({
+        email,
+        firstName,
+        lastName,
+        avatar,
+        accessToken,
+      });
+    } else if (oauthService === "42") {
+      const avatarLink = image && image.link ? image.link : null; // vérifiez si image et image.link existent
+      if (!avatarLink) {
+        throw new Error("42 User data doesn't have an image link");
+      }
+
+      user = await this.userService.upsertOAuthUser({
+        email,
+        firstName,
+        lastName,
+        avatar: avatarLink,
+        accessToken,
+      });
+    } else {
+      throw new Error(`Unsupported OAuth service: ${oauthService}`);
+    }
 
     return {
       message: "User information saved in the database",
       user: user,
     };
-  }
-
-  fortyTwoLogin(req) {
-    if (!req.user) {
-      return "No user from 42";
-    }
-    const { accessToken, apiData } = req.user;
-    const { email ,first_name, last_name, image } = apiData;
-
-    const user = await this.userService.upsertFortyTwoUser({
-      email,
-      firstName: first_name,
-      lastName: last_name,
-      avatar: image.link,
-      accessToken
-    })
   }
 }
