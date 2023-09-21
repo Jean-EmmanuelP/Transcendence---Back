@@ -2,18 +2,18 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/services/prisma/prisma.service'; 
 import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
+import { UserService } from 'src/user/services/user/user.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private readonly userService: UserService
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.prisma.user.findUnique({
-      where: { email: email },
-    });
+    const user = await this.userService.findByEmail(email);
     if (user && user.password === password) {
       // Ideally, you'd hash the password and compare the hashed values.
       const { password, ...result } = user;
