@@ -13,103 +13,21 @@ datasource db {
 // define your models
 
 model User {
-  id    Int     @id @default(autoincrement())
+  id    String     @id @default(cuid())
+  email String? @unique
+  password String?
   name  String
-  oauth
-  avatar
-  two-factorAuth String?
-  friends
-  gamesWin
-  gamesLoss
-  matchHistory
+  avatar  String?
+  oauth OAuth?
 }
 
-model Game {
-
+model OAuth {
+  id  String @id @default(cuid())
+  accessToken String
+  tokenType String
+  expiresIn Int
+  scope String
+  createdAt Int
+  user User @relation(fields: [userId], references: [id])
+  userId String @unique
 }
-
-/* based on the subjects, this is chatgpt4 model : 
-
-generator client {
-  provider = "prisma-client-js"
-}
-
-model User {
-  id                  Int       @id @default(autoincrement())
-  oauthId             String    @unique
-  displayName         String    @unique
-  avatarUrl           String?   @default("path_to_default_avatar.png")
-  twoFactorEnabled    Boolean   @default(false)
-  friends             User[]    @relation("friends")
-  blockedUsers        User[]    @relation("blockedUsers")
-  ownedChannels       Channel[] @relation("ownedChannels")
-  messages            Message[]
-  gameInvitationsSent GameInvitation[] @relation("inviter")
-  gameInvitationsReceived GameInvitation[] @relation("invitee")
-  matchHistory        MatchHistory[]
-  stats               UserStats?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-}
-
-model UserStats {
-  userId              Int
-  wins                Int       @default(0)
-  losses              Int       @default(0)
-  ladderLevel         Int       @default(0)
-  achievements        String[]
-  user                User      @relation(fields: [userId], references: [id])
-}
-
-model MatchHistory {
-  id                  Int       @id @default(autoincrement())
-  userId              Int
-  opponentId          Int
-  result              GameResult
-  createdAt           DateTime  @default(now())
-  user                User      @relation(fields: [userId], references: [id])
-  opponent            User      @relation(fields: [opponentId], references: [id])
-}
-
-model Channel {
-  id                  Int       @id @default(autoincrement())
-  name                String    @unique
-  password            String?   // Null if public channel
-  ownerId             Int
-  owner               User      @relation(fields: [ownerId], references: [id])
-  admins              User[]
-  messages            Message[]
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
-}
-
-model Message {
-  id                  Int       @id @default(autoincrement())
-  content             String
-  userId              Int
-  channelId           Int?
-  receiverId          Int?
-  createdAt           DateTime  @default(now())
-  user                User      @relation(fields: [userId], references: [id])
-  channel             Channel?  @relation(fields: [channelId], references: [id])
-  receiver            User?     @relation(fields: [receiverId], references: [id])
-}
-
-model GameInvitation {
-  id                  Int       @id @default(autoincrement())
-  inviterId           Int
-  inviteeId           Int
-  accepted            Boolean?  // Null if not yet responded
-  inviter             User      @relation(fields: [inviterId], references: [id])
-  invitee             User      @relation(fields: [inviteeId], references: [id])
-}
-
-enum GameResult {
-  WIN
-  LOSS
-  DRAW
-}
-
-I will ask myself tomorrow if its good schema or not according to our goals
-and how we are going to handle each things...
-*/

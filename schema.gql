@@ -3,8 +3,16 @@
 # ------------------------------------------------------
 
 type UserModel {
-  id: Int!
+  id: String!
   name: String!
+}
+
+type Token {
+  access_token: String!
+  token_type: String
+  expires_in: Float
+  scope: String
+  created_at: Float
 }
 
 type Query {
@@ -13,8 +21,19 @@ type Query {
 
 type Mutation {
   createUser(data: CreateUserDto!): UserModel!
+  login(data: AuthInput!): Token!
+  googleAuth(token: String!): Token!
+  auth42(token: String!): Token!
 }
 
 input CreateUserDto {
   name: String!
+  email: String
+  password: String
+  avatar: String
+}
+
+input AuthInput {
+  email: String!
+  password: String!
 }
