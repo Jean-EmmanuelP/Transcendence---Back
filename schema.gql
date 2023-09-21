@@ -4,7 +4,10 @@
 
 type UserModel {
   id: String!
+  email: String!
+  password: String!
   name: String!
+  avatar: String!
 }
 
 type Token {

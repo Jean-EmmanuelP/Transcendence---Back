@@ -18,7 +18,4 @@ export class UserModel {
 
   @Field()
   avatar?: string;
-
-  @Field(type => OAuth, { nullable: true })
-  oauth?: OAuth
 }

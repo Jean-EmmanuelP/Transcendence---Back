@@ -16,6 +16,4 @@ export class OauthModel {
 
     @Field()
     scope: string
-
-    @Field()
 }
