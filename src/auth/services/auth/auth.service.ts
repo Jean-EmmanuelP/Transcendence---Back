@@ -49,7 +49,7 @@ export class AuthService {
     if (!req.user) {
       return `No user from ${oauthService}`;
     }
-    const { email, firstName, lastName, picture, accessToken, refreshToken } =
+    const { email, firstName, lastName, picture, accessToken } =
       req.user;
 
     const user = await this.userService.upsertGoogleUser({
@@ -58,7 +58,6 @@ export class AuthService {
       lastName,
       picture,
       accessToken,
-      refreshToken,
     });
 
     return {

@@ -27,14 +27,12 @@ export class UserService {
     lastName,
     picture,
     accessToken,
-    refreshToken,
   }: {
     email: string;
     firstName: string;
     lastName: string;
     picture: string;
     accessToken: string;
-    refreshToken: string;
   }): Promise<UserModel> {
     let user = await this.findByEmail(email);
 
@@ -47,7 +45,6 @@ export class UserService {
           oauth: {
             create: {
               accessToken: accessToken,
-              refreshToken: refreshToken,
               tokenType: "Bearer",
               createdAt: Math.floor(Date.now() / 1000),
             },
@@ -59,7 +56,6 @@ export class UserService {
         where: { userId: user.id },
         data: {
           accessToken: accessToken,
-          refreshToken: refreshToken,
         },
       });
     }

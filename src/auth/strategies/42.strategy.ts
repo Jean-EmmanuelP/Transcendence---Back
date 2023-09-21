@@ -20,7 +20,6 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
 
   async validate(
     accessToken: string,
-    refreshToken: string,
     profile: any
   ): Promise<any> {
     const apiResponse = await axios.get('https://api.intra.42.fr/v2/me', {
