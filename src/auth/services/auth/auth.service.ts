@@ -45,14 +45,26 @@ export class AuthService {
     };
   }
 
-  googleLogin(req) {
+  async googleLogin(req) {
     if (!req.user) {
       return "No user from google";
     }
 
+    const { email, firstName, lastName, picture, accessToken, refreshToken } =
+      req.user;
+
+    const user = await this.userService.upsertGoogleUser({
+      email,
+      firstName,
+      lastName,
+      picture,
+      accessToken,
+      refreshToken,
+    });
+
     return {
-      message: "User information from google",
-      user: req.user,
+      message: "User information saved in the database",
+      user: user,
     };
   }
 }

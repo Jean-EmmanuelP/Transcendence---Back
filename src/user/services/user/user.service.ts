@@ -20,4 +20,50 @@ export class UserService {
   async create(data: CreateUserDto): Promise<UserModel> {
     return this.prisma.user.create({ data });
   }
+
+  async upsertGoogleUser({
+    email,
+    firstName,
+    lastName,
+    picture,
+    accessToken,
+    refreshToken,
+  }: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    picture: string;
+    accessToken: string;
+    refreshToken: string;
+  }): Promise<UserModel> {
+    let user = await this.findByEmail(email);
+
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email: email,
+          name: `${firstName} ${lastName}`,
+          avatar: picture,
+          oauth: {
+            create: {
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+              tokenType: "Bearer",
+              createdAt: Math.floor(Date.now() / 1000),
+            },
+          },
+        },
+      });
+    } else {
+      await this.prisma.oAuth.update({
+        where: { userId: user.id },
+        data: {
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        },
+      });
+    }
+
+    return user;
+  }
 }

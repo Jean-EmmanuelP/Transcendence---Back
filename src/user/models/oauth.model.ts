@@ -10,10 +10,4 @@ export class OauthModel {
 
     @Field()
     tokenType: string
-
-    @Field()
-    expiresIn: string
-
-    @Field()
-    scope: string
 }
