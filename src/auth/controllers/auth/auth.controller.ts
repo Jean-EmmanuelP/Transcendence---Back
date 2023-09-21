@@ -6,7 +6,7 @@ import { GoogleOAuthGuard } from '../../../google-oauth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get()
+  @Get('google')
   @UseGuards(GoogleOAuthGuard)
   async googleAuth(@Request() req) {}
 
