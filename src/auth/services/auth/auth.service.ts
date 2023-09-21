@@ -67,4 +67,15 @@ export class AuthService {
       user: user,
     };
   }
+
+  fortyTwoLogin(req) {
+    if (!req.user) {
+      return "No user from 42";
+    }
+
+    return {
+      message: "User information from 42",
+      user: req.user,
+    };
+  }
 }
