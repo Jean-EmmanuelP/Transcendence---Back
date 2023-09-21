@@ -49,18 +49,18 @@ export class AuthService {
     if (!req.user) {
       return `No user from ${oauthService}`;
     }
-
-    const {
-      email,
-      first_name: firstName,
-      last_name: lastName,
-      image,
-      accessToken,
-    } = req.user.apiData;
+    
     let user;
-
+    
     if (oauthService === "google") {
-      const avatar = req.user.picture || null; // Supposons que pour Google, vous avez un champ `picture`.
+      const {
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        picture,
+        accessToken,
+      } = req.user;
+      const avatar = picture || null;
       user = await this.userService.upsertOAuthUser({
         email,
         firstName,
@@ -69,6 +69,13 @@ export class AuthService {
         accessToken,
       });
     } else if (oauthService === "42") {
+      const {
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        image,
+        accessToken,
+      } = req.user.apiData;
       const avatarLink = image && image.link ? image.link : null; // vérifiez si image et image.link existent
       if (!avatarLink) {
         throw new Error("42 User data doesn't have an image link");
