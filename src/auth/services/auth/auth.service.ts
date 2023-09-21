@@ -45,11 +45,10 @@ export class AuthService {
     };
   }
 
-  async googleLogin(req) {
+  async OauthLogin(req, oauthService: string) {
     if (!req.user) {
-      return "No user from google";
+      return `No user from ${oauthService}`;
     }
-
     const { email, firstName, lastName, picture, accessToken, refreshToken } =
       req.user;
 
@@ -72,10 +71,15 @@ export class AuthService {
     if (!req.user) {
       return "No user from 42";
     }
+    const { accessToken, apiData } = req.user;
+    const { email ,first_name, last_name, image } = apiData;
 
-    return {
-      message: "User information from 42",
-      user: req.user,
-    };
+    const user = await this.userService.upsertFortyTwoUser({
+      email,
+      firstName: first_name,
+      lastName: last_name,
+      avatar: image.link,
+      accessToken
+    })
   }
 }

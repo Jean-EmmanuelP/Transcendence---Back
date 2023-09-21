@@ -24,7 +24,6 @@ model User {
 model OAuth {
   id  String @id @default(cuid())
   accessToken String
-  refreshToken String
   tokenType String
   createdAt Int
   user User @relation(fields: [userId], references: [id])
