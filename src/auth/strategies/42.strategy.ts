@@ -2,6 +2,7 @@
 
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
+import axios from "axios";
 import { Strategy as FortyTwoStrategy } from "passport-42";
 
 @Injectable()
@@ -22,14 +23,17 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
     refreshToken: string,
     profile: any
   ): Promise<any> {
-    // Le profil contient désormais les informations de l'utilisateur retournées par 42.
-    // Ici, vous pouvez décider de ce que vous voulez faire avec ces informations,
-    // comme les stocker dans votre base de données, etc.
+    const apiResponse = await axios.get('https://api.intra.42.fr/v2/me', {
+      headers: {
+        'Authorization': `Bearer ${accessToken}`
+      }
+    })
 
-    // Pour l'instant, retournons simplement l'utilisateur.
-    console.log(`You went here`);
+    console.log(apiResponse.data.first_name);
+    console.log(accessToken);
     return {
-      profile
+      accessToken,
+      apiData: apiResponse.data
     };
   }
 }
