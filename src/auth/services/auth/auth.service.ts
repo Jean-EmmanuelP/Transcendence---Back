@@ -3,6 +3,7 @@ import { PrismaService } from "src/prisma/services/prisma/prisma.service";
 import { User } from "@prisma/client";
 import { JwtService } from "@nestjs/jwt";
 import { UserService } from "src/user/services/user/user.service";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class AuthService {
@@ -30,10 +31,9 @@ export class AuthService {
     }
 
     let user;
-    
+
     if (oauthService === "google") {
-      const { email, firstName, lastName, picture, accessToken } =
-      req.user;
+      const { email, firstName, lastName, picture, accessToken } = req.user;
       const avatar = picture || null;
       user = await this.userService.upsertOAuthUser({
         email,
@@ -66,7 +66,7 @@ export class AuthService {
       throw new Error(`Unsupported OAuth service: ${oauthService}`);
     }
 
-    const jwtToken = this.jwtService.sign({ userId: user.id, email: user.email })
+    const jwtToken = this.jwtService.sign({ userId: user.id, email: user.email }, { secret: process.env.JWT_SECRET });
 
     return {
       message: "User information saved in the database",

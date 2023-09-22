@@ -4,13 +4,16 @@ import { GraphQLModule } from "@nestjs/graphql";
 import { UserService } from "./user/services/user/user.service";
 import { UserModule } from "./user/user.module";
 import { PrismaService } from "./prisma/services/prisma/prisma.service";
-import { PrismaModule } from './prisma/prisma.module';
-import { AuthService } from './auth/services/auth/auth.service';
-import { AuthModule } from './auth/auth.module';
-import { JwtService } from "@nestjs/jwt";
+import { PrismaModule } from "./prisma/prisma.module";
+import { AuthService } from "./auth/services/auth/auth.service";
+import { AuthModule } from "./auth/auth.module";
+import { JwtModule, JwtService } from "@nestjs/jwt";
+import { ConfigModule } from "@nestjs/config";
+import jwtConfig from "./auth/strategies/jwt/jwt.config";
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: "schema.gql",
@@ -18,7 +21,7 @@ import { JwtService } from "@nestjs/jwt";
     }),
     UserModule,
     PrismaModule,
-    AuthModule
+    AuthModule,
   ],
   providers: [JwtService, UserService, PrismaService, AuthService],
 })
