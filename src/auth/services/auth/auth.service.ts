@@ -50,7 +50,7 @@ export class AuthService {
         image,
         accessToken,
       } = req.user.apiData;
-      const avatarLink = image && image.link ? image.link : null; // vérifiez si image et image.link existent
+      const avatarLink = image && image.link ? image.link : null;
       if (!avatarLink) {
         throw new Error("42 User data doesn't have an image link");
       }
