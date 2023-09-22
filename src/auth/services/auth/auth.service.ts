@@ -24,27 +24,6 @@ export class AuthService {
     throw new UnauthorizedException("Invalid credentials");
   }
 
-  async validateOAuthUser(
-    token: string,
-    provider: "google" | "42"
-  ): Promise<any> {
-    // Here, you'd use the token to fetch the user's info from the OAuth provider.
-    // Then, you'd check if they exist in your DB or create them if they don't.
-    // After which, you'd return a JWT for them.
-    let user: User;
-    if (provider === "google") {
-      // Fetch user from Google using the token, then find or create in your DB.
-    } else if (provider === "42") {
-      // Fetch user from 42's API using the token, then find or create in your DB.
-    }
-    if (!user) {
-      throw new UnauthorizedException("User not found");
-    }
-    return {
-      access_token: this.jwtService.sign(user),
-    };
-  }
-
   async OauthLogin(req, oauthService: "google" | "42") {
     if (!req.user) {
       return `No user from ${oauthService}`;
@@ -87,9 +66,12 @@ export class AuthService {
       throw new Error(`Unsupported OAuth service: ${oauthService}`);
     }
 
+    const jwtToken = this.jwtService.sign({ userId: user.id, email: user.email })
+
     return {
       message: "User information saved in the database",
       user: user,
+      access_token: jwtToken,
     };
   }
 }

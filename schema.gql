@@ -10,23 +10,12 @@ type UserModel {
   avatar: String!
 }
 
-type Token {
-  access_token: String!
-  token_type: String
-  expires_in: Float
-  scope: String
-  created_at: Float
-}
-
 type Query {
   users: [UserModel!]!
 }
 
 type Mutation {
   createUser(data: CreateUserDto!): UserModel!
-  login(data: AuthInput!): Token!
-  googleAuth(token: String!): Token!
-  auth42(token: String!): Token!
 }
 
 input CreateUserDto {
@@ -34,9 +23,4 @@ input CreateUserDto {
   email: String
   password: String
   avatar: String
-}
-
-input AuthInput {
-  email: String!
-  password: String!
 }

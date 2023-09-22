@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { AuthResolver } from './resolvers/auth/auth.resolver';
-import jwtConfig from './jwt.config';
+import jwtConfig from './strategies/jwt/jwt.config';
 import { AuthService } from './services/auth/auth.service';
 import { UserService } from 'src/user/services/user/user.service';
 import { PrismaModule } from 'src/prisma/prisma.module';
@@ -18,7 +17,7 @@ import { FortyTwoAuthStrategy } from './strategies/42.strategy';
         JwtModule.register(jwtConfig),
         PrismaModule
     ],
-    providers: [JwtService, AuthResolver, AuthService, UserService, GoogleStrategy, FortyTwoAuthStrategy],
+    providers: [JwtService, AuthService, UserService, GoogleStrategy, FortyTwoAuthStrategy],
     controllers: [AuthController]
 })
 export class AuthModule {}
