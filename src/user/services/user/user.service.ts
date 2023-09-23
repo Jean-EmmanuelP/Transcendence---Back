@@ -1,11 +1,16 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "src/prisma/services/prisma/prisma.service";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UserModel } from "src/user/models/user.model";
+import { JwtService } from "@nestjs/jwt";
+import bcrypt from "bcrypt";
 
 @Injectable()
 export class UserService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private jwtService: JwtService
+  ) {}
 
   async findAll(): Promise<UserModel[]> {
     return this.prisma.user.findMany();
@@ -61,5 +66,25 @@ export class UserService {
     }
 
     return user;
+  }
+
+  async validateUser(email: string, plainPassword: string): Promise<any> {
+    const user = await this.findByEmail(email);
+    if (!user) {
+      throw new UnauthorizedException("User does not exist");
+    }
+
+    if (!(await bcrypt.compare(plainPassword, user.password))) {
+      throw new UnauthorizedException("Invalid password");
+    }
+
+    const { password, ...result } = user;
+    return {
+      message: "User authentication is validate!",
+      result: result,
+      access_token: this.jwtService.sign(result, {
+        secret: process.env.JWT_SECRET,
+      }),
+    };
   }
 }

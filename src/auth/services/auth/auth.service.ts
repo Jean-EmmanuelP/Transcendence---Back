@@ -4,6 +4,8 @@ import { User } from "@prisma/client";
 import { JwtService } from "@nestjs/jwt";
 import { UserService } from "src/user/services/user/user.service";
 import { ConfigService } from "@nestjs/config";
+import { RegisterDto } from "src/auth/dto/register.input";
+import bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -66,12 +68,19 @@ export class AuthService {
       throw new Error(`Unsupported OAuth service: ${oauthService}`);
     }
 
-    const jwtToken = this.jwtService.sign({ userId: user.id, email: user.email }, { secret: process.env.JWT_SECRET });
+    const jwtToken = this.jwtService.sign(
+      { userId: user.id, email: user.email },
+      { secret: process.env.JWT_SECRET }
+    );
 
     return {
       message: "User information saved in the database",
       user: user,
       access_token: jwtToken,
     };
+  }
+
+  async register(registerDto: RegisterDto) {
+    const hashedPassword = await bcrypt.hash(registerDto.password, 12);
   }
 }
