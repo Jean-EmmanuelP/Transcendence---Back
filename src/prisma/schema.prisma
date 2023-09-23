@@ -20,7 +20,7 @@ model User {
   avatar  String?
   oauth OAuth?
   twoFactorSecret String?
-  isTwoFactorEnabled Boolean?
+  isTwoFactorEnabled Boolean? @default(false)
 }
 
 model OAuth {

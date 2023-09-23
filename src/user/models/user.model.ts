@@ -1,6 +1,6 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { OAuth } from '@prisma/client';
-import { IsEmail } from 'class-validator';
+import { ObjectType, Field, Int } from "@nestjs/graphql";
+import { OAuth } from "@prisma/client";
+import { IsEmail } from "class-validator";
 
 @ObjectType()
 export class UserModel {
@@ -9,13 +9,19 @@ export class UserModel {
 
   @Field()
   email?: string;
-  
+
   @Field()
   password?: string;
-  
+
   @Field()
   name: string;
 
   @Field()
   avatar?: string;
+
+  @Field()
+  twoFactorSecret: string;
+
+  @Field()
+  isTwoFactorEnabled: boolean;
 }

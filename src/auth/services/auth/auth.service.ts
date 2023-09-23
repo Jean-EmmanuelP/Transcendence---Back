@@ -76,4 +76,12 @@ export class AuthService {
   async validateUser(loginDto: LoginDto) {
     return this.userService.validateUser(loginDto);
   }
+
+  async generateTwoFactorSecret(userId: string) {
+    return this.userService.generateTwoFactorSecret(userId);
+  }
+
+  async verifyTwoFactorToken(userId: string, token: string) {
+    return this.userService.verifyTwoFactorToken(userId, token);
+  }
 }

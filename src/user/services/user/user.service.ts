@@ -8,6 +8,8 @@ import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UserModel } from "src/user/models/user.model";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
+import * as speakeasy from "speakeasy";
+import * as QRCode from "qrcode";
 import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
 
@@ -75,7 +77,7 @@ export class UserService {
   }
 
   async validateUser(loginDto: LoginDto): Promise<any> {
-    const { email, password: plainPassword } = loginDto;
+    const { email, password: plainPassword, twoFactorCode } = loginDto;
     const user = await this.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException("User does not exist");
@@ -83,6 +85,12 @@ export class UserService {
 
     if (!(await bcrypt.compare(plainPassword, user.password))) {
       throw new UnauthorizedException("Invalid password");
+    }
+
+    if (user.isTwoFactorEnabled) {
+      if (!twoFactorCode || !(await this.verifyTwoFactorToken(user.id, twoFactorCode))) {
+        throw new UnauthorizedException("Invalid two factor code")
+      }
     }
 
     const jwtPayload = { userId: user.id, email: user.email };
@@ -117,5 +125,30 @@ export class UserService {
       }
       throw error;
     }
+  }
+
+  async generateTwoFactorSecret(userId: string) {
+    const secret = speakeasy.generateSecret();
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorSecret: secret.base32 },
+    });
+    return QRCode.toDataURL(secret.otpauth_url);
+  }
+
+  async verifyTwoFactorToken(userId: string, token: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const verified = speakeasy.totp.verify({
+      secret: user.twoFactorSecret,
+      encoding: "base32",
+      token,
+    });
+    if (verified) {
+      await this.prisma.user.update({
+        where: { id: userId },
+        data: { isTwoFactorEnabled: true },
+      });
+    }
+    return verified;
   }
 }
