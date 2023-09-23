@@ -13,6 +13,5 @@ export class LoginDto {
     password: string;
 
     @Field()
-    @IsNotEmpty()
     twoFactorCode?: string;
 }
