@@ -19,6 +19,8 @@ model User {
   name  String
   avatar  String?
   oauth OAuth?
+  twoFactorSecret String?
+  isTwoFactorEnabled Boolean?
 }
 
 model OAuth {
