@@ -8,6 +8,8 @@ type UserModel {
   password: String!
   name: String!
   avatar: String!
+  twoFactorSecret: String!
+  isTwoFactorEnabled: Boolean!
 }
 
 type Query {
