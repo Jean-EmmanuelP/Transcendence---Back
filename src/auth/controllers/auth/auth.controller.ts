@@ -1,9 +1,19 @@
-import { Body, Controller, Get, Post, Request, Res, UnauthorizedException, UseGuards } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  Res,
+  UnauthorizedException,
+  UseGuards,
+} from "@nestjs/common";
 import { AuthService } from "src/auth/services/auth/auth.service";
 import { GoogleOAuthGuard } from "../../../guards/google-oauth.guard";
 import { FortyTwoGuard } from "../../../guards/forty-two.guard";
 import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
+import { JwtAuthGuard } from "src/guards/jwt.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -16,7 +26,7 @@ export class AuthController {
   @Get("google-redirect")
   @UseGuards(GoogleOAuthGuard)
   googleAuthRedirect(@Request() req) {
-    return this.authService.OauthLogin(req, 'google');
+    return this.authService.OauthLogin(req, "google");
   }
 
   @Get("42")
@@ -26,35 +36,39 @@ export class AuthController {
   @Get("42-redirect")
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
-    const user = await this.authService.OauthLogin(req, '42');
+    const user = await this.authService.OauthLogin(req, "42");
     return res.send(user);
   }
-  
-  @Post('register')
+
+  @Post("register")
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
-  @Post('login')
+  @Post("login")
   async login(@Body() loginDto: LoginDto) {
-    return this.authService.validateUser(loginDto)
+    return this.authService.validateUser(loginDto);
   }
 
-  @Post('enable-two-factor')
+  @Post("enable-two-factor")
+  @UseGuards(JwtAuthGuard)
   async enableTwoFactor(@Request() req) {
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const qrCodeUrl = await this.authService.generateTwoFactorSecret(userId);
     return { qrCodeUrl };
   }
 
-  @Post('verify-two-factor')
+  @Post("verify-two-factor")
   async verifyTwoFactor(@Request() req, @Body() body) {
     const { code } = body;
     const userId = req.user.id;
-    const isVerified = await this.authService.verifyTwoFactorToken(userId, code);
+    const isVerified = await this.authService.verifyTwoFactorToken(
+      userId,
+      code
+    );
     if (!isVerified) {
-      throw new UnauthorizedException('Invalid two factor code');
+      throw new UnauthorizedException("Invalid two factor code");
     }
-    return { message: 'Two factor authentication has been enabled' }
+    return { message: "Two factor authentication has been enabled" };
   }
 }

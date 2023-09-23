@@ -10,6 +10,7 @@ import { AuthModule } from "./auth/auth.module";
 import { JwtModule, JwtService } from "@nestjs/jwt";
 import { ConfigModule } from "@nestjs/config";
 import jwtConfig from "./auth/strategies/jwt/jwt.config";
+import { PassportModule } from "@nestjs/passport";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import jwtConfig from "./auth/strategies/jwt/jwt.config";
       autoSchemaFile: "schema.gql",
       installSubscriptionHandlers: true,
     }),
+    PassportModule.register({ defaultStrategy: 'jwt' }),
     UserModule,
     PrismaModule,
     AuthModule,
