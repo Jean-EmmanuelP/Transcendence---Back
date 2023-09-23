@@ -14,5 +14,5 @@ export class LoginDto {
 
     @Field()
     @IsNotEmpty()
-    twoFactorCode: string;
+    twoFactorCode?: string;
 }
