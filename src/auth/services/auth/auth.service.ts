@@ -5,7 +5,7 @@ import { JwtService } from "@nestjs/jwt";
 import { UserService } from "src/user/services/user/user.service";
 import { ConfigService } from "@nestjs/config";
 import { RegisterDto } from "src/auth/dto/register.input";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -14,18 +14,6 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly userService: UserService
   ) {}
-
-  async validateUser(email: string, password: string): Promise<any> {
-    const user = await this.userService.findByEmail(email);
-    if (user && user.password === password) {
-      // Ideally, you'd hash the password and compare the hashed values.
-      const { password, ...result } = user;
-      return {
-        access_token: this.jwtService.sign(result),
-      };
-    }
-    throw new UnauthorizedException("Invalid credentials");
-  }
 
   async OauthLogin(req, oauthService: "google" | "42") {
     if (!req.user) {
@@ -81,6 +69,6 @@ export class AuthService {
   }
 
   async register(registerDto: RegisterDto) {
-    const hashedPassword = await bcrypt.hash(registerDto.password, 12);
-  }
+    return this.userService.register(registerDto);
+}
 }

@@ -1,9 +1,14 @@
-import { Injectable, UnauthorizedException } from "@nestjs/common";
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
 import { PrismaService } from "src/prisma/services/prisma/prisma.service";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UserModel } from "src/user/models/user.model";
 import { JwtService } from "@nestjs/jwt";
-import bcrypt from "bcrypt";
+import * as bcrypt from "bcrypt";
+import { RegisterDto } from "src/auth/dto/register.input";
 
 @Injectable()
 export class UserService {
@@ -86,5 +91,25 @@ export class UserService {
         secret: process.env.JWT_SECRET,
       }),
     };
+  }
+
+  async register(registerDto: RegisterDto): Promise<UserModel> {
+    const hashedPassword = await bcrypt.hash(registerDto.password, 12);
+    const { email, firstName, lastName } = registerDto
+
+    try {
+      return await this.prisma.user.create({
+        data: {
+          email,
+          name: `${firstName} ${lastName}`,
+          password: hashedPassword,
+        },
+      });
+    } catch (error) {
+      if (error.code === "P2002" && error.meta?.target?.includes("email")) {
+        throw new ConflictException("Email already registered");
+      }
+      throw error;
+    }
   }
 }
