@@ -6,6 +6,7 @@ import { UserService } from "src/user/services/user/user.service";
 import { ConfigService } from "@nestjs/config";
 import { RegisterDto } from "src/auth/dto/register.input";
 import * as bcrypt from "bcrypt";
+import { LoginDto } from "src/auth/dto/login.input";
 
 @Injectable()
 export class AuthService {
@@ -70,5 +71,9 @@ export class AuthService {
 
   async register(registerDto: RegisterDto) {
     return this.userService.register(registerDto);
-}
+  }
+
+  async validateUser(loginDto: LoginDto) {
+    return this.userService.validateUser(loginDto);
+  }
 }

@@ -3,6 +3,7 @@ import { AuthService } from "src/auth/services/auth/auth.service";
 import { GoogleOAuthGuard } from "../../../guards/google-oauth.guard";
 import { FortyTwoGuard } from "../../../guards/forty-two.guard";
 import { RegisterDto } from "src/auth/dto/register.input";
+import { LoginDto } from "src/auth/dto/login.input";
 
 @Controller("auth")
 export class AuthController {
@@ -32,5 +33,10 @@ export class AuthController {
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
+  }
+
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return this.authService.validateUser(loginDto)
   }
 }

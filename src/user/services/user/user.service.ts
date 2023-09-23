@@ -9,6 +9,7 @@ import { UserModel } from "src/user/models/user.model";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { RegisterDto } from "src/auth/dto/register.input";
+import { LoginDto } from "src/auth/dto/login.input";
 
 @Injectable()
 export class UserService {
@@ -73,7 +74,8 @@ export class UserService {
     return user;
   }
 
-  async validateUser(email: string, plainPassword: string): Promise<any> {
+  async validateUser(loginDto: LoginDto): Promise<any> {
+    const { email, password: plainPassword } = loginDto;
     const user = await this.findByEmail(email);
     if (!user) {
       throw new UnauthorizedException("User does not exist");
@@ -83,19 +85,23 @@ export class UserService {
       throw new UnauthorizedException("Invalid password");
     }
 
-    const { password, ...result } = user;
+    const jwtPayload = { userId: user.id, email: user.email };
+    const token = this.jwtService.sign(jwtPayload, {
+      secret: process.env.JWT_SECRET,
+    });
     return {
-      message: "User authentication is validate!",
-      result: result,
-      access_token: this.jwtService.sign(result, {
-        secret: process.env.JWT_SECRET,
-      }),
+      message: "User authentication is validated!",
+      user: {
+        name: user.name,
+        email: user.email,
+      },
+      access_token: token,
     };
   }
 
   async register(registerDto: RegisterDto): Promise<UserModel> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 12);
-    const { email, firstName, lastName } = registerDto
+    const { email, firstName, lastName } = registerDto;
 
     try {
       return await this.prisma.user.create({
