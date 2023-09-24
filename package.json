@@ -37,6 +37,7 @@
     "faker": "^5.5.3",
     "graphql": "^16.8.1",
     "graphql-tools": "^9.0.0",
+    "jsonwebtoken": "^9.0.2",
     "passport": "^0.6.0",
     "passport-42": "^1.2.6",
     "passport-google-oauth20": "^2.0.0",
