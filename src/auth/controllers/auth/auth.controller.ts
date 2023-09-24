@@ -37,6 +37,7 @@ export class AuthController {
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
     const user = await this.authService.OauthLogin(req, "42");
+    //pq res ca fonctionne et sans res ca fonctionne pas
     return res.send(user);
   }
 
@@ -50,7 +51,7 @@ export class AuthController {
     return this.authService.validateUser(loginDto);
   }
 
-  @Post("enable-two-factor")
+  @Post("generate-qrcode")
   @UseGuards(JwtAuthGuard)
   async enableTwoFactor(@Request() req) {
     const userId = req.user.userId;
@@ -59,9 +60,10 @@ export class AuthController {
   }
 
   @Post("verify-two-factor")
+  @UseGuards(JwtAuthGuard)
   async verifyTwoFactor(@Request() req, @Body() body) {
     const { code } = body;
-    const userId = req.user.id;
+    const userId = req.user.userId;
     const isVerified = await this.authService.verifyTwoFactorToken(
       userId,
       code

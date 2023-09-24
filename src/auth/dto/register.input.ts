@@ -9,7 +9,7 @@ export class RegisterDto {
   email: string;
 
   @Field()
-  @MinLength(8)
+  @MinLength(8) 
   @IsNotEmpty()
   password: string;
 

@@ -12,6 +12,7 @@ import * as speakeasy from "speakeasy";
 import * as QRCode from "qrcode";
 import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
+import { AuthResponse } from "src/user/interfaces/auth-response";
 
 @Injectable()
 export class UserService {
@@ -76,7 +77,7 @@ export class UserService {
     return user;
   }
 
-  async validateUser(loginDto: LoginDto): Promise<any> {
+  async validateUser(loginDto: LoginDto): Promise<AuthResponse> {
     const { email, password: plainPassword, twoFactorCode } = loginDto;
     const user = await this.findByEmail(email);
     if (!user) {
@@ -88,11 +89,14 @@ export class UserService {
     }
 
     if (user.isTwoFactorEnabled) {
-      if (!twoFactorCode || !(await this.verifyTwoFactorToken(user.id, twoFactorCode))) {
-        throw new UnauthorizedException("Invalid two factor code")
+      if (
+        !twoFactorCode ||
+        !(await this.verifyTwoFactorToken(user.id, twoFactorCode))
+      ) {
+        throw new UnauthorizedException("Invalid two factor code");
       }
     }
-
+    
     const jwtPayload = { userId: user.id, email: user.email };
     const token = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
@@ -101,24 +105,39 @@ export class UserService {
       message: "User authentication is validated!",
       user: {
         name: user.name,
+        avatar: user.avatar,
         email: user.email,
       },
-      access_token: token,
+      accessToken: token,
     };
   }
 
-  async register(registerDto: RegisterDto): Promise<UserModel> {
+  async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 12);
     const { email, firstName, lastName } = registerDto;
 
     try {
-      return await this.prisma.user.create({
+      let user = await this.prisma.user.create({
         data: {
           email,
           name: `${firstName} ${lastName}`,
           password: hashedPassword,
         },
       });
+      const jwtPayload = { userId: user.id, email: user.email };
+      const token = this.jwtService.sign(jwtPayload, {
+        secret: process.env.JWT_SECRET,
+      });
+      delete user.password;
+      return {
+        message: "User authentication is validated!",
+        user: {
+          name: user.name,
+          avatar: user.avatar,
+          email: user.email,
+        },
+        accessToken: token,
+      };
     } catch (error) {
       if (error.code === "P2002" && error.meta?.target?.includes("email")) {
         throw new ConflictException("Email already registered");

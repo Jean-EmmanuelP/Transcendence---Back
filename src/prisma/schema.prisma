@@ -13,21 +13,21 @@ datasource db {
 // define your models
 
 model User {
-  id    String     @id @default(cuid())
-  email String? @unique
-  password String?
-  name  String
-  avatar  String?
-  oauth OAuth?
-  twoFactorSecret String?
-  isTwoFactorEnabled Boolean? @default(false)
+  id                 String   @id @default(cuid())
+  email              String?  @unique
+  password           String?
+  name               String
+  avatar             String?
+  oauth              OAuth?
+  twoFactorSecret    String?
+  isTwoFactorEnabled Boolean @default(false)
 }
 
 model OAuth {
-  id  String @id @default(cuid())
+  id          String @id @default(cuid())
   accessToken String
-  tokenType String
-  createdAt Int
-  user User @relation(fields: [userId], references: [id])
-  userId String @unique
+  tokenType   String
+  createdAt   Int
+  user        User   @relation(fields: [userId], references: [id])
+  userId      String @unique
 }
