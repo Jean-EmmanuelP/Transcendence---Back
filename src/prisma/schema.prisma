@@ -13,8 +13,8 @@ datasource db {
 // define your models
 
 model User {
-  id                 String   @id @default(cuid())
-  email              String?  @unique
+  id                 String  @id @default(cuid())
+  email              String? @unique
   password           String?
   name               String
   avatar             String?

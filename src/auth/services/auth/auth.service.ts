@@ -15,7 +15,7 @@ export class AuthService {
     private jwtService: JwtService,
     private readonly userService: UserService
   ) {}
-    //typer pour google et 42
+  //typer pour google et 42
   async OauthLogin(req, oauthService: "google" | "42") {
     if (!req.user) {
       return `No user from ${oauthService}`;
@@ -28,7 +28,7 @@ export class AuthService {
 
     if (oauthService === "google") {
       const { email, firstName, lastName, picture, accessToken } = req.user;
-      const avatar = picture || null;
+      const avatar = picture || "/src/common/images/avatar_default.gif";
       user = await this.userService.upsertOAuthUser({
         email,
         firstName,
