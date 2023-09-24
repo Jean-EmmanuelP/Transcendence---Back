@@ -15,6 +15,8 @@ import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
 import { JwtAuthGuard } from "src/guards/jwt.guard";
 import { TokenService } from "src/token/services/token/token.service";
+import { JwtService } from "@nestjs/jwt";
+import { sign, verify } from "jsonwebtoken";
 
 @Controller("auth")
 export class AuthController {
@@ -81,6 +83,14 @@ export class AuthController {
   @Post("logout")
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
-    return { message: "Logged out successfully" };
+    const token = req.headers.authrozation.split("")[0];
+    this.tokenService.revokeToken(token);
+    const expiredToken = verify(token, process.env.JWT_SECRET) as {
+      [key: string]: any;
+    };
+    expiredToken.exp = 0;
+
+    const newToken = sign(expiredToken, process.env.JWT_SECRET);
+    return { token: newToken, message: "Logged out successfully" };
   }
 }

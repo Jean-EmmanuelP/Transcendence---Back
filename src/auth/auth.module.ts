@@ -10,6 +10,7 @@ import { GoogleStrategy } from "./strategies/google.strategy";
 import { ConfigModule } from "@nestjs/config";
 import { FortyTwoAuthStrategy } from "./strategies/42.strategy";
 import { JwtStrategy } from "./strategies/jwt/jwt.strategy";
+import { TokenService } from "src/token/services/token/token.service";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { JwtStrategy } from "./strategies/jwt/jwt.strategy";
   providers: [
     JwtService,
     AuthService,
+    TokenService,
     UserService,
     GoogleStrategy,
     FortyTwoAuthStrategy,
