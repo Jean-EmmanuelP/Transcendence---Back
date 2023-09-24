@@ -14,10 +14,14 @@ import { FortyTwoGuard } from "../../../guards/forty-two.guard";
 import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
 import { JwtAuthGuard } from "src/guards/jwt.guard";
+import { TokenService } from "src/token/services/token/token.service";
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly tokenService: TokenService
+  ) {}
 
   @Get("google")
   @UseGuards(GoogleOAuthGuard)
@@ -72,5 +76,11 @@ export class AuthController {
       throw new UnauthorizedException("Invalid two factor code");
     }
     return { message: "Two factor authentication has been enabled" };
+  }
+
+  @Post("logout")
+  @UseGuards(JwtAuthGuard)
+  async logout(@Request() req) {
+    return { message: "Logged out successfully" };
   }
 }
