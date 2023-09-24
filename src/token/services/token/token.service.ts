@@ -1,14 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "prisma/services/prisma/prisma.service";
 
 @Injectable()
 export class TokenService {
-    private revokedTokens: string[] = [];
+  constructor(private prisma: PrismaService) {}
 
-    public revokeToken(token: string): void {
-        this.revokedTokens.push(token);
-    }
+  async revokeToken(token: string): Promise<void> {
+    await this.prisma.token.create({
+      data: {
+        value: token,
+      },
+    });
+  }
 
-    public isTokenRevoked(token: string): boolean {
-        return this.revokedTokens.includes(token);
-    }
+  async isTokenRevoked(token: string): Promise<boolean> {
+    const foundToken = await this.prisma.token.findUnique({
+      where: {
+        value: token,
+      },
+    });
+    return !!foundToken;
+  }
 }

@@ -10,4 +10,4 @@ sleep 5
 
 # Lancer le backend Nest.js
 echo "Démarrage de Nest.js backend..."
-npm run start
+npm run start:dev

@@ -6,10 +6,10 @@ import { TokenService } from "src/token/services/token/token.service";
 export class TokenRevocationMiddleware implements NestMiddleware {
   constructor(private readonly tokenService: TokenService) {}
 
-  use(req: Request, res: Response, next: NextFunction) {
-    const token = req.headers.authorization?.split(" ")[0];
-
-    if (token && this.tokenService.isTokenRevoked(token)) {
+  async use(req: Request, res: Response, next: NextFunction) {
+    const token = req.headers.authorization?.split(" ")[1];
+    console.log(`from token revocation : `, token);
+    if (token && await this.tokenService.isTokenRevoked(token)) {
       return res.status(401).json({ message: "Token revoked" });
     }
 

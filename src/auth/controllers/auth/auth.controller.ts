@@ -84,6 +84,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
     const token = req.headers.authorization.split(" ")[1];
+    console.log(`This is the actual token you are revoking:`, token);
     this.tokenService.revokeToken(token);
     const expiredToken = verify(token, process.env.JWT_SECRET) as {
       [key: string]: any;
@@ -92,5 +93,11 @@ export class AuthController {
 
     const newToken = sign(expiredToken, process.env.JWT_SECRET);
     return { token: newToken, message: "Logged out successfully" };
+  }
+
+  @Get("test")
+  @UseGuards(JwtAuthGuard)
+  async testing(@Request() req) {
+    console.log(`failed`);
   }
 }

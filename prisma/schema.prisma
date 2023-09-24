@@ -23,6 +23,11 @@ model User {
   isTwoFactorEnabled Boolean @default(false)
 }
 
+model Token {
+  id    String @id @default(cuid())
+  value String @unique
+}
+
 model OAuth {
   id          String @id @default(cuid())
   accessToken String
