@@ -83,7 +83,7 @@ export class AuthController {
   @Post("logout")
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
-    const token = req.headers.authrozation.split("")[0];
+    const token = req.headers.authorization.split(" ")[1];
     this.tokenService.revokeToken(token);
     const expiredToken = verify(token, process.env.JWT_SECRET) as {
       [key: string]: any;

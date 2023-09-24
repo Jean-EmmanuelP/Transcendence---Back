@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from "@nestjs/common";
-import { PrismaService } from "src/prisma/services/prisma/prisma.service";
+import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
 import { UserModel } from "src/user/models/user.model";
 import { JwtService } from "@nestjs/jwt";
@@ -96,7 +96,7 @@ export class UserService {
         throw new UnauthorizedException("Invalid two factor code");
       }
     }
-    
+
     const jwtPayload = { userId: user.id, email: user.email };
     const token = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
