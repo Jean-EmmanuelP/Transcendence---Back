@@ -27,9 +27,8 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
         'Authorization': `Bearer ${accessToken}`
       }
     })
-
-    console.log(apiResponse.data.first_name);
-    console.log(accessToken);
+    // console.log(apiResponse.data.first_name);
+    // console.log(accessToken);
     return {
       apiData: {
         ...apiResponse.data,
