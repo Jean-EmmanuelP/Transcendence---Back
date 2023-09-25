@@ -82,4 +82,8 @@ export class AuthService {
   async verifyTwoFactorToken(userId: string, token: string) {
     return this.userService.verifyTwoFactorToken(userId, token);
   }
+
+  async disable2FA(userId: string) {
+    return this.userService.disable2FA(userId);
+  }
 }

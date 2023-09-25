@@ -160,4 +160,15 @@ export class UserService {
     });
     return verified;
   }
+
+  async disable2FA(userId: string) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: { twoFactorSecret: null, isTwoFactorEnabled: false },
+    });
+    if (user) {
+      return true;
+    }
+    return false;
+  }
 }

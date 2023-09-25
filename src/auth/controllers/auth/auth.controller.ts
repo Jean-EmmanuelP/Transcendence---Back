@@ -123,18 +123,30 @@ export class AuthController {
   @Post("enable-two-factor")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: "put in the authorize the token you received from login or register endpoint",
+    summary:
+      "put in the authorize the token you received from login or register endpoint",
   })
   @ApiResponse({
     status: 200,
     description:
       "return a qrcode link, you will need to copy it and paste it as a variable to the image in the front",
   })
-  @ApiBearerAuth('Authorization')
+  @ApiBearerAuth("Authorization")
   async enableTwoFactor(@Request() req) {
     const userId = req.user.userId;
     const qrCodeUrl = await this.authService.generateTwoFactorSecret(userId);
     return { qrCodeUrl };
+  }
+
+  @Post("disable-two-factor")
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: "disable the 2fa" })
+  @ApiResponse({ status: 200, description: "return a message of success" })
+  @ApiBearerAuth("Authorization")
+  async disableTwoFactor(@Request() req) {
+    const userId = req.user.userId;
+    await this.authService.disable2FA(userId);
+    return { message: "Two factor authentication has been disabled" };
   }
 
   @Post("verify-two-factor")
@@ -142,13 +154,22 @@ export class AuthController {
     summary:
       "after scanning the qrcode, we check if the password is good with the encrypted secret saved in the db",
   })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        code: { type: "string" },
+        userId: { type: "string" },
+      },
+      required: ["code", "userId"],
+    },
+  })
   @ApiResponse({
     status: 200,
     description: "return a boolean : true or false",
   })
   async verifyTwoFactor(@Request() req, @Body() body) {
-    const { code } = body;
-    const userId = req.user.userId;
+    const { code, userId } = body;
     const isVerified = await this.authService.verifyTwoFactorToken(
       userId,
       code
