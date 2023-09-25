@@ -17,7 +17,13 @@ import { JwtAuthGuard } from "src/guards/jwt.guard";
 import { TokenService } from "src/token/services/token/token.service";
 import { JwtService } from "@nestjs/jwt";
 import { sign, verify } from "jsonwebtoken";
-import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+  ApiHeader,
+} from "@nestjs/swagger";
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -71,6 +77,17 @@ export class AuthController {
   @ApiOperation({
     summary: "Endpoint to register the user",
   })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        username: { type: "string" },
+        password: { type: "string" },
+        email: { type: "string", format: "email" },
+      },
+      required: ["username", "password", "email"],
+    },
+  })
   @ApiResponse({
     status: 200,
     description:
@@ -82,6 +99,16 @@ export class AuthController {
 
   @Post("login")
   @ApiOperation({ summary: "Used to login" })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        password: { type: "string" },
+        email: { type: "string", format: "email" },
+      },
+      required: ["password", "email"],
+    },
+  })
   @ApiResponse({
     status: 200,
     description:
@@ -92,9 +119,13 @@ export class AuthController {
   }
 
   @Post("enable-two-factor")
+  @ApiHeader({
+    name: "Authorization",
+    description: "Bearer Token",
+    required: true,
+  })
   @ApiOperation({
-    summary:
-      "it is used to generate the qrcode so the two-factor is enabled",
+    summary: "it is used to generate the qrcode so the two-factor is enabled",
   })
   @ApiResponse({
     status: 200,
@@ -117,7 +148,6 @@ export class AuthController {
     status: 200,
     description: "return a boolean : true or false",
   })
-  @UseGuards(JwtAuthGuard)
   async verifyTwoFactor(@Request() req, @Body() body) {
     const { code } = body;
     const userId = req.user.userId;
@@ -133,10 +163,10 @@ export class AuthController {
 
   @Post("logout")
   @ApiOperation({
-    summary: "the logout button will blacklist the current token"
+    summary: "the logout button will blacklist the current token",
   })
   @ApiResponse({
-    description: "will return an expired token + a message"
+    description: "will return an expired token + a message",
   })
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
