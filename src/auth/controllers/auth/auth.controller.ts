@@ -100,7 +100,7 @@ export class AuthController {
   }
 
   @Post("loginCredentials")
-  @ApiOperation({ summary: "Used to login" })
+  @ApiOperation({ summary: "Used to login (can be first step if the user activated the 2FA)" })
   @ApiBody({
     schema: {
       type: "object",
