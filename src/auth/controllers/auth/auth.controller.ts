@@ -99,7 +99,7 @@ export class AuthController {
     return this.authService.register(registerDto);
   }
 
-  @Post("login")
+  @Post("loginCredentials")
   @ApiOperation({ summary: "Used to login" })
   @ApiBody({
     schema: {
@@ -118,6 +118,30 @@ export class AuthController {
   })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.validateUserCredentials(loginDto);
+  }
+
+  @Post("loginVia2FA")
+  @ApiOperation({
+    summary:
+      "this endpoint is responsible of checking the 2FA TOTP (the code from google authenticator)",
+  })
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        token: { type: "string" },
+        twofactorcode: { type: "string" },
+      },
+      required: ["twofactorcode", "token"],
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: "return the access token",
+  })
+  async verifyTwoFactor(@Request() req, @Body() body) {
+    const { twofactorcode, token } = body;
+    return this.authService.validateTwoFactorCode(token, twofactorcode);
   }
 
   @Post("enable-two-factor")
@@ -147,37 +171,6 @@ export class AuthController {
     const userId = req.user.userId;
     await this.authService.disable2FA(userId);
     return { message: "Two factor authentication has been disabled" };
-  }
-
-  @Post("verify-two-factor")
-  @ApiOperation({
-    summary:
-      "when u are in the 2fa page, after the user scan the qrcode and put the password you must check via this function",
-  })
-  @ApiBody({
-    schema: {
-      type: "object",
-      properties: {
-        code: { type: "string" },
-        userId: { type: "string" },
-      },
-      required: ["code", "userId"],
-    },
-  })
-  @ApiResponse({
-    status: 200,
-    description: "return a boolean : true or false",
-  })
-  async verifyTwoFactor(@Request() req, @Body() body) {
-    const { code, userId } = body;
-    const isVerified = await this.authService.verifyTwoFactorToken(
-      userId,
-      code
-    );
-    if (!isVerified) {
-      throw new UnauthorizedException("Invalid two factor code");
-    }
-    return { message: "Two factor authentication has been enabled" };
   }
 
   @Post("logout")
