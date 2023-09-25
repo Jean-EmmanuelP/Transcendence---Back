@@ -152,7 +152,7 @@ export class AuthController {
   @Post("verify-two-factor")
   @ApiOperation({
     summary:
-      "after scanning the qrcode, we check if the password is good with the encrypted secret saved in the db",
+      "when u are in the 2fa page, after the user scan the qrcode and put the password you must check via this function",
   })
   @ApiBody({
     schema: {
