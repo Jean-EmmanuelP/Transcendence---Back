@@ -132,6 +132,12 @@ export class AuthController {
   }
 
   @Post("logout")
+  @ApiOperation({
+    summary: "the logout button will blacklist the current token"
+  })
+  @ApiResponse({
+    description: "will return an expired token + a message"
+  })
   @UseGuards(JwtAuthGuard)
   async logout(@Request() req) {
     const token = req.headers.authorization.split(" ")[1];
@@ -144,11 +150,5 @@ export class AuthController {
 
     const newToken = sign(expiredToken, process.env.JWT_SECRET);
     return { token: newToken, message: "Logged out successfully" };
-  }
-
-  @Get("test")
-  @UseGuards(JwtAuthGuard)
-  async testing(@Request() req) {
-    console.log(`failed`);
   }
 }
