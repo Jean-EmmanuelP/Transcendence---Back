@@ -150,7 +150,7 @@ export class UserService {
     const secret = speakeasy.generateSecret();
     await this.prisma.user.update({
       where: { id: userId },
-      data: { twoFactorSecret: secret.base32 },
+      data: { twoFactorSecret: secret.base32, isTwoFactorEnabled: true },
     });
     return QRCode.toDataURL(secret.otpauth_url);
   }
@@ -162,12 +162,6 @@ export class UserService {
       encoding: "base32",
       token,
     });
-    if (verified) {
-      await this.prisma.user.update({
-        where: { id: userId },
-        data: { isTwoFactorEnabled: true },
-      });
-    }
     return verified;
   }
 }

@@ -33,6 +33,16 @@ async function bootstrap() {
   );
 
   console.log(
+    "\x1b[33m%s\x1b[0m",
+    "============================================"
+  );
+  console.log("\x1b[33m%s\x1b[0m", "Swagger Documentation : http://localhost:3000/api");
+  console.log(
+    "\x1b[33m%s\x1b[0m",
+    "============================================"
+  );
+
+  console.log(
     "\x1b[31m%s\x1b[0m",
     "============================================"
   );

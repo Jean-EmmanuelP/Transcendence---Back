@@ -17,7 +17,9 @@ import { JwtAuthGuard } from "src/guards/jwt.guard";
 import { TokenService } from "src/token/services/token/token.service";
 import { JwtService } from "@nestjs/jwt";
 import { sign, verify } from "jsonwebtoken";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 
+@ApiTags("Authentication")
 @Controller("auth")
 export class AuthController {
   constructor(
@@ -26,20 +28,38 @@ export class AuthController {
   ) {}
 
   @Get("google")
+  @ApiOperation({ summary: "Get the google authentication" })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Will redirect you to the endpoint google-redirect then send you back a message, user information and an accessToken which is the jwtToken of the user",
+  })
   @UseGuards(GoogleOAuthGuard)
   async googleAuth(@Request() req) {}
 
   @Get("google-redirect")
+  @ApiOperation({
+    summary: "linked to the /google endpoint, so you dont need to use it",
+  })
   @UseGuards(GoogleOAuthGuard)
   googleAuthRedirect(@Request() req) {
     return this.authService.OauthLogin(req, "google");
   }
 
   @Get("42")
+  @ApiOperation({ summary: "Get the 42 authentication " })
+  @ApiResponse({
+    status: 200,
+    description:
+      "Will redirect you to the endpoint 42-redirect then send you back a message, user information and an accessToken which is the jwtToken of the user",
+  })
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuth(@Request() req) {}
 
   @Get("42-redirect")
+  @ApiOperation({
+    summary: "linked to the /google endpoint, so you dont need to use it",
+  })
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
     const user = await this.authService.OauthLogin(req, "42");
@@ -48,16 +68,39 @@ export class AuthController {
   }
 
   @Post("register")
+  @ApiOperation({
+    summary: "Endpoint to register the user",
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      "will return a json with message, and user information (name, avatar and email) and an accessToken",
+  })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
   @Post("login")
+  @ApiOperation({ summary: "Used to login" })
+  @ApiResponse({
+    status: 200,
+    description:
+      "return json with user info (name, avatar, email) and accessToken",
+  })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.validateUser(loginDto);
   }
 
-  @Post("generate-qrcode")
+  @Post("enable-two-factor")
+  @ApiOperation({
+    summary:
+      "it is used to generate the qrcode so the two-factor is enabled",
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      "return a qrcode link, you will need to copy it and paste it as a variable to the image in the front",
+  })
   @UseGuards(JwtAuthGuard)
   async enableTwoFactor(@Request() req) {
     const userId = req.user.userId;
@@ -66,6 +109,14 @@ export class AuthController {
   }
 
   @Post("verify-two-factor")
+  @ApiOperation({
+    summary:
+      "after scanning the qrcode, we check if the password is good with the encrypted secret saved in the db",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "return a boolean : true or false",
+  })
   @UseGuards(JwtAuthGuard)
   async verifyTwoFactor(@Request() req, @Body() body) {
     const { code } = body;
