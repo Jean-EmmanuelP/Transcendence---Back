@@ -139,37 +139,6 @@ export class UserService {
     }
   }
 
-  // async validateUser(loginDto: LoginDto): Promise<AuthResponse> {
-  //   const { email, password: plainPassword, twoFactorCode } = loginDto;
-  //   const user = await this.findByEmail(email);
-  //   if (!user || !(await bcrypt.compare(plainPassword, user.password))) {
-  //     throw new UnauthorizedException("Invalid input");
-  //   }
-
-  //   if (user.isTwoFactorEnabled) {
-  //     if (
-  //       !twoFactorCode ||
-  //       !(await this.verifyTwoFactorToken(user.id, twoFactorCode))
-  //     ) {
-  //       throw new UnauthorizedException("Invalid two factor code");
-  //     }
-  //   }
-
-  //   const jwtPayload = { userId: user.id, email: user.email };
-  //   const token = this.jwtService.sign(jwtPayload, {
-  //     secret: process.env.JWT_SECRET,
-  //   });
-  //   return {
-  //     message: "User authentication is validated!",
-  //     user: {
-  //       name: user.name,
-  //       avatar: user.avatar,
-  //       email: user.email,
-  //     },
-  //     accessToken: token,
-  //   };
-  // }
-
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 12);
     const { email, firstName, lastName } = registerDto;
