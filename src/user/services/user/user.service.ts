@@ -13,6 +13,7 @@ import * as QRCode from "qrcode";
 import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
 import { AuthResponse } from "src/user/interfaces/auth-response";
+import { TempAuthResponse } from "src/user/interfaces/temp-response";
 
 @Injectable()
 export class UserService {
@@ -77,36 +78,94 @@ export class UserService {
     return user;
   }
 
-  async validateUser(loginDto: LoginDto): Promise<AuthResponse> {
-    const { email, password: plainPassword, twoFactorCode } = loginDto;
+  async validateUserCredentials(loginDto: LoginDto): Promise<TempAuthResponse> {
+    const { email, password: plainPassword } = loginDto;
     const user = await this.findByEmail(email);
     if (!user || !(await bcrypt.compare(plainPassword, user.password))) {
       throw new UnauthorizedException("Invalid input");
     }
 
+    const jwtPayloadTemp = {userId: user.id, isTemporary: true};
+    const tempToken = this.jwtService.sign(jwtPayloadTemp, {
+      secret: process.env.JWT_SECRET,
+    })
+
+    const jwtPayload = { userId: user.id, email: user.email };
+    const token = this.jwtService.sign(jwtPayload, {
+      secret: process.env.JWT_SECRET,
+    });
+
     if (user.isTwoFactorEnabled) {
-      if (
-        !twoFactorCode ||
-        !(await this.verifyTwoFactorToken(user.id, twoFactorCode))
-      ) {
-        throw new UnauthorizedException("Invalid two factor code");
-      }
+      return {
+        tempToken,
+      };
+    }
+    return {
+      accessToken: token
+    }
+  }
+
+  async validateTwoFactorCode(tempToken: string, twoFactorCode: string): Promise<AuthResponse> {
+    const { userId, isTemporary } = this.jwtService.verify(tempToken, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    if (!isTemporary) {
+      throw new UnauthorizedException("Invalid token");
+    }
+
+    const user = await this.prisma.user.findUnique({where: {id: userId }});
+    if (!user || !user.isTwoFactorEnabled || !(await this.verifyTwoFactorToken(userId, twoFactorCode))) {
+      throw new UnauthorizedException("Invalid two factor code");
     }
 
     const jwtPayload = { userId: user.id, email: user.email };
     const token = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
+
+    const { name, avatar, email } = user;
     return {
       message: "User authentication is validated!",
       user: {
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email,
+        name: name,
+        avatar: avatar,
+        email: email
       },
       accessToken: token,
-    };
+    }
   }
+
+  // async validateUser(loginDto: LoginDto): Promise<AuthResponse> {
+  //   const { email, password: plainPassword, twoFactorCode } = loginDto;
+  //   const user = await this.findByEmail(email);
+  //   if (!user || !(await bcrypt.compare(plainPassword, user.password))) {
+  //     throw new UnauthorizedException("Invalid input");
+  //   }
+
+  //   if (user.isTwoFactorEnabled) {
+  //     if (
+  //       !twoFactorCode ||
+  //       !(await this.verifyTwoFactorToken(user.id, twoFactorCode))
+  //     ) {
+  //       throw new UnauthorizedException("Invalid two factor code");
+  //     }
+  //   }
+
+  //   const jwtPayload = { userId: user.id, email: user.email };
+  //   const token = this.jwtService.sign(jwtPayload, {
+  //     secret: process.env.JWT_SECRET,
+  //   });
+  //   return {
+  //     message: "User authentication is validated!",
+  //     user: {
+  //       name: user.name,
+  //       avatar: user.avatar,
+  //       email: user.email,
+  //     },
+  //     accessToken: token,
+  //   };
+  // }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     const hashedPassword = await bcrypt.hash(registerDto.password, 12);
