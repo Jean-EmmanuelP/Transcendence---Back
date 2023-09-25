@@ -80,12 +80,8 @@ export class UserService {
   async validateUser(loginDto: LoginDto): Promise<AuthResponse> {
     const { email, password: plainPassword, twoFactorCode } = loginDto;
     const user = await this.findByEmail(email);
-    if (!user) {
-      throw new UnauthorizedException("User does not exist");
-    }
-
-    if (!(await bcrypt.compare(plainPassword, user.password))) {
-      throw new UnauthorizedException("Invalid password");
+    if (!user || !(await bcrypt.compare(plainPassword, user.password))) {
+      throw new UnauthorizedException("Invalid input");
     }
 
     if (user.isTwoFactorEnabled) {
