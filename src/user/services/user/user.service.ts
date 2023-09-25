@@ -91,17 +91,20 @@ export class UserService {
     })
 
     const jwtPayload = { userId: user.id, email: user.email };
-    const token = this.jwtService.sign(jwtPayload, {
+    const accessToken = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
 
     if (user.isTwoFactorEnabled) {
       return {
-        tempToken,
+        token: tempToken,
+        twoFactorEnable: true
       };
     }
     return {
-      accessToken: token
+      token: accessToken,
+      twoFactorEnable: false
+
     }
   }
 

@@ -114,10 +114,10 @@ export class AuthController {
   @ApiResponse({
     status: 200,
     description:
-      "return json with user info (name, avatar, email) and accessToken",
+      "return token and twoFactorEnable which is a boolean",
   })
   async login(@Body() loginDto: LoginDto) {
-    return this.authService.validateUser(loginDto);
+    return this.authService.validateUserCredentials(loginDto);
   }
 
   @Post("enable-two-factor")

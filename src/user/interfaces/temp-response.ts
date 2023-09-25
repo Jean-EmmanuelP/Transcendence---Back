@@ -1,4 +1,4 @@
 export interface TempAuthResponse {
-    tempToken?: string;
-    accessToken?: string;
+    token: string;
+    twoFactorEnable: boolean;    
 }
