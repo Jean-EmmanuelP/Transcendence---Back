@@ -1,5 +1,4 @@
 import { ObjectType, Field, Int } from "@nestjs/graphql";
-import { OAuth } from "@prisma/client";
 import { IsEmail } from "class-validator";
 
 @ObjectType()

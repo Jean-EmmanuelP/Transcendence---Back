@@ -123,19 +123,13 @@ export class AuthController {
   @Post("enable-two-factor")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary: "it is used to generate the qrcode so the two-factor is enabled, Dont try it from here, instead try it from insomnia or postman (problem with bearer token)",
+    summary: "put in the authorize the token you received from login or register endpoint",
   })
   @ApiResponse({
     status: 200,
     description:
       "return a qrcode link, you will need to copy it and paste it as a variable to the image in the front",
   })
-  // fix this problem
-  // @ApiHeader({
-  //   name: 'authorization',
-  //   description: 'Bearer YOUR_TOKEN_HERE',
-  //   required: true,
-  // })
   @ApiBearerAuth('Authorization')
   async enableTwoFactor(@Request() req) {
     const userId = req.user.userId;
