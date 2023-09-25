@@ -19,7 +19,7 @@ import jwtConfig from "./auth/strategies/jwt/jwt.config";
       autoSchemaFile: "schema.gql",
       installSubscriptionHandlers: true,
     }),
-    UserModule,
+    U serModule,
     PrismaModule,
     AuthModule,
   ],
