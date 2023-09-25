@@ -121,8 +121,8 @@ export class AuthController {
 
   @Post("enable-two-factor")
   @ApiHeader({
-    name: "Authorization",
-    description: "Token",
+    name: 'Authorization',
+    description: 'Bearer token',
     required: true,
   })
   @ApiOperation({
