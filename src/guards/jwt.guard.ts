@@ -1,15 +1,31 @@
-import { ExecutionContext, Injectable } from "@nestjs/common";
+import { ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { GqlExecutionContext } from "@nestjs/graphql";
+import { JwtService } from "@nestjs/jwt";
 
 @Injectable()
-export class JwtAuthGuard extends AuthGuard("jwt") {
-  getRequest(context: ExecutionContext) {
-    console.log("Getting request from context");
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private readonly jwtService: JwtService) {
+    super();
+  }
+
+  canActivate(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
-    console.log(`-------------------------------------`);
-    console.log(`ctx.getContext().req`, ctx.getContext().req);
-    console.log(`-------------------------------------`);
+    const request = ctx.getContext().req;
+    const token = request.headers.authorization?.split(' ')[1];
+    const { isTemporary } = this.jwtService.verify(token, {
+      secret: process.env.JWT_SECRET,
+    });
+
+    if (isTemporary && request.path !== '/auth/validate-two-factor') {
+      throw new UnauthorizedException('Invalid token');
+    }
+
+    return super.canActivate(context);
+  }
+
+  getRequest(context: ExecutionContext) {
+    const ctx = GqlExecutionContext.create(context);
     return ctx.getContext().req;
   }
 }

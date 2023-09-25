@@ -5,7 +5,6 @@ import {
   Post,
   Request,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from "@nestjs/common";
 import { AuthService } from "src/auth/services/auth/auth.service";
@@ -15,14 +14,12 @@ import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
 import { JwtAuthGuard } from "src/guards/jwt.guard";
 import { TokenService } from "src/token/services/token/token.service";
-import { JwtService } from "@nestjs/jwt";
 import { sign, verify } from "jsonwebtoken";
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiBody,
-  ApiHeader,
   ApiBearerAuth,
 } from "@nestjs/swagger";
 
@@ -181,6 +178,7 @@ export class AuthController {
     description: "will return an expired token + a message",
   })
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth("Authorization")
   async logout(@Request() req) {
     const token = req.headers.authorization.split(" ")[1];
     console.log(`This is the actual token you are revoking:`, token);
