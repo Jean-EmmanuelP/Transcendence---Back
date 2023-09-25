@@ -122,8 +122,9 @@ export class AuthController {
   @Post("enable-two-factor")
   @ApiHeader({
     name: 'Authorization',
-    description: 'Bearer',
+    description: 'Bearer token',
     required: true,
+    example: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbG15b2luODAwMDAwOXl1MDlid2Qwa2p1IiwiZW1haWwiOiJiZXJuYXJkQHRhcGllLmNvbSIsImlhdCI6MTY5NTYzNzM1NH0.EqozSPYc_R9bQb_JGgqY49FTy-E9wSek03RuobsQJ78'
   })
   @ApiOperation({
     summary: "it is used to generate the qrcode so the two-factor is enabled",
