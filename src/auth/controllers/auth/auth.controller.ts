@@ -81,15 +81,16 @@ export class AuthController {
     schema: {
       type: "object",
       properties: {
-        username: { type: "string" },
         password: { type: "string" },
+        firstName: { type: "string" },
+        lastName: { type: "string" },
         email: { type: "string", format: "email" },
       },
-      required: ["username", "password", "email"],
+      required: ["password", "email", "firstName", "lastName"],
     },
   })
   @ApiResponse({
-    status: 200,
+    status: 201,
     description:
       "will return a json with message, and user information (name, avatar and email) and an accessToken",
   })

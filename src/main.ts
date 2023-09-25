@@ -5,7 +5,7 @@ import * as passport from "passport";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: true });
 
   const config = new DocumentBuilder()
     .setTitle("Transcendence API for Authentication")
@@ -36,7 +36,10 @@ async function bootstrap() {
     "\x1b[33m%s\x1b[0m",
     "============================================"
   );
-  console.log("\x1b[33m%s\x1b[0m", "Swagger Documentation : http://localhost:3000/api");
+  console.log(
+    "\x1b[33m%s\x1b[0m",
+    "Swagger Documentation : http://localhost:3000/api"
+  );
   console.log(
     "\x1b[33m%s\x1b[0m",
     "============================================"
