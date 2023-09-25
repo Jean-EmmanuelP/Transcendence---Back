@@ -124,7 +124,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
     summary:
-      "put in the authorize the token you received from login or register endpoint",
+      "activate the 2FA + return qrcode",
   })
   @ApiResponse({
     status: 200,
