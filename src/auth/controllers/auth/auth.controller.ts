@@ -67,7 +67,6 @@ export class AuthController {
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
     const user = await this.authService.OauthLogin(req, "42");
-    //pq res ca fonctionne et sans res ca fonctionne pas
     return res.send(user);
   }
 
