@@ -7,6 +7,7 @@ type UserModel {
   email: String!
   password: String!
   name: String!
+  pseudo: String!
   avatar: String!
   twoFactorSecret: String!
   isTwoFactorEnabled: Boolean!
@@ -14,15 +15,12 @@ type UserModel {
 
 type Query {
   users: [UserModel!]!
+  user: UserModel!
 }
 
 type Mutation {
-  createUser(data: CreateUserDto!): UserModel!
+  uploadAvatar(image: Upload!): UserModel!
 }
 
-input CreateUserDto {
-  name: String!
-  email: String
-  password: String
-  avatar: String
-}
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload

@@ -14,6 +14,7 @@ import { RegisterDto } from "src/auth/dto/register.input";
 import { LoginDto } from "src/auth/dto/login.input";
 import { AuthResponse } from "src/user/interfaces/auth-response";
 import { TempAuthResponse } from "src/user/interfaces/temp-response";
+import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 
 @Injectable()
 export class UserService {
@@ -29,6 +30,12 @@ export class UserService {
   async findByEmail(email: string): Promise<UserModel | null> {
     return this.prisma.user.findUnique({
       where: { email: email },
+    });
+  }
+
+  async findById(userId: string): Promise<UserModel | null> {
+    return this.prisma.user.findUnique({
+      where: { id: userId },
     });
   }
 
@@ -57,6 +64,7 @@ export class UserService {
           email: email,
           name: `${firstName} ${lastName}`,
           avatar: avatar,
+          pseudo: `${firstName} ${lastName}`,
           oauth: {
             create: {
               accessToken: accessToken,
@@ -148,6 +156,7 @@ export class UserService {
         data: {
           email,
           name: `${firstName} ${lastName}`,
+          pseudo: `${firstName} ${lastName}`,
           password: hashedPassword,
         },
       });
@@ -201,5 +210,27 @@ export class UserService {
       return true;
     }
     return false;
+  }
+
+  async updateAvatar(userId: string, filename: string): Promise<UploadImageResponse | Error > {
+    const user = await this.prisma.user.update({
+      where: {id: userId},
+      data: {avatar: filename}
+    })
+    const { avatar, name } = user
+    if (user) {
+      return {
+        message: 'Avatar updated successfully',
+        user: {
+          avatar,
+          name
+        }
+      }
+    }
+    throw new Error('User not found');
+  }
+
+  async findOne(userId: string) : Promise<UserModel> {
+    return this.prisma.user.findUnique({ where: { id: userId } });
   }
 }
