@@ -16,6 +16,9 @@ export class UserModel {
   name: string;
 
   @Field()
+  pseudo: string;
+
+  @Field()
   avatar?: string;
 
   @Field()
