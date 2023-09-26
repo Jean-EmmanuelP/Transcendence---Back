@@ -19,11 +19,6 @@ export class UserResolver {
     return this.userService.findAll();
   }
 
-  @Mutation(() => UserModel)
-  async createUser(@Args("data") data: CreateUserDto): Promise<UserModel> {
-    return this.userService.create(data);
-  }
-
   // upload an avatar
   @UseGuards(FortyTwoGuard)
   @Mutation(() => UserModel)
