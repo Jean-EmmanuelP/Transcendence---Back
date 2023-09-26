@@ -259,4 +259,28 @@ export class UserService {
     return updatedFriendship.count > 0;
   }
 
+  async rejectFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    const deletedFriendship = await this.prisma.friendship.deleteMany({
+      where: {
+        senderId,
+        receiverId,
+        status: 'PENDING'
+      }
+    });
+
+    return deletedFriendship.count > 0;
+  }
+
+  async cancelSentFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    const deletedFriendship = await this.prisma.friendship.deleteMany({
+      where: {
+        senderId,
+        receiverId,
+        status: "PENDING"
+      }
+    });
+
+    return deletedFriendship.count > 0;
+  }
+
 }
