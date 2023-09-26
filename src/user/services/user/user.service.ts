@@ -229,4 +229,8 @@ export class UserService {
     }
     throw new Error('User not found');
   }
+
+  async findOne(userId: string) : Promise<UserModel> {
+    return this.prisma.user.findUnique({ where: { id: userId } });
+  }
 }

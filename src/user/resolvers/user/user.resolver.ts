@@ -43,8 +43,20 @@ export class UserResolver {
       })
     })
   }
+
   // should be able to check its own information via its id (via jwt token decrypted)
-  // should be able to enable / disable the two-factor-authentication
+  @Query(() => UserModel)
+  async user(@Request() req): Promise<UserModel> {
+    const userId = req.user.userId
+    return this.userService.findOne(req.user.userId)
+  }
+
+  // should be able to enable / disable the two-factor-authentication [REST API]
+  // must go to the auth.controller -> enable-two-factor
+  // must go to the auth.controller -> disable-two-factor
+
   // add other users as friends ->  see their current status (online, offline, in a game)
+
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
+  
 }

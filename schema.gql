@@ -15,6 +15,7 @@ type UserModel {
 
 type Query {
   users: [UserModel!]!
+  user: UserModel!
 }
 
 type Mutation {
