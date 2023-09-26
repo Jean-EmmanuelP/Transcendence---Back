@@ -3,6 +3,7 @@ import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import * as passport from "passport";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import { graphqlUploadExpress } from "graphql-upload-ts";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -31,6 +32,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(new ValidationPipe());
   app.use(passport.initialize());
+  app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
 
   await app.listen(3000);
   console.log(
