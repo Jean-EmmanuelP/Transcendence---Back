@@ -21,6 +21,7 @@ export class UserResolver {
   }
 
   // upload an avatar
+  // you must find how to test it
   @Mutation(() => UserModel)
   async uploadAvatar(@Request() req, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse | Error> {
     const { createReadStream, filename } = await image;
@@ -42,6 +43,7 @@ export class UserResolver {
       })
     })
   }
+  // should be able to check its own information via its id (via jwt token decrypted)
   // should be able to enable / disable the two-factor-authentication
   // add other users as friends ->  see their current status (online, offline, in a game)
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
