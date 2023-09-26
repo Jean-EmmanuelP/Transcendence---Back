@@ -57,6 +57,7 @@ export class UserService {
           email: email,
           name: `${firstName} ${lastName}`,
           avatar: avatar,
+          pseudo: `${firstName} ${lastName}`,
           oauth: {
             create: {
               accessToken: accessToken,
@@ -148,6 +149,7 @@ export class UserService {
         data: {
           email,
           name: `${firstName} ${lastName}`,
+          pseudo: `${firstName} ${lastName}`,
           password: hashedPassword,
         },
       });
