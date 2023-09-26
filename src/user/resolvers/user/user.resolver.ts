@@ -10,6 +10,7 @@ import { FortyTwoGuard } from "src/guards/forty-two.guard";
 import { FileUpload } from "graphql-upload-ts";
 import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 
+// to access the resolver, you need to have a valid jwt so we will pass a middleware or a guard for everything or even do the middleware and only exclude auth from it
 @Resolver((of) => UserModel)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
@@ -20,7 +21,6 @@ export class UserResolver {
   }
 
   // upload an avatar
-  @UseGuards(FortyTwoGuard)
   @Mutation(() => UserModel)
   async uploadAvatar(@Request() req, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse | Error> {
     const { createReadStream, filename } = await image;
