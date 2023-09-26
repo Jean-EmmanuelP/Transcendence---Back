@@ -12,6 +12,12 @@ datasource db {
 
 // define your models
 
+enum Status {
+  ONLINE
+  OFFLINE
+  IN_GAME
+}
+
 model User {
   id                 String  @id @default(cuid())
   email              String? @unique
@@ -22,20 +28,9 @@ model User {
   oauth              OAuth?
   twoFactorSecret    String?
   isTwoFactorEnabled Boolean @default(false)
-  // friend
-  // games []
-}
-
-model Game {
-  userId
-  win
-  loss
-  totalscore
-}
-
-// on peut faire cette logique dans le front ?
-model Chat {
-
+  friends String[]
+  sentRequests String[]
+  receivedRequests String[]
 }
 
 model Token {
@@ -51,10 +46,3 @@ model OAuth {
   user        User   @relation(fields: [userId], references: [id])
   userId      String @unique
 }
-
-/*
-  donc je dois faire un model user
-  ensuite je dois me poser la question de comment faire le chat (est-ce que c'est totalement dans le front ou est-ce que c'est dans le back dans la db ?)
-  goal faire le folder user
-  puis faire le model chat si necessaire
-*/

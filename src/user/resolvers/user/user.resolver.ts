@@ -6,7 +6,6 @@ import { GraphQLUpload } from 'graphql-upload-ts';
 import { createWriteStream } from "fs";
 import { join } from "path";
 import { HttpException, HttpStatus, Req, Request, UseGuards } from "@nestjs/common";
-import { FortyTwoGuard } from "src/guards/forty-two.guard";
 import { FileUpload } from "graphql-upload-ts";
 import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 
@@ -48,7 +47,7 @@ export class UserResolver {
   @Query(() => UserModel)
   async user(@Request() req): Promise<UserModel> {
     const userId = req.user.userId
-    return this.userService.findOne(req.user.userId)
+    return this.userService.findOne(userId)
   }
 
   // should be able to enable / disable the two-factor-authentication [REST API]
@@ -56,7 +55,7 @@ export class UserResolver {
   // must go to the auth.controller -> disable-two-factor
 
   // add other users as friends ->  see their current status (online, offline, in a game)
-
+  
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
   
 }
