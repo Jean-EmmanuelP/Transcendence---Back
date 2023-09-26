@@ -2,8 +2,7 @@ import { Resolver, Query, Args, Mutation } from "@nestjs/graphql";
 import { UserService } from "./../../services/user/user.service";
 import { UserModel } from "src/user/models/user.model";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
-import { GraphQLUpload } from 'graphql-upload';
-import { FileInput } from "src/user/input_type/file-upload";
+import { GraphQLUpload } from 'graphql-upload-ts';
 import { createWriteStream } from "fs";
 import { join } from "path";
 import { HttpException, HttpStatus, Req, Request, UseGuards } from "@nestjs/common";
@@ -28,7 +27,7 @@ export class UserResolver {
   // upload an avatar
   @UseGuards(FortyTwoGuard)
   @Mutation(() => UserModel)
-  async uploadAvatar(@Request() req, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse> {
+  async uploadAvatar(@Request() req, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse | Error> {
     const { createReadStream, filename } = await image;
     const userId = req.user.userId;
 
