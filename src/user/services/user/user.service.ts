@@ -233,4 +233,14 @@ export class UserService {
   async findOne(userId: string) : Promise<UserModel> {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }
+
+  async sendFriendRequest(senderId: string, receiverId: string) {
+    return await this.prisma.friendship.create({
+      data: {
+        senderId: senderId,
+        receiverId: receiverId,
+        status: "PENDING",
+      }
+    })
+  }
 }

@@ -55,7 +55,29 @@ export class UserResolver {
   // must go to the auth.controller -> disable-two-factor
 
   // add other users as friends ->  see their current status (online, offline, in a game)
-  
+  @Mutation(() => Boolean)
+  async sendFriendRequest(@Request() req, @Args('receiverId') receiverId: string): Promise<boolean> {
+    const senderId = req.user.userId;
+    return this.userService.sendFriendRequest(senderId, receiverId);
+  }
+
+  @Mutation(() => Boolean)
+  async acceptFriendRequest(@Request() req, @Args('senderId') senderId: string): Promise<boolean> {
+    const receiverId = req.user.userId;
+    return this.userService.acceptFriendRequest(senderId, receiverId);
+  }
+
+  @Mutation(() => Boolean)
+  async rejectFriendRequest(@Request() req, @Args('senderId') senderId: string): Promise<boolean> {
+    const receiverId = req.user.userId;
+    return this.userService.rejectFriendRequest(senderId, receiverId);
+  }
+
+  @Mutation(() => Boolean)
+  async cancelSentFriendRequest(@Request() req, @Args('receiverId') receiverId: string): Promise<boolean> {
+    const senderId = req.user.userId;
+    return this.userService.cancelSentFriendRequest(senderId, receiverId);
+  }
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
   
 }

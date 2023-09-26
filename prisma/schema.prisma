@@ -18,6 +18,12 @@ enum Status {
   IN_GAME
 }
 
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id                 String  @id @default(cuid())
   email              String? @unique
@@ -43,11 +49,6 @@ model Friendship {
   receiver User @relation("FriendshipReceivers", fields: [receiverId], references: [id])
 }
 
-enum FriendshipStatus {
-  PENDING
-  ACCEPTED
-  REJECTED
-}
 
 model Token {
   id    String @id @default(cuid())
