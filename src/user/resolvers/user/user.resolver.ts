@@ -16,4 +16,8 @@ export class UserResolver {
   async createUser(@Args("data") data: CreateUserDto): Promise<UserModel> {
     return this.userService.create(data);
   }
+
+  // query with a particular id
+  email, name, friends
+  //
 }
