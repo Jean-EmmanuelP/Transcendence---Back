@@ -28,9 +28,25 @@ model User {
   oauth              OAuth?
   twoFactorSecret    String?
   isTwoFactorEnabled Boolean @default(false)
-  friends String[]
-  sentRequests String[]
-  receivedRequests String[]
+  sentRequests  Friendship[] @relation("FriendshipSenders")
+  receivedRequests Friendship[] @relation("FriendshipReceivers")
+}
+
+model Friendship {
+  id String @id @default(cuid())
+  senderId String
+  receiverId String
+  status FriendshipStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  sender User @relation("FriendshipSenders", fields: [senderId], references: [id])
+  receiver User @relation("FriendshipReceivers", fields: [receiverId], references: [id])
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }
 
 model Token {
