@@ -1,5 +1,4 @@
 import { ObjectType, Field, Int } from "@nestjs/graphql";
-import { IsEmail } from "class-validator";
 
 @ObjectType()
 export class UserModel {
@@ -18,7 +17,7 @@ export class UserModel {
   @Field()
   pseudo: string;
 
-  @Field()
+  @Field(() => String)
   avatar?: string;
 
   @Field()
