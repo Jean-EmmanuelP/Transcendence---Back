@@ -237,10 +237,26 @@ export class UserService {
   async sendFriendRequest(senderId: string, receiverId: string) {
     return await this.prisma.friendship.create({
       data: {
-        senderId: senderId,
-        receiverId: receiverId,
+        senderId,
+        receiverId,
         status: "PENDING",
       }
     })
   }
+
+  async acceptFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    const updatedFriendship = await this.prisma.friendship.updateMany({
+      where: {
+        senderId,
+        receiverId,
+        status: "PENDING"
+      },
+      data: {
+        status: "ACCEPTED"
+      },
+    });
+
+    return updatedFriendship.count > 0;
+  }
+
 }
