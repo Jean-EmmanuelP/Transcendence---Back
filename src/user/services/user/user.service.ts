@@ -291,4 +291,33 @@ export class UserService {
     return deletedFriendship.count > 0;
   }
 
+  async getAllFriendOfUser(userId: string): Promise<UserModel[]> {
+    const sentFriendships = await this.prisma.friendship.findMany({
+      where: {
+        senderId: userId,
+        status: "ACCEPTED"
+      },
+      include: {
+        receiver: true,
+      },
+    });
+
+    const receivedFriendships = await this.prisma.friendship.findMany({
+      where: {
+        receiverId: userId,
+        status: "ACCEPTED",
+      },
+      include: {
+        sender: true
+      }
+    });
+
+    const friends = [
+      ...sentFriendships.map(f => f.receiver),
+      ...receivedFriendships.map(f => f.sender),
+    ];
+
+    return friends;
+  }
+
 }

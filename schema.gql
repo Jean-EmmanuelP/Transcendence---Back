@@ -16,6 +16,7 @@ type UserModel {
 type Query {
   users: [UserModel!]!
   user: UserModel!
+  getAllFriendsOfUser: UserModel!
 }
 
 type Mutation {

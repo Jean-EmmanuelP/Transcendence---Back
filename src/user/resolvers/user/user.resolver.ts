@@ -79,7 +79,11 @@ export class UserResolver {
     return this.userService.cancelSentFriendRequest(senderId, receiverId);
   }
 
-  
+  @Query(returns => UserModel)
+  async getAllFriendsOfUser(@Request() req): Promise<UserModel[]> {
+    const userId = req.user.userId;
+    return this.userService.getAllFriendOfUser(userId);
+  }
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
   
 }
