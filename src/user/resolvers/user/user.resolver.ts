@@ -1,4 +1,4 @@
-import { Resolver, Query, Args, Mutation } from "@nestjs/graphql";
+import { Resolver, Query, Args, Mutation, Context } from "@nestjs/graphql";
 import { UserService } from "./../../services/user/user.service";
 import { UserModel } from "src/user/models/user.model";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
@@ -25,8 +25,9 @@ export class UserResolver {
   // you must find how to test it
   @Mutation(() => UserModel)
   @UseGuards(JwtAuthGuard)
-  async uploadAvatar(@Request() req, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse | Error> {
+  async uploadAvatar(@Context() context, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse | Error> {
     const { createReadStream, filename } = await image;
+    const req = context.req;
     const userId = req.user.userId;
 
     return new Promise(async (resolve, reject) => {
@@ -49,7 +50,8 @@ export class UserResolver {
   // should be able to check its own information via its id (via jwt token decrypted)
   @Query(returns => UserModel)
   @UseGuards(JwtAuthGuard)
-  async userInformation(@Request() req): Promise<UserModel> {
+  async userInformation(@Context() context): Promise<UserModel> {
+    const req = context.req;
     console.log('This is the information of the user', req);
     const userId = req.user.userId;
     return this.userService.findOne(userId)
@@ -57,7 +59,8 @@ export class UserResolver {
 
   @Query(returns => UserModel)
   @UseGuards(JwtAuthGuard)
-  async getAllFriendsOfUser(@Request() req): Promise<UserModel[]> {
+  async getAllFriendsOfUser(@Context() context): Promise<UserModel[]> {
+    const req = context.req;
     const userId = req.user.userId;
     return this.userService.getAllFriendOfUser(userId);
   }
@@ -69,28 +72,32 @@ export class UserResolver {
   // add other users as friends ->  see their current status (online, offline, in a game)
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async sendFriendRequest(@Request() req, @Args('receiverId') receiverId: string): Promise<boolean> {
+  async sendFriendRequest(@Context() context, @Args('receiverId') receiverId: string): Promise<boolean> {
+    const req = context.req;
     const senderId = req.user.userId;
     return this.userService.sendFriendRequest(senderId, receiverId);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async acceptFriendRequest(@Request() req, @Args('senderId') senderId: string): Promise<boolean> {
+  async acceptFriendRequest(@Context() context, @Args('senderId') senderId: string): Promise<boolean> {
+    const req = context.req;
     const receiverId = req.user.userId;
     return this.userService.acceptFriendRequest(senderId, receiverId);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async rejectFriendRequest(@Request() req, @Args('senderId') senderId: string): Promise<boolean> {
+  async rejectFriendRequest(@Context() context, @Args('senderId') senderId: string): Promise<boolean> {
+    const req = context.req;
     const receiverId = req.user.userId;
     return this.userService.rejectFriendRequest(senderId, receiverId);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async cancelSentFriendRequest(@Request() req, @Args('receiverId') receiverId: string): Promise<boolean> {
+  async cancelSentFriendRequest(@Context() context, @Args('receiverId') receiverId: string): Promise<boolean> {
+    const req = context.req;
     const senderId = req.user.userId;
     return this.userService.cancelSentFriendRequest(senderId, receiverId);
   }
