@@ -36,6 +36,7 @@ model User {
   isTwoFactorEnabled Boolean @default(false)
   sentRequests  Friendship[] @relation("FriendshipSenders")
   receivedRequests Friendship[] @relation("FriendshipReceivers")
+  status Status @default(OFFLINE)
 }
 
 model Friendship {
