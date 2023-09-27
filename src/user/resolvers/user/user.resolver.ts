@@ -78,6 +78,8 @@ export class UserResolver {
     const senderId = req.user.userId;
     return this.userService.cancelSentFriendRequest(senderId, receiverId);
   }
+
+  
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
   
 }

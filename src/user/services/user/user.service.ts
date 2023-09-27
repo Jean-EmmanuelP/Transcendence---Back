@@ -234,14 +234,22 @@ export class UserService {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }
 
-  async sendFriendRequest(senderId: string, receiverId: string) {
-    return await this.prisma.friendship.create({
+  async sendFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    try{const createdFriendship = await this.prisma.friendship.create({
       data: {
         senderId,
         receiverId,
         status: "PENDING",
       }
     })
+    if (createdFriendship) {
+      return true;
+    }
+    return false;}
+    catch(error) {
+      console.log("Erreur lors de la creation de la demande d'amitie");
+      return false;
+    }
   }
 
   async acceptFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
