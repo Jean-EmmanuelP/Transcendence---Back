@@ -168,7 +168,7 @@ export class AuthController {
     await this.authService.disable2FA(userId);
     return { message: "Two factor authentication has been disabled" };
   }
-
+  
   @Post("logout")
   @ApiOperation({
     summary: "the logout button will blacklist the current token",

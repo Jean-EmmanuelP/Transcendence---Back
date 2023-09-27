@@ -233,4 +233,91 @@ export class UserService {
   async findOne(userId: string) : Promise<UserModel> {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }
+
+  async sendFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    try{const createdFriendship = await this.prisma.friendship.create({
+      data: {
+        senderId,
+        receiverId,
+        status: "PENDING",
+      }
+    })
+    if (createdFriendship) {
+      return true;
+    }
+    return false;}
+    catch(error) {
+      console.log("Erreur lors de la creation de la demande d'amitie");
+      return false;
+    }
+  }
+
+  async acceptFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    const updatedFriendship = await this.prisma.friendship.updateMany({
+      where: {
+        senderId,
+        receiverId,
+        status: "PENDING"
+      },
+      data: {
+        status: "ACCEPTED"
+      },
+    });
+
+    return updatedFriendship.count > 0;
+  }
+
+  async rejectFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    const deletedFriendship = await this.prisma.friendship.deleteMany({
+      where: {
+        senderId,
+        receiverId,
+        status: 'PENDING'
+      }
+    });
+
+    return deletedFriendship.count > 0;
+  }
+
+  async cancelSentFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+    const deletedFriendship = await this.prisma.friendship.deleteMany({
+      where: {
+        senderId,
+        receiverId,
+        status: "PENDING"
+      }
+    });
+
+    return deletedFriendship.count > 0;
+  }
+
+  async getAllFriendOfUser(userId: string): Promise<UserModel[]> {
+    const sentFriendships = await this.prisma.friendship.findMany({
+      where: {
+        senderId: userId,
+        status: "ACCEPTED"
+      },
+      include: {
+        receiver: true,
+      },
+    });
+
+    const receivedFriendships = await this.prisma.friendship.findMany({
+      where: {
+        receiverId: userId,
+        status: "ACCEPTED",
+      },
+      include: {
+        sender: true
+      }
+    });
+
+    const friends = [
+      ...sentFriendships.map(f => f.receiver),
+      ...receivedFriendships.map(f => f.sender),
+    ];
+
+    return friends;
+  }
+
 }

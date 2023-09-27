@@ -16,10 +16,15 @@ type UserModel {
 type Query {
   users: [UserModel!]!
   user: UserModel!
+  getAllFriendsOfUser: UserModel!
 }
 
 type Mutation {
   uploadAvatar(image: Upload!): UserModel!
+  sendFriendRequest(receiverId: String!): Boolean!
+  acceptFriendRequest(senderId: String!): Boolean!
+  rejectFriendRequest(senderId: String!): Boolean!
+  cancelSentFriendRequest(receiverId: String!): Boolean!
 }
 
 """The `Upload` scalar type represents a file upload."""

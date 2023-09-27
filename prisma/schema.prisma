@@ -12,29 +12,44 @@ datasource db {
 
 // define your models
 
-model User {
-  id                     String          @id @default(cuid())
-  email                  String?         @unique
-  password               String?
-  name                   String
-  pseudo                 String          @default("Pseudo")
-  avatar                 String          @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
-  oauth                  OAuth?
-  twoFactorSecret        String?
-  isTwoFactorEnabled     Boolean         @default(false)
-  // sentFriendRequests     FriendRequest[] @relation("sentRequests")
-  // receivedFriendRequests FriendRequest[] @relation("receivedRequests")
-  // friends                User[]          @relation("friends")
+enum Status {
+  ONLINE
+  OFFLINE
+  IN_GAME
 }
 
-// model FriendRequest {
-//   id String @id @default(cuid())
-//   from User @relation("sentRequests", fields: [fromId], references: [id])
-//   fromId String
-//   to User @relation("receivedRequests", fields: [toId], references: [id])
-//   toId String
-//   createdAt DateTime @default(now())
-// }
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model User {
+  id                 String  @id @default(cuid())
+  email              String? @unique
+  password           String?
+  name               String
+  pseudo             String @default("Pseudo")
+  avatar             String  @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
+  oauth              OAuth?
+  twoFactorSecret    String?
+  isTwoFactorEnabled Boolean @default(false)
+  sentRequests  Friendship[] @relation("FriendshipSenders")
+  receivedRequests Friendship[] @relation("FriendshipReceivers")
+  status Status @default(OFFLINE)
+}
+
+model Friendship {
+  id String @id @default(cuid())
+  senderId String
+  receiverId String
+  status FriendshipStatus @default(PENDING)
+  createdAt DateTime @default(now())
+
+  sender User @relation("FriendshipSenders", fields: [senderId], references: [id])
+  receiver User @relation("FriendshipReceivers", fields: [receiverId], references: [id])
+}
+
 
 model Token {
   id    String @id @default(cuid())
