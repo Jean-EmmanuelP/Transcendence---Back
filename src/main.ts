@@ -6,6 +6,7 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { graphqlUploadExpress } from "graphql-upload-ts";
 
 async function bootstrap() {
+  // means that from another origin you can go threw our application
   const app = await NestFactory.create(AppModule, { cors: true });
 
   const config = new DocumentBuilder()
@@ -22,7 +23,6 @@ async function bootstrap() {
       'Authorization'
     )
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document, {
     swaggerOptions: {

@@ -12,6 +12,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
     const request = ctx.getContext().req;
+    console.log(`from the canactivate`, request.headers.authorization);  
     const token = request.headers.authorization?.split(' ')[1];
     const { isTemporary } = this.jwtService.verify(token, {
       secret: process.env.JWT_SECRET,

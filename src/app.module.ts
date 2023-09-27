@@ -19,6 +19,7 @@ import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddlewa
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: "schema.gql",
+      context: ({ req }) => ({ req }),
       installSubscriptionHandlers: true,
     }),
     PassportModule.register({ defaultStrategy: "jwt" }),

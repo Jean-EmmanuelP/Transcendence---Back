@@ -15,7 +15,7 @@ type UserModel {
 
 type Query {
   users: [UserModel!]!
-  user: UserModel!
+  userInformation: UserModel!
   getAllFriendsOfUser: UserModel!
 }
 

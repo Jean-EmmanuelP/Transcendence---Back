@@ -15,16 +15,16 @@ import { JwtAuthGuard } from "src/guards/jwt.guard";
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Query(() => [UserModel])
+  @UseGuards(JwtAuthGuard)
   async users(): Promise<UserModel[]> {
     return this.userService.findAll();
   }
 
   // upload an avatar
   // you must find how to test it
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => UserModel)
+  @UseGuards(JwtAuthGuard)
   async uploadAvatar(@Request() req, @Args({ name: 'image', type: () => GraphQLUpload }) image: FileUpload): Promise<UploadImageResponse | Error> {
     const { createReadStream, filename } = await image;
     const userId = req.user.userId;
@@ -47,11 +47,19 @@ export class UserResolver {
   }
 
   // should be able to check its own information via its id (via jwt token decrypted)
+  @Query(returns => UserModel)
   @UseGuards(JwtAuthGuard)
-  @Query(() => UserModel)
-  async user(@Request() req): Promise<UserModel> {
-    const userId = req.user.userId
+  async userInformation(@Request() req): Promise<UserModel> {
+    console.log('This is the information of the user', req);
+    const userId = req.user.userId;
     return this.userService.findOne(userId)
+  }
+
+  @Query(returns => UserModel)
+  @UseGuards(JwtAuthGuard)
+  async getAllFriendsOfUser(@Request() req): Promise<UserModel[]> {
+    const userId = req.user.userId;
+    return this.userService.getAllFriendOfUser(userId);
   }
 
   // should be able to enable / disable the two-factor-authentication [REST API]
@@ -59,40 +67,34 @@ export class UserResolver {
   // must go to the auth.controller -> disable-two-factor
 
   // add other users as friends ->  see their current status (online, offline, in a game)
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async sendFriendRequest(@Request() req, @Args('receiverId') receiverId: string): Promise<boolean> {
     const senderId = req.user.userId;
     return this.userService.sendFriendRequest(senderId, receiverId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async acceptFriendRequest(@Request() req, @Args('senderId') senderId: string): Promise<boolean> {
     const receiverId = req.user.userId;
     return this.userService.acceptFriendRequest(senderId, receiverId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async rejectFriendRequest(@Request() req, @Args('senderId') senderId: string): Promise<boolean> {
     const receiverId = req.user.userId;
     return this.userService.rejectFriendRequest(senderId, receiverId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async cancelSentFriendRequest(@Request() req, @Args('receiverId') receiverId: string): Promise<boolean> {
     const senderId = req.user.userId;
     return this.userService.cancelSentFriendRequest(senderId, receiverId);
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Query(returns => UserModel)
-  async getAllFriendsOfUser(@Request() req): Promise<UserModel[]> {
-    const userId = req.user.userId;
-    return this.userService.getAllFriendOfUser(userId);
-  }
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
   
 }
