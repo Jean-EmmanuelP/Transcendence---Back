@@ -13,16 +13,28 @@ datasource db {
 // define your models
 
 model User {
-  id                 String  @id @default(cuid())
-  email              String? @unique
-  password           String?
-  name               String
-  pseudo             String @default("Pseudo")
-  avatar             String  @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
-  oauth              OAuth?
-  twoFactorSecret    String?
-  isTwoFactorEnabled Boolean @default(false)
+  id                     String          @id @default(cuid())
+  email                  String?         @unique
+  password               String?
+  name                   String
+  pseudo                 String          @default("Pseudo")
+  avatar                 String          @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
+  oauth                  OAuth?
+  twoFactorSecret        String?
+  isTwoFactorEnabled     Boolean         @default(false)
+  // sentFriendRequests     FriendRequest[] @relation("sentRequests")
+  // receivedFriendRequests FriendRequest[] @relation("receivedRequests")
+  // friends                User[]          @relation("friends")
 }
+
+// model FriendRequest {
+//   id String @id @default(cuid())
+//   from User @relation("sentRequests", fields: [fromId], references: [id])
+//   fromId String
+//   to User @relation("receivedRequests", fields: [toId], references: [id])
+//   toId String
+//   createdAt DateTime @default(now())
+// }
 
 model Token {
   id    String @id @default(cuid())
