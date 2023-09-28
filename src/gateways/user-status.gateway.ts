@@ -27,16 +27,20 @@ export class UserStatusGateway
     try {
       const token = client.handshake.query.token;
       if (typeof token === "string") {
-        const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
+        const payload = jwt.verify(
+          token,
+          process.env.JWT_SECRET
+        ) as jwt.JwtPayload;
         const userId = payload.userId;
         if (userId) {
-            this.userService.updateUserStatus(userId, "ONLINE");
+          this.clients.set(client.id, userId);
+          this.userService.updateUserStatus(userId, "ONLINE");
         } else {
-            console.log('userId is not defined in the token payload');
-            client.disconnect();
+          console.log("userId is not defined in the token payload");
+          client.disconnect();
         }
       } else {
-        console.log('Token is not a string');
+        console.log("Token is not a string");
         client.disconnect();
       }
     } catch (err) {
@@ -46,7 +50,12 @@ export class UserStatusGateway
   }
 
   handleDisconnect(client: Socket) {
-    const userId = client.id;
-    this.userService.updateUserStatus(userId, "ONLINE");
+    const userId = this.clients.get(client.id);
+    if (userId) {
+      this.userService.updateUserStatus(userId, "ONLINE");
+      this.clients.delete(client.id);
+    } else {
+      console.log(`userId not found for client.id:`, client.id);
+    }
   }
 }
