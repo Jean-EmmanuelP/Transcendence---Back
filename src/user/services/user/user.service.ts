@@ -111,7 +111,7 @@ export class UserService {
       secret: process.env.JWT_SECRET,
     })
 
-    const jwtPayload = { userId: user.id, email: user.email, name: user.name };
+    const jwtPayload = { userId: user.id, email: user.email, pseudo: user.pseudo };
     const accessToken = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
@@ -143,7 +143,7 @@ export class UserService {
       throw new UnauthorizedException("Invalid two factor code");
     }
 
-    const jwtPayload = { userId: user.id, email: user.email, user: user.name };
+    const jwtPayload = { userId: user.id, email: user.email, pseudo: user.pseudo };
     const token = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
@@ -174,7 +174,7 @@ export class UserService {
           password: hashedPassword,
         },
       });
-      const jwtPayload = { userId: user.id, email: user.email, name: user.name };
+      const jwtPayload = { userId: user.id, email: user.email, pseudo: user.pseudo };
       const token = this.jwtService.sign(jwtPayload, {
         secret: process.env.JWT_SECRET,
       });
