@@ -22,6 +22,7 @@ import { UserStatusGateway } from "./gateways/user-status.gateway";
       autoSchemaFile: "schema.gql",
       context: ({ req }) => ({ req }),
       installSubscriptionHandlers: true,
+      playground: true
     }),
     PassportModule.register({ defaultStrategy: "jwt" }),
     UserModule,
