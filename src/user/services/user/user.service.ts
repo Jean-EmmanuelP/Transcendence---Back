@@ -15,6 +15,7 @@ import { LoginDto } from "src/auth/dto/login.input";
 import { AuthResponse } from "src/user/interfaces/auth-response";
 import { TempAuthResponse } from "src/user/interfaces/temp-response";
 import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
+import { Status } from "@prisma/client";
 
 @Injectable()
 export class UserService {
@@ -442,5 +443,12 @@ export class UserService {
     ];
     console.log(`friends: `, friends);
     return friends;
+  }
+
+  async updateUserStatus(id: string, status: Status) {
+    return await this.prisma.user.update({
+      where: { id },
+      data: { status },
+    });
   }
 }

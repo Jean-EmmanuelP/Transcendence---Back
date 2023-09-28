@@ -52,7 +52,7 @@ export class UserStatusGateway
   handleDisconnect(client: Socket) {
     const userId = this.clients.get(client.id);
     if (userId) {
-      this.userService.updateUserStatus(userId, "ONLINE");
+      this.userService.updateUserStatus(userId, "OFFLINE");
       this.clients.delete(client.id);
     } else {
       console.log(`userId not found for client.id:`, client.id);
