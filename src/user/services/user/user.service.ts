@@ -263,12 +263,19 @@ export class UserService {
 
   async updatePseudo(id: string, pseudo: string) {
     try {
+      const existingUserWithPseudo = await this.prisma.user.findUnique({
+        where: { pseudo },
+      });
+      if (existingUserWithPseudo && existingUserWithPseudo.id !== id) {
+        console.error("Pseudo already exists for another user");
+        return false;
+      }
       const updatedUser = await this.prisma.user.update({
         where: { id },
         data: { pseudo },
       });
       return !!updatedUser;
-    } catch(error) {
+    } catch (error) {
       console.log("Error updating user pseudo: ", error);
       return false;
     }
