@@ -131,6 +131,11 @@ export class UserResolver {
     return this.userService.cancelSentFriendRequest(senderId, receiver.id);
   }
 
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async updatePseudo(@Context() Context, @Args('newPseudo') newPseudo: string): Promise<boolean> {
+    return this.userService.updatePseudo(newPseudo);
+  }
   // should be able to check its own history -> (wins and losses, ladder level, achievements)
   
 }

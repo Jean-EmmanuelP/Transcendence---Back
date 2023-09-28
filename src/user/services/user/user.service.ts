@@ -261,6 +261,19 @@ export class UserService {
     return false;
   }
 
+  async updatePseudo(id: string, pseudo: string) {
+    try {
+      const updatedUser = await this.prisma.user.update({
+        where: { id },
+        data: { pseudo },
+      });
+      return !!updatedUser;
+    } catch(error) {
+      console.log("Error updating user pseudo: ", error);
+      return false;
+    }
+  }
+
   async updateAvatar(
     userId: string,
     filename: string
@@ -407,20 +420,20 @@ export class UserService {
     });
     console.log(`Received friendship: ${JSON.stringify(receivedFriendships)}`);
     const friends = [
-      ...sentFriendships.map(f => {
+      ...sentFriendships.map((f) => {
         if (!f.receiver.name) {
           throw new Error(`User with ID ${f.receiver.id} has null name`);
         }
         return f.receiver;
       }),
-      ...receivedFriendships.map(f => {
+      ...receivedFriendships.map((f) => {
         if (!f.sender.name) {
           throw new Error(`User with ID ${f.sender.id} has null name`);
         }
         return f.sender;
       }),
     ];
-    console.log(`friends: `, friends)
+    console.log(`friends: `, friends);
     return friends;
   }
 }
