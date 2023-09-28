@@ -71,12 +71,13 @@ export class UserService {
     let user = await this.findByEmail(email);
 
     if (!user) {
+      const pseudo = await this.createUniquePseudo(firstName, lastName);
       user = await this.prisma.user.create({
         data: {
           email: email,
           name: `${firstName} ${lastName}`,
           avatar: avatar,
-          pseudo: `${firstName.charAt(0)} ${lastName.substring(0, Math.min(7, lastName.length))}`,
+          pseudo,
           oauth: {
             create: {
               accessToken: accessToken,
@@ -164,11 +165,12 @@ export class UserService {
     const { email, firstName, lastName } = registerDto;
 
     try {
+      const pseudo = await this.createUniquePseudo(firstName, lastName);
       let user = await this.prisma.user.create({
         data: {
           email,
           name: `${firstName} ${lastName}`,
-          pseudo: `${firstName} ${lastName}`,
+          pseudo,
           password: hashedPassword,
         },
       });
