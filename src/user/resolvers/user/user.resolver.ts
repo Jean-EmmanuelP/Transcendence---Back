@@ -61,6 +61,9 @@ export class UserResolver {
   async getAllFriendsOfUser(@Context() context): Promise<UserModel[]> {
     const req = context.req;
     const userId = req.user.userId;
+    if (!userId) {
+      throw new Error("UserId not found in the JWT")
+    }
     return this.userService.getAllFriendOfUser(userId);
   }
 
