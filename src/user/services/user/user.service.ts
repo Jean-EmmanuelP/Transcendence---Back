@@ -31,13 +31,13 @@ export class UserService {
     let pseudo = `${firstName.charAt(0)}${lastName.substring(
       0,
       Math.min(7, lastName.length)
-    )}`;
+    ).toLowerCase()}`;
 
     while (await this.prisma.user.findUnique({ where: { pseudo: pseudo } })) {
       pseudo = `${firstName.charAt(0)}${lastName.substring(
         0,
         Math.min(7, lastName.length)
-      )}${counter}`;
+      ).toLowerCase()}${counter}`;
       counter++;
     }
 
