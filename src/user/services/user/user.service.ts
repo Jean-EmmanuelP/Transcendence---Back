@@ -23,17 +23,26 @@ export class UserService {
     private jwtService: JwtService
   ) {}
 
-  private async createUniquePseudo(firstName: string, lastName: string): Promise<string> {
+  private async createUniquePseudo(
+    firstName: string,
+    lastName: string
+  ): Promise<string> {
     let counter = 1;
-    let pseudo = `${firstName.charAt(0)}${lastName.substring(0, Math.min(7, lastName.length))}`;
+    let pseudo = `${firstName.charAt(0)}${lastName.substring(
+      0,
+      Math.min(7, lastName.length)
+    )}`;
 
-    while(await this.prisma.user.findUnique({ where: { pseudo: pseudo } })) {
-      pseudo = `${firstName.charAt(0)}${lastName.substring(0, Math.min(7, lastName.length))}${counter}`;
+    while (await this.prisma.user.findUnique({ where: { pseudo: pseudo } })) {
+      pseudo = `${firstName.charAt(0)}${lastName.substring(
+        0,
+        Math.min(7, lastName.length)
+      )}${counter}`;
       counter++;
     }
-    
+
     return pseudo;
-  }  
+  }
 
   async findAll(): Promise<UserModel[]> {
     return this.prisma.user.findMany();
@@ -47,8 +56,8 @@ export class UserService {
 
   async findByPseudo(pseudo: string): Promise<UserModel | null> {
     return this.prisma.user.findUnique({
-      where: { pseudo: pseudo }
-    })
+      where: { pseudo: pseudo },
+    });
   }
 
   async findById(userId: string): Promise<UserModel | null> {
@@ -112,12 +121,20 @@ export class UserService {
       throw new UnauthorizedException("Invalid input");
     }
 
-    const jwtPayloadTemp = {userId: user.id, isTemporary: true, name: user.name};
+    const jwtPayloadTemp = {
+      userId: user.id,
+      isTemporary: true,
+      name: user.name,
+    };
     const tempToken = this.jwtService.sign(jwtPayloadTemp, {
       secret: process.env.JWT_SECRET,
-    })
+    });
 
-    const jwtPayload = { userId: user.id, email: user.email, pseudo: user.pseudo };
+    const jwtPayload = {
+      userId: user.id,
+      email: user.email,
+      pseudo: user.pseudo,
+    };
     const accessToken = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
@@ -125,17 +142,19 @@ export class UserService {
     if (user.isTwoFactorEnabled) {
       return {
         token: tempToken,
-        twoFactorEnable: true
+        twoFactorEnable: true,
       };
     }
     return {
       token: accessToken,
-      twoFactorEnable: false
-
-    }
+      twoFactorEnable: false,
+    };
   }
 
-  async validateTwoFactorCode(tempToken: string, twoFactorCode: string): Promise<AuthResponse> {
+  async validateTwoFactorCode(
+    tempToken: string,
+    twoFactorCode: string
+  ): Promise<AuthResponse> {
     const { userId, isTemporary } = this.jwtService.verify(tempToken, {
       secret: process.env.JWT_SECRET,
     });
@@ -144,12 +163,20 @@ export class UserService {
       throw new UnauthorizedException("Invalid token");
     }
 
-    const user = await this.prisma.user.findUnique({where: {id: userId }});
-    if (!user || !user.isTwoFactorEnabled || !(await this.verifyTwoFactorToken(userId, twoFactorCode))) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (
+      !user ||
+      !user.isTwoFactorEnabled ||
+      !(await this.verifyTwoFactorToken(userId, twoFactorCode))
+    ) {
       throw new UnauthorizedException("Invalid two factor code");
     }
 
-    const jwtPayload = { userId: user.id, email: user.email, pseudo: user.pseudo };
+    const jwtPayload = {
+      userId: user.id,
+      email: user.email,
+      pseudo: user.pseudo,
+    };
     const token = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
@@ -160,10 +187,10 @@ export class UserService {
       user: {
         name: name,
         avatar: avatar,
-        email: email
+        email: email,
       },
       accessToken: token,
-    }
+    };
   }
 
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
@@ -180,7 +207,11 @@ export class UserService {
           password: hashedPassword,
         },
       });
-      const jwtPayload = { userId: user.id, email: user.email, pseudo: user.pseudo };
+      const jwtPayload = {
+        userId: user.id,
+        email: user.email,
+        pseudo: user.pseudo,
+      };
       const token = this.jwtService.sign(jwtPayload, {
         secret: process.env.JWT_SECRET,
       });
@@ -232,80 +263,123 @@ export class UserService {
     return false;
   }
 
-  async updateAvatar(userId: string, filename: string): Promise<UploadImageResponse | Error > {
+  async updateAvatar(
+    userId: string,
+    filename: string
+  ): Promise<UploadImageResponse | Error> {
     const user = await this.prisma.user.update({
-      where: {id: userId},
-      data: {avatar: filename}
-    })
-    const { avatar, name } = user
+      where: { id: userId },
+      data: { avatar: filename },
+    });
+    const { avatar, name } = user;
     if (user) {
       return {
-        message: 'Avatar updated successfully',
+        message: "Avatar updated successfully",
         user: {
           avatar,
-          name
-        }
-      }
+          name,
+        },
+      };
     }
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
 
-  async findOne(userId: string) : Promise<UserModel> {
+  async findOne(userId: string): Promise<UserModel> {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }
 
-  async sendFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
-    try{const createdFriendship = await this.prisma.friendship.create({
-      data: {
-        senderId,
-        receiverId,
-        status: "PENDING",
-      }
-    })
-    if (createdFriendship) {
-      return true;
+  async sendFriendRequest(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
+    const existingFriendship = await this.prisma.friendship.findMany({
+      where: {
+        AND: [{ senderId: senderId }, { receiverId: receiverId }],
+      },
+    });
+    if (existingFriendship.length > 0) {
+      throw new Error("Une demande d'ami existe déjà entre ces utilisateurs");
     }
-    return false;}
-    catch(error) {
+    try {
+      const createdFriendship = await this.prisma.friendship.create({
+        data: {
+          senderId,
+          receiverId,
+          status: "PENDING",
+        },
+      });
+      if (createdFriendship) {
+        return true;
+      }
+      return false;
+    } catch (error) {
       console.log("Erreur lors de la creation de la demande d'amitie");
       return false;
     }
   }
 
-  async acceptFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+  async acceptFriendRequest(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
     const updatedFriendship = await this.prisma.friendship.updateMany({
       where: {
         senderId,
         receiverId,
-        status: "PENDING"
+        status: "PENDING",
       },
       data: {
-        status: "ACCEPTED"
+        status: "ACCEPTED",
       },
     });
 
     return updatedFriendship.count > 0;
   }
 
-  async rejectFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+  async rejectFriendRequest(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
     const deletedFriendship = await this.prisma.friendship.deleteMany({
       where: {
         senderId,
         receiverId,
-        status: 'PENDING'
-      }
+        status: "PENDING",
+      },
     });
 
     return deletedFriendship.count > 0;
   }
 
-  async cancelSentFriendRequest(senderId: string, receiverId: string): Promise<boolean> {
+  async cancelSentFriendRequest(
+    senderId: string,
+    receiverId: string
+  ): Promise<boolean> {
+    const existingFriendship = await this.prisma.friendship.findMany({
+      where: {
+        AND: [
+          { senderId: senderId },
+          { receiverId: receiverId },
+          { status: "PENDING" },
+        ],
+      },
+    });
+
+    if (existingFriendship.length === 0) {
+      console.error(
+        "Aucune demande d'ami en attente trouvée entre ces utilisateurs"
+      );
+      return false;
+    }
+
     const deletedFriendship = await this.prisma.friendship.deleteMany({
       where: {
-        senderId,
-        receiverId,
-        status: "PENDING"
-      }
+        AND: [
+          { senderId: senderId },
+          { receiverId: receiverId },
+          { status: "PENDING" },
+        ],
+      },
     });
 
     return deletedFriendship.count > 0;
@@ -315,7 +389,7 @@ export class UserService {
     const sentFriendships = await this.prisma.friendship.findMany({
       where: {
         senderId: userId,
-        status: "ACCEPTED"
+        status: "ACCEPTED",
       },
       include: {
         receiver: true,
@@ -328,16 +402,15 @@ export class UserService {
         status: "ACCEPTED",
       },
       include: {
-        sender: true
-      }
+        sender: true,
+      },
     });
 
     const friends = [
-      ...sentFriendships.map(f => f.receiver),
-      ...receivedFriendships.map(f => f.sender),
+      ...sentFriendships.map((f) => f.receiver),
+      ...receivedFriendships.map((f) => f.sender),
     ];
 
     return friends;
   }
-
 }
