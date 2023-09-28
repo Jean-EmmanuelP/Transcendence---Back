@@ -8,6 +8,7 @@ import {
 import { Server, Socket } from "socket.io";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { UserService } from "src/user/services/user/user.service";
+import * as jwt from "jsonwebtoken";
 
 @WebSocketGateway()
 export class UserStatusGateway
@@ -20,14 +21,29 @@ export class UserStatusGateway
     private readonly prismaService: PrismaService,
     private readonly userService: UserService
   ) {}
+  private clients = new Map<string, string>();
 
   handleConnection(client: Socket, ...args: any[]) {
-    const userId = client.id;
-    this.userService.updateUserStatus(userId, "ONLINE");
+    try {
+      const token = client.handshake.query.token;
+      if (typeof token === "string") {
+        const payload = jwt.verify(token, process.env.JWT_SECRET) as jwt.JwtPayload;
+        const userId = payload.userId;
+        if (userId) {
+            this.userService.updateUserStatus(userId, "ONLINE");
+        }
+      } else {
+        console.log('userId is not defined in the token payload');
+        client.disconnect();
+      }
+    } catch (err) {
+      console.log("This is the error from the handleConnection", err);
+      client.disconnect();
+    }
   }
 
   handleDisconnect(client: Socket) {
-      const userId = client.id;
-      this.userService.updateUserStatus(userId, "ONLINE");
+    const userId = client.id;
+    this.userService.updateUserStatus(userId, "ONLINE");
   }
 }
