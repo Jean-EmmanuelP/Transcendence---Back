@@ -25,4 +25,7 @@ export class UserModel {
 
   @Field()
   isTwoFactorEnabled: boolean;
+
+  @Field()
+  status: string;
 }
