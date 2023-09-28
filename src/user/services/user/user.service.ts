@@ -45,6 +45,12 @@ export class UserService {
     });
   }
 
+  async findByPseudo(pseudo: string): Promise<UserModel | null> {
+    return this.prisma.user.findUnique({
+      where: { pseudo: pseudo }
+    })
+  }
+
   async findById(userId: string): Promise<UserModel | null> {
     return this.prisma.user.findUnique({
       where: { id: userId },

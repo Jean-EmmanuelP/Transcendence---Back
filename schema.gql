@@ -21,7 +21,7 @@ type Query {
 
 type Mutation {
   uploadAvatar(image: Upload!): UserModel!
-  sendFriendRequest(receiverName: String!): Boolean!
+  sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderId: String!): Boolean!
   rejectFriendRequest(senderId: String!): Boolean!
   cancelSentFriendRequest(receiverId: String!): Boolean!
