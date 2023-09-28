@@ -71,11 +71,11 @@ export class UserResolver {
   // add other users as friends ->  see their current status (online, offline, in a game)
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async sendFriendRequest(@Context() context, @Args('receiverName') receiverId: string): Promise<boolean> {
+  async sendFriendRequest(@Context() context, @Args('receiverPseudo') receiverId: string): Promise<boolean> {
     const req = context.req;
     const senderId = req.user.userId;
 
-    const receiver = await this.userService.findByUsername(receiverName);
+    const receiver = await this.userService.findByPseudo(receiverPseudo);
     if (!receiver) {
       throw new Error("Utilisateur non trouve");
     }

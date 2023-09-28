@@ -23,6 +23,18 @@ export class UserService {
     private jwtService: JwtService
   ) {}
 
+  private async createUniquePseudo(firstName: string, lastName: string): Promise<string> {
+    let counter = 1;
+    let pseudo = `${firstName.charAt(0)}${lastName.substring(0, Math.min(7, lastName.length))}`;
+
+    while(await this.prisma.user.findUnique({ where: { pseudo: pseudo } })) {
+      pseudo = `${firstName.charAt(0)}${lastName.substring(0, Math.min(7, lastName.length))}${counter}`;
+      counter++;
+    }
+    
+    return pseudo;
+  }  
+
   async findAll(): Promise<UserModel[]> {
     return this.prisma.user.findMany();
   }
@@ -64,7 +76,7 @@ export class UserService {
           email: email,
           name: `${firstName} ${lastName}`,
           avatar: avatar,
-          pseudo: `${firstName} ${lastName}`,
+          pseudo: `${firstName.charAt(0)} ${lastName.substring(0, Math.min(7, lastName.length))}`,
           oauth: {
             create: {
               accessToken: accessToken,
