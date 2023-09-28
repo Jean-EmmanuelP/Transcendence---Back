@@ -27,6 +27,7 @@ export class UserStatusGateway
   }
 
   handleDisconnect(client: Socket) {
-      
+      const userId = client.id;
+      this.userService.updateUserStatus(userId, "ONLINE");
   }
 }

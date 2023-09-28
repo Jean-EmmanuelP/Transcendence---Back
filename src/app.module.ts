@@ -12,6 +12,7 @@ import { ConfigModule } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
 import { TokenService } from "./token/services/token/token.service";
 import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddleware";
+import { UserStatusGateway } from "./gateways/user-status.gateway";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddlewa
     PrismaService,
     AuthService,
     TokenService,
+    UserStatusGateway,
   ],
 })
 export class AppModule implements NestModule {
