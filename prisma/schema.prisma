@@ -29,7 +29,7 @@ model User {
   email              String? @unique
   password           String?
   name               String
-  pseudo             String @default("Pseudo")
+  pseudo             String @unique @default("Pseudo")
   avatar             String  @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
   oauth              OAuth?
   twoFactorSecret    String?
