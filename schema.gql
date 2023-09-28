@@ -22,9 +22,9 @@ type Query {
 type Mutation {
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
-  acceptFriendRequest(senderId: String!): Boolean!
-  rejectFriendRequest(senderId: String!): Boolean!
-  cancelSentFriendRequest(receiverId: String!): Boolean!
+  acceptFriendRequest(senderPseudo: String!): Boolean!
+  rejectFriendRequest(senderPseudo: String!): Boolean!
+  cancelSentFriendRequest(receiverPseudo: String!): Boolean!
 }
 
 """The `Upload` scalar type represents a file upload."""

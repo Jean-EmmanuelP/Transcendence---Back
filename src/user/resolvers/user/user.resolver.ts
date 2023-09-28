@@ -77,7 +77,7 @@ export class UserResolver {
 
     const receiver = await this.userService.findByPseudo(receiverPseudo);
     if (!receiver) {
-      throw new Error("Utilisateur non trouve");
+      throw new Error("User not found");
     }
     
     return this.userService.sendFriendRequest(senderId, receiver.id);
@@ -85,26 +85,47 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async acceptFriendRequest(@Context() context, @Args('senderId') senderId: string): Promise<boolean> {
+  async acceptFriendRequest(@Context() context, @Args('senderPseudo') senderPseudo: string): Promise<boolean> {
     const req = context.req;
     const receiverId = req.user.userId;
-    return this.userService.acceptFriendRequest(senderId, receiverId);
+    const sender = await this.userService.findByPseudo(senderPseudo);
+    if (!receiverId) {
+      throw new Error("User not found");
+    }
+    if (!sender) {
+      throw new Error("Sender not found");
+    }
+    return this.userService.acceptFriendRequest(sender.id, receiverId);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async rejectFriendRequest(@Context() context, @Args('senderId') senderId: string): Promise<boolean> {
+  async rejectFriendRequest(@Context() context, @Args('senderPseudo') senderPseudo: string): Promise<boolean> {
     const req = context.req;
     const receiverId = req.user.userId;
-    return this.userService.rejectFriendRequest(senderId, receiverId);
+    if (!receiverId) {
+      throw new Error("User not found")
+    }
+    const sender = await this.userService.findByPseudo(senderPseudo);
+    if (!sender) {
+      throw new Error("Sender not found")
+    }
+    return this.userService.rejectFriendRequest(sender.id, receiverId);
   }
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async cancelSentFriendRequest(@Context() context, @Args('receiverId') receiverId: string): Promise<boolean> {
+  async cancelSentFriendRequest(@Context() context, @Args('receiverPseudo') receiverPseudo: string): Promise<boolean> {
     const req = context.req;
     const senderId = req.user.userId;
-    return this.userService.cancelSentFriendRequest(senderId, receiverId);
+    if (!senderId) {
+      throw new Error("Sender not found")
+    }
+    const receiver = await this.userService.findByPseudo(receiverPseudo);
+    if (!receiver) {
+      throw new Error("User not found")
+    }
+    return this.userService.cancelSentFriendRequest(senderId, receiver.id);
   }
 
   // should be able to check its own history -> (wins and losses, ladder level, achievements) 
