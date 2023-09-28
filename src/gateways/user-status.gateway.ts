@@ -31,9 +31,12 @@ export class UserStatusGateway
         const userId = payload.userId;
         if (userId) {
             this.userService.updateUserStatus(userId, "ONLINE");
+        } else {
+            console.log('userId is not defined in the token payload');
+            client.disconnect();
         }
       } else {
-        console.log('userId is not defined in the token payload');
+        console.log('Token is not a string');
         client.disconnect();
       }
     } catch (err) {
