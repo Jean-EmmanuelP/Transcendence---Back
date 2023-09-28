@@ -93,12 +93,12 @@ export class UserService {
       throw new UnauthorizedException("Invalid input");
     }
 
-    const jwtPayloadTemp = {userId: user.id, isTemporary: true};
+    const jwtPayloadTemp = {userId: user.id, isTemporary: true, name: user.name};
     const tempToken = this.jwtService.sign(jwtPayloadTemp, {
       secret: process.env.JWT_SECRET,
     })
 
-    const jwtPayload = { userId: user.id, email: user.email };
+    const jwtPayload = { userId: user.id, email: user.email, name: user.name };
     const accessToken = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
@@ -130,7 +130,7 @@ export class UserService {
       throw new UnauthorizedException("Invalid two factor code");
     }
 
-    const jwtPayload = { userId: user.id, email: user.email };
+    const jwtPayload = { userId: user.id, email: user.email, user: user.name };
     const token = this.jwtService.sign(jwtPayload, {
       secret: process.env.JWT_SECRET,
     });
@@ -160,7 +160,7 @@ export class UserService {
           password: hashedPassword,
         },
       });
-      const jwtPayload = { userId: user.id, email: user.email };
+      const jwtPayload = { userId: user.id, email: user.email, name: user.name };
       const token = this.jwtService.sign(jwtPayload, {
         secret: process.env.JWT_SECRET,
       });
