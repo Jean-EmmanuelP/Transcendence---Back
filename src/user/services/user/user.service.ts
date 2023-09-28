@@ -28,16 +28,14 @@ export class UserService {
     lastName: string
   ): Promise<string> {
     let counter = 1;
-    let pseudo = `${firstName.charAt(0)}${lastName.substring(
-      0,
-      Math.min(7, lastName.length)
-    ).toLowerCase()}`;
+    let pseudo = `${firstName.charAt(0)}${lastName
+      .substring(0, Math.min(7, lastName.length))
+      .toLowerCase()}`;
 
     while (await this.prisma.user.findUnique({ where: { pseudo: pseudo } })) {
-      pseudo = `${firstName.charAt(0)}${lastName.substring(
-        0,
-        Math.min(7, lastName.length)
-      ).toLowerCase()}${counter}`;
+      pseudo = `${firstName.charAt(0)}${lastName
+        .substring(0, Math.min(7, lastName.length))
+        .toLowerCase()}${counter}`;
       counter++;
     }
 
@@ -386,6 +384,7 @@ export class UserService {
   }
 
   async getAllFriendOfUser(userId: string): Promise<UserModel[]> {
+    console.log(`Getting friends for user ID:`, userId);
     const sentFriendships = await this.prisma.friendship.findMany({
       where: {
         senderId: userId,
@@ -395,6 +394,7 @@ export class UserService {
         receiver: true,
       },
     });
+    console.log(`Sent friendship: ${JSON.stringify(sentFriendships)}`);
 
     const receivedFriendships = await this.prisma.friendship.findMany({
       where: {
@@ -405,12 +405,22 @@ export class UserService {
         sender: true,
       },
     });
-
+    console.log(`Received friendship: ${JSON.stringify(receivedFriendships)}`);
     const friends = [
-      ...sentFriendships.map((f) => f.receiver),
-      ...receivedFriendships.map((f) => f.sender),
+      ...sentFriendships.map(f => {
+        if (!f.receiver.name) {
+          throw new Error(`User with ID ${f.receiver.id} has null name`);
+        }
+        return f.receiver;
+      }),
+      ...receivedFriendships.map(f => {
+        if (!f.sender.name) {
+          throw new Error(`User with ID ${f.sender.id} has null name`);
+        }
+        return f.sender;
+      }),
     ];
-
+    console.log(`friends: `, friends)
     return friends;
   }
 }

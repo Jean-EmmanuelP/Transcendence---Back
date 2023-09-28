@@ -56,7 +56,7 @@ export class UserResolver {
     return this.userService.findOne(userId)
   }
 
-  @Query(returns => UserModel)
+  @Query(returns => [UserModel])
   @UseGuards(JwtAuthGuard)
   async getAllFriendsOfUser(@Context() context): Promise<UserModel[]> {
     const req = context.req;
