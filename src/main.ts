@@ -34,7 +34,8 @@ async function bootstrap() {
   app.use(passport.initialize());
   app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
 
-  await app.listen(3000);
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
   console.log(
     "\x1b[33m%s\x1b[0m",
     "============================================"

@@ -101,7 +101,7 @@ export class UserResolver {
     if (!receiver) {
       throw new Error("User not found");
     }
-
+    
     return this.userService.sendFriendRequest(senderId, receiver.id);
   }
 

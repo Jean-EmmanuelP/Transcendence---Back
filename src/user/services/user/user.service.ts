@@ -313,7 +313,10 @@ export class UserService {
   ): Promise<boolean> {
     const existingFriendship = await this.prisma.friendship.findMany({
       where: {
-        AND: [{ senderId: senderId }, { receiverId: receiverId }],
+        OR: [
+          { AND: [{ senderId: senderId }, { receiverId: receiverId }] },
+          { AND: [{ senderId: receiverId }, { receiverId: senderId }] },
+        ],
       },
     });
     if (existingFriendship.length > 0) {
