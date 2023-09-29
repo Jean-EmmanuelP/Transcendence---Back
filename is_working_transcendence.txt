@@ -1,22 +1,29 @@
 Back-end:
-
-    User Account
+LEGEND : 
+    valid : ✔️ 
+    to test: 🧪
+    wrong: ❌
+                        User Account
 
 ✔️ The user must login using the Oauth system of 42 intranet
 
-🧪 The user should be able to choose a unique name that will be displayed on the
-website.
-
-🧪 The user should be able to upload an avatar. If the user doesn’t upload an avatar,
-a default one must be set
+✔️ The user should be able to see friend's status: online, offline
 
 ✔️ The user should be able to enable two-factor authentication. For instance,
 Google Authenticator or sending a text message to their phone.
 
-🧪 The user should be able to add other users as friends and see their current status
-(online, offline,
+✔️ The user should be able to choose a unique name that will be displayed on the
+website.
 
-❌ Tselmeg: in a game, and so forth).
+✔️ The user should be able to add other users as friends
+
+🧪 The user should be able to upload an avatar. If the user doesn’t upload an avatar,
+a default one must be set
+
+
+
+
+❌ Tselmeg: in a game, and so forth.
 
 ❌ Tselmeg: Stats (such as: wins and losses, ladder level, achievements, and so forth) have to
 be displayed on the user profile.
