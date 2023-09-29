@@ -16,6 +16,8 @@ import { AuthResponse } from "src/user/interfaces/auth-response";
 import { TempAuthResponse } from "src/user/interfaces/temp-response";
 import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 import { Status } from "@prisma/client";
+import { v4 as uuidv4 } from "uuid";
+import * as jwt from "jsonwebtoken";
 
 @Injectable()
 export class UserService {
@@ -455,6 +457,15 @@ export class UserService {
     return await this.prisma.user.update({
       where: { id },
       data: { status },
+    });
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.findByEmail(email);
+    if (!user) throw new Error("User not found");
+
+    const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
     });
   }
 }
