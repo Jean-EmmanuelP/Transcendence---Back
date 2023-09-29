@@ -169,5 +169,29 @@ export class UserResolver {
     const userId = req.user.userId;
     return this.userService.updatePseudo(userId, newPseudo);
   }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async forgotPassword(@Args('email') email: string): Promise<boolean> {
+    try {
+      await this.userService.forgotPassword(email);
+      return true;
+    } catch (error) {
+      throw new Error(error.message);
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async resetPassword(
+    @Args('resetToken') resetToken: string,
+    @Args('newPassword') newPassword: string,
+  ): Promise<boolean> {
+    try {
+      await this.userService.resetPassword(resetToken, newPassword);
+      return true;
+    } catch(error) {
+      throw new Error(error.message);
+    }
+  }
   // should be able to check its own history -> (wins and losses, ladder level, achievements)
 }
