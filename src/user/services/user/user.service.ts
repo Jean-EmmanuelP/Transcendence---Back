@@ -18,6 +18,7 @@ import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 import { Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import * as jwt from "jsonwebtoken";
+import { transporter } from "src/common/transporter";
 
 @Injectable()
 export class UserService {
@@ -467,5 +468,22 @@ export class UserService {
     const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
+
+    const resetLink = `https://transcendence.com/reset-password?token=${resetToken}`;
+
+    const mailOptions = {
+      from: `"Transcendence" <transcendenceservice@gmail.com>`,
+      to: user.email,
+      subject: `Password Reset Request - Transcendence`,
+      text: `Click on this link to reset your password: ${resetLink}`,
+      html: `<p>Click on this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return console.log(error);
+      }
+      console.log(`Message sent: %s`, info.messageId);
+    })
   }
 }
