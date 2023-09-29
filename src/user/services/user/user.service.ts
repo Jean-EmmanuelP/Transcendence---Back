@@ -465,10 +465,9 @@ export class UserService {
     const user = await this.findByEmail(email);
     if (!user) throw new Error("User not found");
 
-    const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    const resetToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!, {
       expiresIn: "1h",
     });
-
     const resetLink = `https://transcendence.com/reset-password?token=${resetToken}`;
 
     const mailOptions = {
@@ -476,7 +475,7 @@ export class UserService {
       to: user.email,
       subject: `Password Reset Request - Transcendence`,
       text: `Click on this link to reset your password: ${resetLink}`,
-      html: `<p>Click on this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`
+      html: `<p>Click on this link to reset your password: <a href="${resetLink}">${resetLink}</a></p>`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
@@ -484,6 +483,6 @@ export class UserService {
         return console.log(error);
       }
       console.log(`Message sent: %s`, info.messageId);
-    })
+    });
   }
 }
