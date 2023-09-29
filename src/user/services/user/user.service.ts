@@ -311,7 +311,10 @@ export class UserService {
     senderId: string,
     receiverId: string
   ): Promise<boolean> {
-    const existingFriendship = await this.prisma.friendship.findMany({
+    if (senderId === receiverId) {
+      throw new Error("You cannot send to yourself a friendrequests");
+    }
+    const existingRequestorReceived = await this.prisma.friendship.findMany({
       where: {
         OR: [
           { AND: [{ senderId: senderId }, { receiverId: receiverId }] },
@@ -319,8 +322,8 @@ export class UserService {
         ],
       },
     });
-    if (existingFriendship.length > 0) {
-      throw new Error("Une demande d'ami existe déjà entre ces utilisateurs");
+    if (existingRequestorReceived.length > 0) {
+      throw new Error("It already exists!");
     }
     try {
       const createdFriendship = await this.prisma.friendship.create({
