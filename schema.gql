@@ -27,6 +27,8 @@ type Mutation {
   rejectFriendRequest(senderPseudo: String!): Boolean!
   cancelSentFriendRequest(receiverPseudo: String!): Boolean!
   updatePseudo(newPseudo: String!): Boolean!
+  forgotPassword(email: String!): Boolean!
+  resetPassword(resetToken: String!, newPassword: String!): Boolean!
 }
 
 """The `Upload` scalar type represents a file upload."""

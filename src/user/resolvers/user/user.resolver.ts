@@ -182,6 +182,7 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
   async resetPassword(
     @Args('resetToken') resetToken: string,
     @Args('newPassword') newPassword: string,

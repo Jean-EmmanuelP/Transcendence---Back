@@ -50,6 +50,17 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
+  async updateUserPassword(id: string, password: string): Promise<void> {
+    this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        password,
+      },
+    });
+  }
+
   async findByEmail(email: string): Promise<UserModel | null> {
     return this.prisma.user.findUnique({
       where: { email: email },
@@ -461,7 +472,7 @@ export class UserService {
     });
   }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<void> {
     const user = await this.findByEmail(email);
     if (!user) throw new Error("User not found");
 
@@ -484,5 +495,26 @@ export class UserService {
       }
       console.log(`Message sent: %s`, info.messageId);
     });
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    try {
+      const payload = jwt.verify(
+        token,
+        process.env.JWT_SECRET!
+      ) as jwt.JwtPayload;
+      const userId = payload.userId;
+
+      const user = await this.findById(userId);
+      if (!user) throw new Error("User not found!");
+
+      const hashedPassword = await bcrypt.hash(newPassword, 12);
+      await this.updateUserPassword(userId, hashedPassword);
+
+      console.log(`Password reset successful!`);
+    } catch (error) {
+      console.log(`Error in resetPassword:`, error.message);
+      throw error;
+    }
   }
 }
