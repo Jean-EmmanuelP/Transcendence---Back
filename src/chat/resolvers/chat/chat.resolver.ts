@@ -1,6 +1,6 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql';
 import { ChatService } from 'src/chat/services/chat/chat.service';
-import { CreateDirectChannelOutput, createDirectChannelInput } from 'src/chat/services/chat/dtos/channel-dtos';
+import { CreateDirectChannelOutput, SendMessageInput, SendMessageOutput, createDirectChannelInput } from 'src/chat/services/chat/dtos/channel-dtos';
 
 @Resolver()
 export class ChatResolver {
@@ -12,4 +12,8 @@ export class ChatResolver {
     // ): Promise<CreateDirectChannelOutput> {
     //     return this.chatService.createDirectChannel(input);
     // }
+    @Mutation(() => SendMessageOutput)
+    async sendMessage(@Args('input') input: SendMessageInput): Promise<SendMessageOutput> {
+        return this.chatService.sendMessage(input);
+    }
 }
