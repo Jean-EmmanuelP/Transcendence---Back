@@ -184,6 +184,7 @@ export class ChatService {
     }
   }
 
+  // add the promise type
   async setChannelPassword(
     channelId: string,
     password: string,
@@ -214,6 +215,7 @@ export class ChatService {
     }
   }
 
+  // add the promise type
   async changeChannelAdmin(
     channelId: string,
     newAdminId: string,
