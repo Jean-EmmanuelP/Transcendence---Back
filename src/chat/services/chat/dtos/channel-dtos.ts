@@ -4,9 +4,6 @@ import { MessageModel } from "../models/message.model";
 @InputType()
 export class createDirectChannelInput {
     @Field()
-    userId1: string
-
-    @Field()
     userId2: string
 }
 
@@ -23,9 +20,6 @@ export class CreateDirectChannelOutput {
 export class SendMessageInput {
     @Field()
     channelId: string;
-
-    @Field()
-    userId: string;
 
     @Field()
     content: string;
@@ -50,9 +44,6 @@ export class GetMessageInput {
 export class MessageObjectType {
     @Field()
     content: string;
-
-    @Field()
-    userId: string;
 }
 
 @ObjectType()
@@ -68,9 +59,6 @@ export class GetMessageOutput {
 export class UpdateMessageInput {
     @Field()
     messageId: string;
-
-    @Field()
-    userId: string;
 
     @Field()
     newContent: string;
@@ -89,9 +77,6 @@ export class UpdateMessageOutput {
 export class DeleteMessageInput {
   @Field()
   messageId: string;
-
-  @Field()
-  userId: string;
 }
 
 @ObjectType()
