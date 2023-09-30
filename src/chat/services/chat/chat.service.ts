@@ -5,10 +5,12 @@ import { UserStatusGateway } from "./../../../gateways/user-status.gateway";
 import {
   CreateDirectChannelOutput,
   DeleteMessageOutput,
+  GetMessageOutput,
   SendMessageOutput,
   UpdateMessageOutput,
   createDirectChannelInput,
 } from "./dtos/channel-dtos";
+import { MessageModel } from "./models/message.model";
 
 @Injectable()
 export class ChatService {
@@ -113,6 +115,19 @@ export class ChatService {
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
+    }
+  }
+
+  async getMessages(
+    channelId: string
+  ): Promise<MessageModel[] | undefined[]> {
+    try {
+      return await this.prisma.message.findMany({
+        where: { channelId },
+        orderBy: { createdAt: "asc" }, // nous on a besoin pour laffichage que ce soit du plus ancien au plus recent
+      });
+    } catch (error) {
+      return [];
     }
   }
 }

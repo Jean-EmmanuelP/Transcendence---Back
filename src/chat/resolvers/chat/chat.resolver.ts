@@ -14,6 +14,7 @@ import {
   createDirectChannelInput,
 } from "src/chat/services/chat/dtos/channel-dtos";
 import { ChannelModel } from "src/chat/services/chat/models/channel.model";
+import { MessageModel } from "src/chat/services/chat/models/message.model";
 import { User } from "src/common/decorators/user.decorator";
 import { JwtAuthGuard } from "src/guards/jwt.guard";
 
@@ -58,11 +59,11 @@ export class ChatResolver {
     return this.chatService.deleteMessage(input.messageId, userId);
   }
 
-  @Query(() => GetMessageOutput)
+  @Query(() => [MessageModel])
   @UseGuards(JwtAuthGuard)
   async getMessages(
     @Args("input") input: GetMessageInput
-  ): Promise<GetMessageOutput> {
+  ): Promise<MessageModel[]> {
     return this.chatService.getMessages(input.channelId);
   }
 
