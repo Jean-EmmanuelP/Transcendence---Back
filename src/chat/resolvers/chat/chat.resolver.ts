@@ -68,9 +68,9 @@ export class ChatResolver {
     return this.chatService.getMessages(input.channelId);
   }
 
-  @Query(() => [ChannelOutputDTO])
+  @Query(() => [ChannelOutputDTO], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
-  async getUsersChannel(@User() userId: string): Promise<ChannelOutputDTO[][]> {
+  async getUsersChannel(@User() userId: string): Promise<ChannelOutputDTO[] | undefined[]> {
     return this.chatService.getUserChannels(userId);
   }
 }
