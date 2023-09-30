@@ -1,5 +1,6 @@
 import { ObjectType, Field, ID } from "@nestjs/graphql";
 import { UserModel } from "src/user/models/user.model";
+import { ChannelModel } from "./channel.model";
 
 @ObjectType()
 export class MessageModel {
@@ -18,8 +19,8 @@ export class MessageModel {
     @Field()
     channelId: string;
 
-    @Field(() => Channel)
-    channel: Channel;
+    @Field(() => ChannelModel)
+    channel: ChannelModel;
 
     @Field()
     createdAt: Date;
