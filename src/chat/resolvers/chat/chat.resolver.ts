@@ -2,6 +2,7 @@ import { UseGuards } from "@nestjs/common";
 import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ChatService } from "src/chat/services/chat/chat.service";
 import {
+  ChannelOutputDTO,
   CreateDirectChannelOutput,
   DeleteMessageInput,
   DeleteMessageOutput,
@@ -67,9 +68,9 @@ export class ChatResolver {
     return this.chatService.getMessages(input.channelId);
   }
 
-  @Query(() => [ChannelModel])
+  @Query(() => [ChannelOutputDTO])
   @UseGuards(JwtAuthGuard)
-  async getUsersChannel(@User() userId: string): Promise<ChannelModel[]> {
+  async getUsersChannel(@User() userId: string): Promise<ChannelOutputDTO[][]> {
     return this.chatService.getUserChannels(userId);
   }
 }

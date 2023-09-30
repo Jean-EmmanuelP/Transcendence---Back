@@ -3,6 +3,7 @@ import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { UserService } from "src/user/services/user/user.service";
 import { UserStatusGateway } from "./../../../gateways/user-status.gateway";
 import {
+  ChannelOutputDTO,
   CreateDirectChannelOutput,
   DeleteMessageOutput,
   GetMessageOutput,
@@ -132,11 +133,23 @@ export class ChatService {
     }
   }
 
-  async getUserChannels(userId: string) : Promise<ChannelOutputDTO[]> {
+  async getUserChannels(userId: string) : Promise<ChannelOutputDTO[] | undefined[]> {
     try {
-      return await this.prisma.channel.findMany({
-        where: { members: {some: {id: userId}} }
-      })
+      const channels = await this.prisma.channel.findMany({
+        where: { members: {some: {id: userId}} },
+        include: { members: true }
+      });
+
+      return channels.map(channel => ({
+        id: channel.id,
+        members: channel.members.map(member => ({
+          name: member.name,
+          avatar: member.avatar
+        }))
+      }))
+    } catch(error) {
+      console.log(error);
+      return []
     }
   }
 }
