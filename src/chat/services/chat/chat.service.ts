@@ -38,5 +38,5 @@ export class ChatService {
     }
   }
 
-  async sendMessage(channelId: string, userID);
+  // async sendMessage(channelId: string, userID) 
 }
