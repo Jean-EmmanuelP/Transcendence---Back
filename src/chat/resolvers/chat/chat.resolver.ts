@@ -69,7 +69,7 @@ export class ChatResolver {
   @Query(() => [ChannelModel])
   @UseGuards(JwtAuthGuard)
   async getUsersChannel(
-    @Args("userId") userId: string
+    @User() userId: string
   ): Promise<ChannelModel[]> {
     return this.chatService.getUserChannels(userId);
   }
