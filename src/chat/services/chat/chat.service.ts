@@ -159,7 +159,10 @@ export class ChatService {
     }
   }
 
-  async createChannel(input: CreateChannelInput, userId: string): Promise<CreateChannelOutput> {
+  async createChannel(
+    input: CreateChannelInput,
+    userId: string
+  ): Promise<CreateChannelOutput> {
     try {
       const { name, isPrivate, password } = input;
       if (isPrivate && !password) {
@@ -175,9 +178,53 @@ export class ChatService {
         },
       });
 
-      return { success: true , channel: newChannel};
+      return { success: true, channel: newChannel };
     } catch (error) {
       return { success: false, error: error.message };
     }
   }
+
+  async setChannelPassword(
+    channelId: string,
+    password: string,
+    userId: string
+  ) {
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+      });
+      // if possible do a middleware for the checking of if this is the ownerId
+      if (!channel) {
+        throw new Error("Channel not found");
+      }
+      if (channel.ownerId !== userId) {
+        throw new Error("User does not have permission to set password");
+      }
+
+      const hashedPassword = await bcrypt.hash(password, 12);
+
+      await this.prisma.channel.update({
+        where: { id: channelId },
+        data: { password: hashedPassword },
+      });
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async changeChannelAdmin(
+    channelId: string,
+    password: string,
+    userId: string
+  ) {}
+
+  // async blockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
+  // ajouter une relation de blocage dans la DB
+  // }
+
+  // async unblockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
+
+  // }
 }
