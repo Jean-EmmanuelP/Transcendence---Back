@@ -216,9 +216,33 @@ export class ChatService {
 
   async changeChannelAdmin(
     channelId: string,
-    password: string,
+    newAdminId: string,
     userId: string
-  ) {}
+  ) {
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: { owner: true },
+      });
+      if (!channel) {
+        throw new Error("Channel not found");
+      }
+      if (channel.ownerId !== userId) {
+        throw new Error(
+          "User does not have permission to change administrator"
+        );
+      }
+
+      await this.prisma.channel.update({
+        where: { id: channelId },
+        data: { ownerId: newAdminId },
+      });
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
   // async blockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
   // ajouter une relation de blocage dans la DB
