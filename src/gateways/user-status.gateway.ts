@@ -22,6 +22,7 @@ export class UserStatusGateway
     private readonly userService: UserService
   ) {}
   private clients = new Map<string, string>();
+  private userSockets = new Map<string, string[]>();
 
   handleConnection(client: Socket, ...args: any[]) {
     try {
@@ -35,6 +36,12 @@ export class UserStatusGateway
         if (userId) {
           this.clients.set(client.id, userId);
           this.userService.updateUserStatus(userId, "ONLINE");
+
+          if (this.userSockets.has(userId)) {
+            this.userSockets.get(userId).push(client.id);
+          } else {
+            this.userSockets.set(userId, [client.id]);
+          }
         } else {
           console.log("userId is not defined in the token payload");
           client.disconnect();
@@ -57,5 +64,9 @@ export class UserStatusGateway
     } else {
       console.log(`userId not found for client.id:`, client.id);
     }
+  }
+
+  notifyDirectChannelCreated(userId1: string, userId2: string) : void {
+
   }
 }

@@ -1,12 +1,14 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { UserService } from "src/user/services/user/user.service";
+import { UserStatusGateway } from './../../../gateways/user-status.gateway';
 
 @Injectable()
 export class ChatService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly userGateway: UserStatusGateway
   ) {}
 
   async createDirectChannel(userId: string, userId2: string): Promise<void> {
@@ -22,5 +24,6 @@ export class ChatService {
         },
       },
     });
+    this.userGateway.notifyDirectChannelCreated(userId, userId2);
   }
 }
