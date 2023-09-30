@@ -26,4 +26,6 @@ export class ChatService {
     });
     this.userGateway.notifyDirectChannelCreated(userId, userId2);
   }
+
+  async sendMessage(channelId: string, userID)
 }
