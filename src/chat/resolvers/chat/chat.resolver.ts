@@ -9,10 +9,12 @@ import {
   GetMessageOutput,
   SendMessageInput,
   SendMessageOutput,
+  UpdateMessageInput,
   UpdateMessageOutput,
   createDirectChannelInput,
 } from "src/chat/services/chat/dtos/channel-dtos";
 import { ChannelModel } from "src/chat/services/chat/models/channel.model";
+import { User } from "src/common/decorators/user.decorator";
 import { JwtAuthGuard } from "src/guards/jwt.guard";
 
 @Resolver()
@@ -29,19 +31,18 @@ export class ChatResolver {
   @UseGuards(JwtAuthGuard)
   async sendMessage(
     @Args("input") input: SendMessageInput,
-    @Context() context
+    @User() userId: string
   ): Promise<SendMessageOutput> {
-    const req = context.req;
-    const userId = req.user.userId;
     return this.chatService.sendMessage(input.channelId, userId, input.content);
   }
 
   @Mutation(() => UpdateMessageOutput)
   @UseGuards(JwtAuthGuard)
   async updateMessage(
-    @Args("input") input: UpdateMessageOutput
+    @Args("input") input: UpdateMessageInput,
+    @User() userId: string
   ): Promise<UpdateMessageOutput> {
-    return this.chatService.updateMessage(input);
+    return this.chatService.updateMessage(input.messageId, userId, input.newContent);
   }
 
   @Mutation(() => DeleteMessageOutput)
