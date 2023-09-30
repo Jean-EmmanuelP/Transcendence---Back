@@ -42,15 +42,20 @@ export class ChatResolver {
     @Args("input") input: UpdateMessageInput,
     @User() userId: string
   ): Promise<UpdateMessageOutput> {
-    return this.chatService.updateMessage(input.messageId, userId, input.newContent);
+    return this.chatService.updateMessage(
+      input.messageId,
+      userId,
+      input.newContent
+    );
   }
 
   @Mutation(() => DeleteMessageOutput)
   @UseGuards(JwtAuthGuard)
   async deleteMessage(
-    @Args("input") input: DeleteMessageInput
+    @Args("input") input: DeleteMessageInput,
+    @User() userId: string
   ): Promise<DeleteMessageOutput> {
-    return this.chatService.deleteMessage(input);
+    return this.chatService.deleteMessage(input.messageId, userId);
   }
 
   @Query(() => GetMessageOutput)
