@@ -1,7 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { UserService } from "src/user/services/user/user.service";
-import { UserStatusGateway } from './../../../gateways/user-status.gateway';
+import { UserStatusGateway } from "./../../../gateways/user-status.gateway";
+import {
+  CreateDirectChannelOutput,
+  createDirectChannelInput,
+} from "./dtos/channel-dtos";
 
 @Injectable()
 export class ChatService {
@@ -11,21 +15,28 @@ export class ChatService {
     private readonly userGateway: UserStatusGateway
   ) {}
 
-  async createDirectChannel(userId: string, userId2: string): Promise<void> {
-    const user1 = await this.userService.findById(userId);
-    const user2 = await this.userService.findById(userId2);
-    await this.prisma.channel.create({
-      data: {
-        name: `Direct-${user1.name}-${user2.name}`,
-        isPrivate: true,
-        isDirectMessage: true,
-        members: {
-          connect: [{ id: userId }, { id: userId2 }],
+  async createDirectChannel(
+    input: createDirectChannelInput
+  ): Promise<CreateDirectChannelOutput> {
+    try {
+      const user1 = await this.userService.findById(input.userId1);
+      const user2 = await this.userService.findById(input.userId2);
+      await this.prisma.channel.create({
+        data: {
+          name: `Direct-${user1.name}-${user2.name}`,
+          isPrivate: true,
+          isDirectMessage: true,
+          members: {
+            connect: [{ id: input.userId1 }, { id: input.userId2 }],
+          },
         },
-      },
-    });
-    this.userGateway.notifyDirectChannelCreated(userId, userId2);
+      });
+      this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
   }
 
-  async sendMessage(channelId: string, userID)
+  async sendMessage(channelId: string, userID);
 }

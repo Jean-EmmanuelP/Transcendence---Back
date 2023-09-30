@@ -14,6 +14,7 @@ import { TokenService } from "./token/services/token/token.service";
 import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddleware";
 import { UserStatusGateway } from "./gateways/user-status.gateway";
 import { ChatService } from './chat/services/chat/chat.service';
+import { ChatResolver } from './chat/resolvers/chat/chat.resolver';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ChatService } from './chat/services/chat/chat.service';
     TokenService,
     UserStatusGateway,
     ChatService,
+    ChatResolver,
   ],
 })
 export class AppModule implements NestModule {
