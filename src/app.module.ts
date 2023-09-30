@@ -13,6 +13,7 @@ import { PassportModule } from "@nestjs/passport";
 import { TokenService } from "./token/services/token/token.service";
 import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddleware";
 import { UserStatusGateway } from "./gateways/user-status.gateway";
+import { ChatService } from './chat/services/chat/chat.service';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UserStatusGateway } from "./gateways/user-status.gateway";
     AuthService,
     TokenService,
     UserStatusGateway,
+    ChatService,
   ],
 })
 export class AppModule implements NestModule {

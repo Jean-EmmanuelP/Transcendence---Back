@@ -19,12 +19,14 @@ import { Status } from "@prisma/client";
 import { v4 as uuidv4 } from "uuid";
 import * as jwt from "jsonwebtoken";
 import { transporter } from "src/common/transporter";
+import { ChatService } from './../../../chat/services/chat/chat.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prisma: PrismaService,
-    private jwtService: JwtService
+    private jwtService: JwtService,
+    private readonly chatService: ChatService,
   ) {}
 
   private async createUniquePseudo(
@@ -371,8 +373,13 @@ export class UserService {
         status: "ACCEPTED",
       },
     });
-
-    return updatedFriendship.count > 0;
+    
+    if (updatedFriendship.count > 0)
+    {
+      await this.chatService.createDirectChannel(senderId, receiverId);
+      return true;
+    }
+    return false;
   }
 
   async rejectFriendRequest(
