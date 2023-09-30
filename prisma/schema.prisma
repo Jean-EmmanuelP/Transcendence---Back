@@ -48,8 +48,8 @@ model Channel {
   isPrivate Boolean @default(false)
   isDirectMessage Boolean @default(false)
   password String?
-  ownerId String
-  owner User @relation("ChannelOwner", fields: [ownerId], references: [id])
+  ownerId String?
+  owner User? @relation("ChannelOwner", fields: [ownerId], references: [id])
   messages Message[]
   members User[] @relation("ChannelMembers")
   createdAt DateTime @default(now())
