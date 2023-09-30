@@ -159,9 +159,9 @@ export class ChatService {
     }
   }
 
-  async createChannel(input: CreateChannelInput): Promise<CreateChannelOutput> {
+  async createChannel(input: CreateChannelInput, userId: string): Promise<CreateChannelOutput> {
     try {
-      const { name, isPrivate, password, ownerId } = input;
+      const { name, isPrivate, password } = input;
       if (isPrivate && !password) {
         throw new Error("Password is required for private channels");
       }
@@ -171,7 +171,7 @@ export class ChatService {
           name,
           isPrivate,
           password: hashedPassword,
-          ownerId,
+          ownerId: userId,
         },
       });
 
