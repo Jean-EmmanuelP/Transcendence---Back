@@ -77,7 +77,24 @@ export class UserStatusGateway
     }
   }
 
-  notifyDirectChannelCreated(userId1: string, userId2: string) : void {
+  notifyDirectChannelCreated(userId1: string, userId2: string): void {
+    const sockets1 = this.userSockets.get(userId1);
+    const sockets2 = this.userSockets.get(userId2);
 
+    if (sockets1) {
+      sockets1.forEach((socketId) => {
+        this.server
+          .to(socketId)
+          .emit("directChannelCreated", { userId1, userId2 });
+      });
+    }
+
+    if (sockets2) {
+      sockets2.forEach((socketId) => {
+        this.server
+          .to(socketId)
+          .emit("directChannelCreated", { userId1, userId2 });
+      });
+    }
   }
 }
