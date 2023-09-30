@@ -6,10 +6,9 @@ import {
   ChannelOutputDTO,
   CreateDirectChannelOutput,
   DeleteMessageOutput,
-  GetMessageOutput,
   SendMessageOutput,
   UpdateMessageOutput,
-  createDirectChannelInput,
+  CreateDirectChannelInput,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
 import { ChannelModel } from "./models/channel.model";
@@ -22,7 +21,7 @@ export class ChatService {
     private readonly userGateway: UserStatusGateway
   ) {}
   async createDirectChannel(
-    input: createDirectChannelInput
+    input: CreateDirectChannelInput
   ): Promise<CreateDirectChannelOutput> {
     try {
       const user2 = await this.userService.findById(input.userId2);
@@ -49,6 +48,7 @@ export class ChatService {
     content: string
   ): Promise<SendMessageOutput> {
     try {
+      // check if the user is actually a member of the channel
       await this.prisma.message.create({
         data: {
           content,
@@ -155,4 +155,7 @@ export class ChatService {
       return [];
     }
   }
+
+  async createChannel(
+  ): Promise<CreateChannelOutput>
 }

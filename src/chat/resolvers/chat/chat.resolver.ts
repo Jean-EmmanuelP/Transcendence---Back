@@ -3,18 +3,14 @@ import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ChatService } from "src/chat/services/chat/chat.service";
 import {
   ChannelOutputDTO,
-  CreateDirectChannelOutput,
   DeleteMessageInput,
   DeleteMessageOutput,
   GetMessageInput,
-  GetMessageOutput,
   SendMessageInput,
   SendMessageOutput,
   UpdateMessageInput,
   UpdateMessageOutput,
-  createDirectChannelInput,
 } from "src/chat/services/chat/dtos/channel-dtos";
-import { ChannelModel } from "src/chat/services/chat/models/channel.model";
 import { MessageModel } from "src/chat/services/chat/models/message.model";
 import { User } from "src/common/decorators/user.decorator";
 import { JwtAuthGuard } from "src/guards/jwt.guard";

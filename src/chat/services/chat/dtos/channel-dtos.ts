@@ -2,7 +2,7 @@ import { InputType, Field, ObjectType } from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
 
 @InputType()
-export class createDirectChannelInput {
+export class CreateDirectChannelInput {
   @Field()
   userId1: string;
 
@@ -12,6 +12,21 @@ export class createDirectChannelInput {
 
 @ObjectType()
 export class CreateDirectChannelOutput {
+  @Field()
+  success: boolean;
+
+  @Field({ nullable: true })
+  error?: string;
+}
+
+@InputType()
+export class createChannelInput {
+  @Field()
+  
+}
+
+@ObjectType()
+export class CreateChannelOutput {
   @Field()
   success: boolean;
 
