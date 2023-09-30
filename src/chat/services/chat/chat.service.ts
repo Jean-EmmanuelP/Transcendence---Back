@@ -67,16 +67,23 @@ export class ChatService {
       const existingMessage = await this.prisma.message.findUnique({
         where: { id: messageId },
       });
+
       if (!existingMessage) {
         return { success: false, error: "Message not found" };
       }
+      
       if (existingMessage.userId !== userId) {
-        return { success: false, error: "You do not have permission to edit this message" }
+        return {
+          success: false,
+          error: "You do not have permission to edit this message",
+        };
       }
+
       await this.prisma.message.update({
         where: { id: messageId },
         data: { content: newContent },
       });
+      
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
