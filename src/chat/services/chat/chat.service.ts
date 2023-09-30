@@ -64,6 +64,15 @@ export class ChatService {
     newContent: string
   ): Promise<UpdateMessageOutput> {
     try {
+      const existingMessage = await this.prisma.message.findUnique({
+        where: { id: messageId },
+      });
+      if (!existingMessage) {
+        return { success: false, error: "Message not found" };
+      }
+      if (existingMessage.userId !== userId) {
+        return { success: false, error: "You do not have permission to edit this message" }
+      }
       await this.prisma.message.update({
         where: { id: messageId },
         data: { content: newContent },
