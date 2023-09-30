@@ -61,6 +61,17 @@ export class UserStatusGateway
     if (userId) {
       this.userService.updateUserStatus(userId, "OFFLINE");
       this.clients.delete(client.id);
+
+      const userSocketIds = this.userSockets.get(userId);
+      if (userSocketIds) {
+        const index = userSocketIds.indexOf(client.id);
+        if (index > -1) {
+          userSocketIds.splice(index, 1);
+        }
+        if (userSocketIds.length === 0) {
+          this.userSockets.delete(userId);
+        }
+      }
     } else {
       console.log(`userId not found for client.id:`, client.id);
     }
