@@ -1,5 +1,6 @@
 import { InputType, Field, ObjectType } from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
+import { ChannelModel } from "../models/channel.model";
 
 @InputType()
 export class CreateDirectChannelInput {
@@ -20,7 +21,7 @@ export class CreateDirectChannelOutput {
 }
 
 @InputType()
-export class createChannelInput {
+export class CreateChannelInput {
   @Field()
   name: string;
 
@@ -32,8 +33,9 @@ export class createChannelInput {
 
   @Field()
   ownerId: string;
-  
 }
+
+@ObjectType()
 
 @ObjectType()
 export class CreateChannelOutput {
@@ -42,6 +44,9 @@ export class CreateChannelOutput {
 
   @Field({ nullable: true })
   error?: string;
+
+  @Field(() => ChannelOutputDTO, { nullable: true })
+  channel?: ChannelDTO
 }
 
 @InputType()

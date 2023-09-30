@@ -9,9 +9,12 @@ import {
   SendMessageOutput,
   UpdateMessageOutput,
   CreateDirectChannelInput,
+  CreateChannelOutput,
+  CreateChannelInput,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
 import { ChannelModel } from "./models/channel.model";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class ChatService {
@@ -156,6 +159,25 @@ export class ChatService {
     }
   }
 
-  async createChannel(
-  ): Promise<CreateChannelOutput>
+  async createChannel(input: CreateChannelInput): Promise<CreateChannelOutput> {
+    try {
+      const { name, isPrivate, password, ownerId } = input;
+      if (isPrivate && !password) {
+        throw new Error("Password is required for private channels");
+      }
+      const hashedPassword = password ? await bcrypt.hash(password, 12) : null;
+      const newChannel = await this.prisma.channel.create({
+        data: {
+          name,
+          isPrivate,
+          password: hashedPassword,
+          ownerId,
+        },
+      });
+
+      return { success: true , channel: newChannel};
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 }
