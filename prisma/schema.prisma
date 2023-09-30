@@ -37,6 +37,33 @@ model User {
   sentRequests  Friendship[] @relation("FriendshipSenders")
   receivedRequests Friendship[] @relation("FriendshipReceivers")
   status Status @default(OFFLINE)
+  channels Channel[] @relation("ChannelMembers")
+  messages Message[]
+  ownedChannels Channel[] @relation("ChannelOwner")
+}
+
+model Channel {
+  id String @id @default(cuid())
+  name String
+  isPrivate Boolean @default(false)
+  isDirectMessage Boolean @default(false)
+  password String?
+  ownerId String
+  owner User @relation("ChannelOwner", fields: [ownerId], references: [id])
+  messages Message[]
+  members User[] @relation("ChannelMembers")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Message {
+  id String @id @default(cuid())
+  content String
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  channelId String
+  channel Channel @relation(fields: [channelId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Friendship {
