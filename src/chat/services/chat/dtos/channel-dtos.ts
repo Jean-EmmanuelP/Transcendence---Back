@@ -36,6 +36,15 @@ export class CreateChannelInput {
 }
 
 @ObjectType()
+export class OperationResult {
+  @Field()
+  success: boolean;
+
+  @Field({ nullable: true })
+  error?: string;
+}
+
+@ObjectType()
 export class ChannelDTO {
   @Field(() => ID)
   id: string;
