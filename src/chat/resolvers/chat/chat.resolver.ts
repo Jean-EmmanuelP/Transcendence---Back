@@ -61,16 +61,14 @@ export class ChatResolver {
   @Query(() => GetMessageOutput)
   @UseGuards(JwtAuthGuard)
   async getMessages(
-    @Args("input") input: GetMessageInput,
+    @Args("input") input: GetMessageInput
   ): Promise<GetMessageOutput> {
     return this.chatService.getMessages(input.channelId);
   }
 
   @Query(() => [ChannelModel])
   @UseGuards(JwtAuthGuard)
-  async getUsersChannel(
-    @User() userId: string
-  ): Promise<ChannelModel[]> {
+  async getUsersChannel(@User() userId: string): Promise<ChannelModel[]> {
     return this.chatService.getUserChannels(userId);
   }
 }

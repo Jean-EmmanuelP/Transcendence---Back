@@ -4,6 +4,8 @@ import { UserService } from "src/user/services/user/user.service";
 import { UserStatusGateway } from "./../../../gateways/user-status.gateway";
 import {
   CreateDirectChannelOutput,
+  SendMessageOutput,
+  UpdateMessageOutput,
   createDirectChannelInput,
 } from "./dtos/channel-dtos";
 
@@ -37,5 +39,38 @@ export class ChatService {
     }
   }
 
-  // async sendMessage(channelId: string, userID) 
+  async sendMessage(
+    channelId: string,
+    userId: string,
+    content: string
+  ): Promise<SendMessageOutput> {
+    try {
+      await this.prisma.message.create({
+        data: {
+          content,
+          userId,
+          channelId,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async updateMessage(
+    messageId: string,
+    userId: string,
+    newContent: string
+  ): Promise<UpdateMessageOutput> {
+    try {
+      await this.prisma.message.update({
+        where: { id: messageId },
+        data: { content: newContent },
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 }
