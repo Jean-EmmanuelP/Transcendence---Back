@@ -14,29 +14,28 @@ export class ChatService {
     private readonly userService: UserService,
     private readonly userGateway: UserStatusGateway
   ) {}
-  // to create the direct channel it is done automatically when a user accept a friend!
-  // async createDirectChannel(
-  //   input: createDirectChannelInput
-  // ): Promise<CreateDirectChannelOutput> {
-  //   try {
-  //     const user1 = await this.userService.findById(input.userId1);
-  //     const user2 = await this.userService.findById(input.userId2);
-  //     await this.prisma.channel.create({
-  //       data: {
-  //         name: `Direct-${user1.name}-${user2.name}`,
-  //         isPrivate: true,
-  //         isDirectMessage: true,
-  //         members: {
-  //           connect: [{ id: input.userId1 }, { id: input.userId2 }],
-  //         },
-  //       },
-  //     });
-  //     this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
-  //     return { success: true };
-  //   } catch (error) {
-  //     return { success: false, error: error.message };
-  //   }
-  // }
+  async createDirectChannel(
+    input: createDirectChannelInput
+  ): Promise<CreateDirectChannelOutput> {
+    try {
+      const user1 = await this.userService.findById(input.userId1);
+      const user2 = await this.userService.findById(input.userId2);
+      await this.prisma.channel.create({
+        data: {
+          name: `Direct-${user1.name}-${user2.name}`,
+          isPrivate: true,
+          isDirectMessage: true,
+          members: {
+            connect: [{ id: input.userId1 }, { id: input.userId2 }],
+          },
+        },
+      });
+      this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
   // async sendMessage(channelId: string, userID) 
 }

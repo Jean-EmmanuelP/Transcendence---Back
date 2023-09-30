@@ -5,11 +5,11 @@ import { CreateDirectChannelOutput, createDirectChannelInput } from 'src/chat/se
 @Resolver()
 export class ChatResolver {
     constructor(private readonly chatService: ChatService) {}
-
-    @Mutation(() => CreateDirectChannelOutput)
-    async createDirectChannel(
-        @Args('input') input: createDirectChannelInput,
-    ): Promise<CreateDirectChannelOutput> {
-        return this.chatService.createDirectChannel(input);
-    }
+    // commented it cause we createdirectchannel automatically when a user accept the request of another user!
+    // @Mutation(() => CreateDirectChannelOutput)
+    // async createDirectChannel(
+    //     @Args('input') input: createDirectChannelInput,
+    // ): Promise<CreateDirectChannelOutput> {
+    //     return this.chatService.createDirectChannel(input);
+    // }
 }
