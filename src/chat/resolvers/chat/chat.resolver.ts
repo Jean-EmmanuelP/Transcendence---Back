@@ -1,6 +1,6 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { ChatService } from 'src/chat/services/chat/chat.service';
-import { CreateDirectChannelOutput, DeleteMessageInput, DeleteMessageOutput, SendMessageInput, SendMessageOutput, UpdateMessageOutput, createDirectChannelInput } from 'src/chat/services/chat/dtos/channel-dtos';
+import { CreateDirectChannelOutput, DeleteMessageInput, DeleteMessageOutput, GetMessageInput, GetMessageOutput, SendMessageInput, SendMessageOutput, UpdateMessageOutput, createDirectChannelInput } from 'src/chat/services/chat/dtos/channel-dtos';
 import { UpdateMessageOutput } from './../../services/chat/dtos/channel-dtos';
 
 @Resolver()
@@ -27,5 +27,9 @@ export class ChatResolver {
     async deleteMessage(@Args('input') input: DeleteMessageInput): Promise<DeleteMessageOutput> {
         return this.chatService.deleteMessage(input);
     }
-
+    
+    @Query(() => GetMessageOutput)
+    async getMessages(@Args('input') input: GetMessageInput): Promise<GetMessageOutput> {
+        return this.chatService.getMessages(input);
+    }
 }
