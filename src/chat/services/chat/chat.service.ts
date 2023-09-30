@@ -4,6 +4,7 @@ import { UserService } from "src/user/services/user/user.service";
 import { UserStatusGateway } from "./../../../gateways/user-status.gateway";
 import {
   CreateDirectChannelOutput,
+  DeleteMessageOutput,
   SendMessageOutput,
   UpdateMessageOutput,
   createDirectChannelInput,
@@ -71,7 +72,7 @@ export class ChatService {
       if (!existingMessage) {
         return { success: false, error: "Message not found" };
       }
-      
+
       if (existingMessage.userId !== userId) {
         return {
           success: false,
@@ -83,7 +84,32 @@ export class ChatService {
         where: { id: messageId },
         data: { content: newContent },
       });
-      
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  async deleteMessage(
+    messageId: string,
+    userId: string
+  ): Promise<DeleteMessageOutput> {
+    try {
+      const existingMessage = await this.prisma.message.findUnique({
+        where: { id: messageId },
+      });
+      if (!existingMessage) {
+        return { success: false, error: "Message not found" };
+      }
+
+      if (existingMessage.userId !== userId) {
+        return {
+          success: false,
+          error: "You do not have permission to edit this message",
+        };
+      }
+      await this.prisma.message.delete({ where: { id: messageId } });
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
