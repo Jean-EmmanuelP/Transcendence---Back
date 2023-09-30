@@ -22,6 +22,16 @@ export class CreateDirectChannelOutput {
 @InputType()
 export class createChannelInput {
   @Field()
+  name: string;
+
+  @Field()
+  isPrivate: boolean;
+
+  @Field({ nullable: true })
+  password?: string;
+
+  @Field()
+  ownerId: string;
   
 }
 
