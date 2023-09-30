@@ -11,6 +11,7 @@ import {
   CreateDirectChannelInput,
   CreateChannelOutput,
   CreateChannelInput,
+  OperationResult,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
 import { ChannelModel } from "./models/channel.model";
@@ -189,7 +190,7 @@ export class ChatService {
     channelId: string,
     password: string,
     userId: string
-  ) {
+  ): Promise<OperationResult> {
     try {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
@@ -220,7 +221,7 @@ export class ChatService {
     channelId: string,
     newAdminId: string,
     userId: string
-  ) {
+  ): Promise<OperationResult> {
     try {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
