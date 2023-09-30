@@ -4,6 +4,9 @@ import { MessageModel } from "../models/message.model";
 @InputType()
 export class createDirectChannelInput {
     @Field()
+    userId1: string
+    
+    @Field()
     userId2: string
 }
 

@@ -378,6 +378,7 @@ export class UserService {
     if (updatedFriendship.count > 0)
     {
       const createChannelInput: createDirectChannelInput = {
+        userId1: senderId,
         userId2: receiverId,
 
       };
