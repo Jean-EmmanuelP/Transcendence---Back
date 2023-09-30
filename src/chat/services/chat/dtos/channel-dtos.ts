@@ -1,4 +1,4 @@
-import { InputType, Field, ObjectType } from "@nestjs/graphql";
+import { InputType, Field, ObjectType, ID } from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
 import { ChannelModel } from "../models/channel.model";
 
@@ -36,6 +36,22 @@ export class CreateChannelInput {
 }
 
 @ObjectType()
+export class ChannelDTO {
+  @Field(() => ID)
+  id: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  isPrivate: boolean;
+
+  @Field({ nullable: true })
+  password?: string;
+
+  @Field()
+  ownerId: string;
+}
 
 @ObjectType()
 export class CreateChannelOutput {
