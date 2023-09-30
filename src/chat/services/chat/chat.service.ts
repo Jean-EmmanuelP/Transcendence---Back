@@ -119,9 +119,7 @@ export class ChatService {
     }
   }
 
-  async getMessages(
-    channelId: string
-  ): Promise<MessageModel[] | undefined[]> {
+  async getMessages(channelId: string): Promise<MessageModel[] | undefined[]> {
     try {
       return await this.prisma.message.findMany({
         where: { channelId },
@@ -132,23 +130,29 @@ export class ChatService {
     }
   }
 
-  async getUserChannels(userId: string) : Promise<ChannelOutputDTO[] | undefined[]> {
+  async getUserChannels(
+    userId: string
+  ): Promise<ChannelOutputDTO[] | undefined[]> {
     try {
       const channels = await this.prisma.channel.findMany({
-        where: { members: {some: {id: userId}} },
-        include: { members: true }
+        where: { members: { some: { id: userId } } },
+        include: { members: true },
       });
 
-      return channels.map(channel => ({
+      return channels.map((channel) => ({
         id: channel.id,
-        members: channel.members.map(member => ({
-          name: member.name,
-          avatar: member.avatar
-        }))
-      }))
-    } catch(error) {
+        name: channel.name,
+        members: channel.members
+          .filter((member) => member.id !== userId)
+          .map((member) => ({
+            id: member.id,
+            name: member.name,
+            avatar: member.avatar,
+          })),
+      }));
+    } catch (error) {
       console.log(error);
-      return []
+      return [];
     }
   }
 }
