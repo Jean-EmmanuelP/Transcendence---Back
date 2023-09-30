@@ -59,7 +59,7 @@ export class ChatResolver {
     return this.chatService.deleteMessage(input.messageId, userId);
   }
 
-  @Query(() => [MessageModel])
+  @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
   async getMessages(
     @Args("input") input: GetMessageInput

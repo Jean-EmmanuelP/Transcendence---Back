@@ -13,14 +13,14 @@ export class MessageModel {
     @Field()
     userId: string;
 
-    @Field(() => UserModel)
-    user: UserModel
+    @Field(() => UserModel, { nullable: true })
+    user?: UserModel
 
     @Field()
     channelId: string;
 
-    @Field(() => ChannelModel)
-    channel: ChannelModel;
+    @Field(() => ChannelModel, { nullable: true })
+    channel?: ChannelModel;
 
     @Field()
     createdAt: Date;
