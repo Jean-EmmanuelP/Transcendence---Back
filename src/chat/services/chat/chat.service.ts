@@ -11,6 +11,7 @@ import {
   createDirectChannelInput,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
+import { ChannelModel } from "./models/channel.model";
 
 @Injectable()
 export class ChatService {
@@ -124,10 +125,18 @@ export class ChatService {
     try {
       return await this.prisma.message.findMany({
         where: { channelId },
-        orderBy: { createdAt: "asc" }, // nous on a besoin pour laffichage que ce soit du plus ancien au plus recent
+        orderBy: { createdAt: "asc" },
       });
     } catch (error) {
       return [];
+    }
+  }
+
+  async getUserChannels(userId: string) : Promise<ChannelOutputDTO[]> {
+    try {
+      return await this.prisma.channel.findMany({
+        where: { members: {some: {id: userId}} }
+      })
     }
   }
 }
