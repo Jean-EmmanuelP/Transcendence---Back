@@ -28,10 +28,10 @@ export class ChatService {
     input: CreateDirectChannelInput
   ): Promise<CreateDirectChannelOutput> {
     try {
-      const user2 = await this.userService.findById(input.userId2);
+      const sender = await this.userService.findById(input.userId1);
       await this.prisma.channel.create({
         data: {
-          name: `${user2.name}`,
+          name: `${sender.name}`,
           isPrivate: true,
           isDirectMessage: true,
           members: {
