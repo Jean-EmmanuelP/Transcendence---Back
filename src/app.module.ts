@@ -15,6 +15,7 @@ import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddlewa
 import { ChatService } from './chat/services/chat/chat.service';
 import { ChatResolver } from './chat/resolvers/chat/chat.resolver';
 import { WebSocketModule } from "./gateways/websocket.module";
+import { ChatModule } from "./chat/chat.module";
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { WebSocketModule } from "./gateways/websocket.module";
     WebSocketModule,
     PrismaModule,
     AuthModule,
+    ChatModule,
   ],
   providers: [
     JwtService,

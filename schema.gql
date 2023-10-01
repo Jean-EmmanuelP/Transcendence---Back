@@ -14,13 +14,76 @@ type UserModel {
   status: String!
 }
 
+type ChannelModel {
+  id: ID!
+  name: String!
+  isPrivate: Boolean!
+  isDirectMessage: Boolean!
+  password: String
+  owner: UserModel
+  message: [MessageModel!]!
+  members: [UserModel!]!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type MessageModel {
+  id: ID!
+  content: String!
+  userId: String!
+  user: UserModel
+  channelId: String!
+  channel: ChannelModel
+  createdAt: DateTime!
+}
+
+type SendMessageOutput {
+  success: Boolean!
+  error: String
+}
+
+type UpdateMessageOutput {
+  success: Boolean!
+  error: String
+}
+
+type DeleteMessageOutput {
+  success: Boolean!
+  error: String
+}
+
+type UserOutputDTO {
+  name: String!
+  avatar: String!
+  status: String!
+}
+
+type ChannelOutputDTO {
+  id: String!
+  members: [UserOutputDTO!]!
+}
+
 type Query {
+  getMessages(input: GetMessageInput!): [MessageModel]!
+  getUsersChannel: [ChannelOutputDTO]!
   users: [UserModel!]!
   userInformation: UserModel!
   getAllFriendsOfUser: [UserModel!]!
 }
 
+input GetMessageInput {
+  channelId: String!
+}
+
 type Mutation {
+  sendMessage(input: SendMessageInput!): SendMessageOutput!
+  updateMessage(input: UpdateMessageInput!): UpdateMessageOutput!
+  deleteMessage(input: DeleteMessageInput!): DeleteMessageOutput!
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
@@ -29,6 +92,20 @@ type Mutation {
   updatePseudo(newPseudo: String!): Boolean!
   forgotPassword(email: String!): Boolean!
   resetPassword(resetToken: String!, newPassword: String!): Boolean!
+}
+
+input SendMessageInput {
+  channelId: String!
+  content: String!
+}
+
+input UpdateMessageInput {
+  messageId: String!
+  newContent: String!
+}
+
+input DeleteMessageInput {
+  messageId: String!
 }
 
 """The `Upload` scalar type represents a file upload."""

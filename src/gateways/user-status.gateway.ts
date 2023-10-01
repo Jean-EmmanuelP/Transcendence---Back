@@ -8,6 +8,8 @@ import {
 import { Server, Socket } from "socket.io";
 import { UserService } from "src/user/services/user/user.service";
 import * as jwt from "jsonwebtoken";
+import { forwardRef } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 
 @WebSocketGateway()
 export class UserStatusGateway
@@ -17,6 +19,7 @@ export class UserStatusGateway
   server: Server;
 
   constructor(
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService
   ) {}
   private clients = new Map<string, string>();

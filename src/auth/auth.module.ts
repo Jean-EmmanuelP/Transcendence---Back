@@ -11,6 +11,7 @@ import { ConfigModule } from "@nestjs/config";
 import { FortyTwoAuthStrategy } from "./strategies/42.strategy";
 import { JwtStrategy } from "./strategies/jwt/jwt.strategy";
 import { TokenService } from "src/token/services/token/token.service";
+import { ChatModule } from "src/chat/chat.module";
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { TokenService } from "src/token/services/token/token.service";
     PassportModule,
     JwtModule.register(jwtConfig),
     PrismaModule,
+    ChatModule
   ],
   providers: [
     JwtService,
@@ -28,6 +30,7 @@ import { TokenService } from "src/token/services/token/token.service";
     FortyTwoAuthStrategy,
     JwtStrategy,
   ],
+  exports: [AuthModule, JwtModule],
   controllers: [AuthController],
 })
 export class AuthModule {}

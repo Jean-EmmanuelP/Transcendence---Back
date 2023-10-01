@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Inject, forwardRef } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { UserService } from "src/user/services/user/user.service";
 import { UserStatusGateway } from "./../../../gateways/user-status.gateway";
@@ -21,6 +21,7 @@ import * as bcrypt from "bcrypt";
 export class ChatService {
   constructor(
     private readonly prisma: PrismaService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly userGateway: UserStatusGateway
   ) {}

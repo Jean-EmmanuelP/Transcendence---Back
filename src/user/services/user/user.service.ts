@@ -2,6 +2,8 @@ import {
   ConflictException,
   Injectable,
   UnauthorizedException,
+  forwardRef,
+  Inject
 } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
@@ -16,7 +18,6 @@ import { AuthResponse } from "src/user/interfaces/auth-response";
 import { TempAuthResponse } from "src/user/interfaces/temp-response";
 import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 import { Status } from "@prisma/client";
-import { v4 as uuidv4 } from "uuid";
 import * as jwt from "jsonwebtoken";
 import { transporter } from "src/common/transporter";
 import { ChatService } from './../../../chat/services/chat/chat.service';
@@ -27,6 +28,7 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private jwtService: JwtService,
+    @Inject(forwardRef(() => ChatService))
     private readonly chatService: ChatService,
   ) {}
 
