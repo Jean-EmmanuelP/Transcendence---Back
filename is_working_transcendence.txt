@@ -60,3 +60,5 @@ so the channel is automatically deleted (the first who came is the future admini
 interface.
 
 ❌ The user should be able to access other players profiles through the chat interface.
+
+--> must understand the dependencies between the modules, the instanciation of the modules etc
