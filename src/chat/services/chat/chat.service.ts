@@ -14,7 +14,6 @@ import {
   OperationResult,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
-import { ChannelModel } from "./models/channel.model";
 import * as bcrypt from "bcrypt";
 
 // implement all the socket connections at the end
@@ -256,7 +255,6 @@ export class ChatService {
   }
 
   // async blockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
-  // ajouter une relation de blocage dans la DB
   // }
 
   // async unblockUser(blockerId: string, blockedId: string): Promise<OperationResult> {

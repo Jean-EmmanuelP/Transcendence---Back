@@ -40,6 +40,17 @@ model User {
   channels Channel[] @relation("ChannelMembers")
   messages Message[]
   ownedChannels Channel[] @relation("ChannelOwner")
+  blockedUsers BlockedUser[] @relation("BlockedByRelation")
+  blockedBy BlockedUser[] @relation("BlockedUserRelation")
+}
+
+model BlockedUser {
+  blockerId String
+  blockedId String
+  blocked User @relation("BlockedUserRelation", fields: [blockedId], references: [id])
+  blocker User @relation("BlockedByRelation", fields: [blockerId], references: [id])
+
+  @@id([blockerId, blockedId])
 }
 
 model Channel {
