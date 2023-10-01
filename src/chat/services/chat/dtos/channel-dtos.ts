@@ -69,7 +69,7 @@ export class CreateChannelOutput {
 
   @Field({ nullable: true })
   error?: string;
-
+  
   @Field(() => ChannelOutputDTO, { nullable: true })
   channel?: ChannelDTO
 }
@@ -153,6 +153,9 @@ export class UserOutputDTO {
 
   @Field()
   avatar: string;
+
+  @Field()
+  status: string;
 }
 
 @ObjectType()

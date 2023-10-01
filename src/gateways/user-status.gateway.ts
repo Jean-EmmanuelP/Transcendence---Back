@@ -6,7 +6,6 @@ import {
   WebSocketServer,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
-import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { UserService } from "src/user/services/user/user.service";
 import * as jwt from "jsonwebtoken";
 
@@ -18,7 +17,6 @@ export class UserStatusGateway
   server: Server;
 
   constructor(
-    private readonly prismaService: PrismaService,
     private readonly userService: UserService
   ) {}
   private clients = new Map<string, string>();

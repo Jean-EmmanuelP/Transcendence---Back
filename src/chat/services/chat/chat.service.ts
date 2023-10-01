@@ -17,6 +17,7 @@ import { MessageModel } from "./models/message.model";
 import { ChannelModel } from "./models/channel.model";
 import * as bcrypt from "bcrypt";
 
+// implement all the socket connections at the end
 @Injectable()
 export class ChatService {
   constructor(
@@ -46,6 +47,7 @@ export class ChatService {
     }
   }
 
+  // can be for private and public depends on the channelId
   async sendMessage(
     channelId: string,
     userId: string,
@@ -53,6 +55,7 @@ export class ChatService {
   ): Promise<SendMessageOutput> {
     try {
       // check if the user is actually a member of the channel
+      // check if the user can send a message [if he is not banned, muted]
       await this.prisma.message.create({
         data: {
           content,
@@ -66,6 +69,7 @@ export class ChatService {
     }
   }
 
+  // broadcast to all the channelMembers
   async updateMessage(
     messageId: string,
     userId: string,
@@ -80,6 +84,7 @@ export class ChatService {
         return { success: false, error: "Message not found" };
       }
 
+      // add a and in the condition to check if the user is in the channel and is not muted
       if (existingMessage.userId !== userId) {
         return {
           success: false,
@@ -98,6 +103,7 @@ export class ChatService {
     }
   }
 
+  // broadcast to all the channelMembers
   async deleteMessage(
     messageId: string,
     userId: string
@@ -110,6 +116,7 @@ export class ChatService {
         return { success: false, error: "Message not found" };
       }
 
+      // add a and in the condition to check if the user is in the channel and is not muted
       if (existingMessage.userId !== userId) {
         return {
           success: false,
@@ -125,6 +132,7 @@ export class ChatService {
 
   async getMessages(channelId: string): Promise<MessageModel[] | undefined[]> {
     try {
+      // check with the userId if the user is in the channel and is not banned or muted 
       return await this.prisma.message.findMany({
         where: { channelId },
         orderBy: { createdAt: "asc" },
@@ -138,6 +146,7 @@ export class ChatService {
     userId: string
   ): Promise<ChannelOutputDTO[] | undefined[]> {
     try {
+      // check if ther user is ban
       const channels = await this.prisma.channel.findMany({
         where: { members: { some: { id: userId } } },
         include: { members: true },
@@ -152,6 +161,7 @@ export class ChatService {
             id: member.id,
             name: member.name,
             avatar: member.avatar,
+            status: member.status
           })),
       }));
     } catch (error) {
@@ -176,6 +186,7 @@ export class ChatService {
           isPrivate,
           password: hashedPassword,
           ownerId: userId,
+          // set a adminnistrator list and add the userid automatically
         },
       });
 
@@ -194,7 +205,6 @@ export class ChatService {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
       });
-      // if possible do a middleware for the checking of if this is the ownerId
       if (!channel) {
         throw new Error("Channel not found");
       }
@@ -215,7 +225,7 @@ export class ChatService {
     }
   }
 
-  async changeChannelAdmin(
+  async addChannelAdmin(
     channelId: string,
     newAdminId: string,
     userId: string
@@ -233,7 +243,7 @@ export class ChatService {
           "User does not have permission to change administrator"
         );
       }
-
+      // change the logic from here
       await this.prisma.channel.update({
         where: { id: channelId },
         data: { ownerId: newAdminId },
