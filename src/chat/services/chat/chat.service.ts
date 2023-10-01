@@ -286,7 +286,39 @@ export class ChatService {
     }
   }
 
-  // async unblockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
+  async unblockUser(
+    blockerId: string,
+    blockedId: string
+  ): Promise<OperationResult> {
+    try {
+      const existingBlock = await this.prisma.blockedUser.findUnique({
+        where: {
+          blockerId_blockedId: {
+            blockerId,
+            blockedId,
+          },
+        },
+      });
+      if (!existingBlock) {
+        return { success: false, error: "Block does not exist" };
+      }
 
-  // }
+      await this.prisma.blockedUser.delete({
+        where: {
+          blockerId_blockedId: {
+            blockerId,
+            blockedId,
+          },
+        },
+      });
+
+      return { success: true };
+    } catch (error) {
+      console.log(error);
+      return { success: false, error: error.message };
+    }
+  }
+
+  
 }
+
