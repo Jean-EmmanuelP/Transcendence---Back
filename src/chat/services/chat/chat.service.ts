@@ -328,4 +328,31 @@ export class ChatService {
       return { success: false, error: error.message };
     }
   }
+
+  async leaveChannel(userId: string, channelId: string) {
+    const isMember = await this.prisma.channel.findFirst({
+      where: {
+        id: channelId,
+        members: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+    });
+    if (!isMember) {
+      throw new Error(`User is not a member of the channel`);
+    }
+
+    await this.prisma.channel.update({
+      where: { id: channelId },
+      data: {
+        members: {
+          disconnect: {
+            id: userId,
+          },
+        },
+      },
+    });
+  }
 }
