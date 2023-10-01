@@ -20,7 +20,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as jwt from "jsonwebtoken";
 import { transporter } from "src/common/transporter";
 import { ChatService } from './../../../chat/services/chat/chat.service';
-import { createDirectChannelInput } from "src/chat/services/chat/dtos/channel-dtos";
+import { CreateDirectChannelInput } from "src/chat/services/chat/dtos/channel-dtos";
 
 @Injectable()
 export class UserService {
@@ -377,7 +377,7 @@ export class UserService {
     
     if (updatedFriendship.count > 0)
     {
-      const createChannelInput: createDirectChannelInput = {
+      const createChannelInput: CreateDirectChannelInput = {
         userId1: senderId,
         userId2: receiverId,
 
