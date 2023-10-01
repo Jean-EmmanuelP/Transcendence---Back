@@ -131,7 +131,7 @@ export class ChatService {
 
   async getMessages(channelId: string): Promise<MessageModel[] | undefined[]> {
     try {
-      // check with the userId if the user is in the channel and is not banned or muted 
+      // check with the userId if the user is in the channel and is not banned or muted
       return await this.prisma.message.findMany({
         where: { channelId },
         orderBy: { createdAt: "asc" },
@@ -160,7 +160,7 @@ export class ChatService {
             id: member.id,
             name: member.name,
             avatar: member.avatar,
-            status: member.status
+            status: member.status,
           })),
       }));
     } catch (error) {
@@ -254,8 +254,37 @@ export class ChatService {
     }
   }
 
-  // async blockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
-  // }
+  async blockUser(
+    blockerId: string,
+    blockedId: string
+  ): Promise<OperationResult> {
+    try {
+      if (blockerId === blockedId) {
+        throw new Error("You cannot block yourself!");
+      }
+      const existingBlock = await this.prisma.blockedUser.findUnique({
+        where: {
+          blockerId_blockedId: {
+            blockerId,
+            blockedId,
+          },
+        },
+      });
+      if (existingBlock) {
+        return { success: false, error: "User already blocked" };
+      }
+
+      await this.prisma.blockedUser.create({
+        data: {
+          blockerId,
+          blockedId,
+        },
+      });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
 
   // async unblockUser(blockerId: string, blockedId: string): Promise<OperationResult> {
 
