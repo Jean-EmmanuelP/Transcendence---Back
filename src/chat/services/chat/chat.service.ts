@@ -185,7 +185,16 @@ export class ChatService {
           isPrivate,
           password: hashedPassword,
           ownerId: userId,
-          // set a adminnistrator list and add the userid automatically
+        },
+        include: {
+          admins: true,
+        },
+      });
+
+      await this.prisma.channelAdmin.create({
+        data: {
+          userId,
+          channelId: newChannel.id,
         },
       });
 
@@ -318,7 +327,4 @@ export class ChatService {
       return { success: false, error: error.message };
     }
   }
-
-  
 }
-
