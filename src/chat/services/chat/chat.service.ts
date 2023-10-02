@@ -264,7 +264,7 @@ export class ChatService {
         throw new Error("User does not have permission to set password");
       }
 
-      const hashedPassword = password ? await bcrypt.hash(password, 12): null;
+      const hashedPassword = password ? await bcrypt.hash(password, 12) : null;
       if (hashedPassword) {
         await this.prisma.channel.update({
           where: { id: channelId },
