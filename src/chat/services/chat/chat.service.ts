@@ -330,6 +330,13 @@ export class ChatService {
   }
 
   async leaveChannel(userId: string, channelId: string) {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+      include: { members: true },
+    });
+    if (!channel) {
+      throw new Error("Channel not found");
+    }
     const isMember = await this.prisma.channel.findFirst({
       where: {
         id: channelId,
@@ -343,7 +350,9 @@ export class ChatService {
     if (!isMember) {
       throw new Error(`User is not a member of the channel`);
     }
-
+    if (channel.ownerId === userId) {
+      
+    }
     await this.prisma.channel.update({
       where: { id: channelId },
       data: {
