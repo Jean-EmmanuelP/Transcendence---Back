@@ -153,6 +153,16 @@ export class ChatService {
           error: "You do not have permission to edit this message",
         };
       }
+
+      const userInChannel = await this.prisma.channelMember.findUnique({
+        where: {
+          userId_channelId: { userId, channelId: existingMessage.channelId },
+        },
+      });
+      if (!userInChannel) {
+        throw new Error("You are not a member of the channel");
+      }
+
       await this.prisma.message.delete({ where: { id: messageId } });
       return { success: true };
     } catch (error) {
