@@ -399,8 +399,17 @@ export class ChatService {
       throw new Error(`User is not a member of the channel`);
     }
     if (channel.ownerId === userId) {
-    }
-    if (channel.ownerId === userId) {
+      if (channel.admins.length > 0) {
+        const oldestAdmin = channel.admins.sort(
+          (a, b) => a.assignedAt.getTime() - b.assignedAt.getTime()
+        )[0];
+        await this.prisma.channel.update({
+          where: { id: channelId },
+          data: {
+            ownerId: oldestAdmin.userId,
+          },
+        });
+      }
     }
     await this.prisma.channel.update({
       where: { id: channelId },
