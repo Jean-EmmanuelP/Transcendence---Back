@@ -250,7 +250,7 @@ export class ChatService {
 
   async setChannelPassword(
     channelId: string,
-    password: string,
+    password: string | null,
     userId: string
   ): Promise<OperationResult> {
     try {
@@ -264,12 +264,18 @@ export class ChatService {
         throw new Error("User does not have permission to set password");
       }
 
-      const hashedPassword = await bcrypt.hash(password, 12);
-
-      await this.prisma.channel.update({
-        where: { id: channelId },
-        data: { password: hashedPassword },
-      });
+      const hashedPassword = password ? await bcrypt.hash(password, 12): null;
+      if (hashedPassword) {
+        await this.prisma.channel.update({
+          where: { id: channelId },
+          data: { password: hashedPassword },
+        });
+      } else {
+        await this.prisma.channel.update({
+          where: { id: channelId },
+          data: { password: hashedPassword, isPrivate: false },
+        });
+      }
 
       return { success: true };
     } catch (error) {
@@ -277,6 +283,7 @@ export class ChatService {
     }
   }
 
+  // change the logic of this function
   async addChannelAdmin(
     channelId: string,
     newAdminId: string,
@@ -426,6 +433,7 @@ export class ChatService {
         return;
       }
     }
+
     await this.prisma.channel.update({
       where: { id: channelId },
       data: {
