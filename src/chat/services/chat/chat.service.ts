@@ -292,7 +292,7 @@ export class ChatService {
     try {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
-        include: { owner: true },
+        include: { admins: true, owner: true },
       });
       if (!channel) {
         throw new Error("Channel not found");
@@ -302,12 +302,17 @@ export class ChatService {
           "User does not have permission to change administrator"
         );
       }
-      // change the logic from here
-      await this.prisma.channel.update({
-        where: { id: channelId },
-        data: { ownerId: newAdminId },
-      });
 
+      if (channel.admins.some((admin) => admin.userId === newAdminId)) {
+        throw new Error("User is already an administrator");
+      }
+
+      await this.prisma.channelAdmin.create({
+        data: {
+          userId: newAdminId,
+          channelId,
+        },
+      });
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };

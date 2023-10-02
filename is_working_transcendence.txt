@@ -41,7 +41,7 @@ messages from the account they blocked.
 ✔️ (must do the until they leave it): The user who has created a new channel is automatically set as the channel owner
 until they leave it.
 
-❌ (must do the change it, and also remove it) : The channel owner can set a password required to access the channel, change
+✔️ (must do the change it, and also remove it) : The channel owner can set a password required to access the channel, change
 it, and also remove it.
 
 ❌ (must do this in the addChannelAdmin method and the createChannel and also change the db) : 
