@@ -227,6 +227,14 @@ export class ChatService {
         },
       });
 
+      await this.prisma.channelMember.create({
+        data: {
+          userId,
+          channelId: newChannel.id,
+          joinedAt: new Date(),
+        },
+      });
+
       await this.prisma.channelAdmin.create({
         data: {
           userId,
