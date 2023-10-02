@@ -113,6 +113,15 @@ export class ChatService {
         };
       }
 
+      const userInChannel = await this.prisma.channelMember.findUnique({
+        where: {
+          userId_channelId: { userId, channelId: existingMessage.channelId },
+        },
+      });
+      if (!userInChannel) {
+        throw new Error("You are not a member of the channel");
+      }
+
       await this.prisma.message.update({
         where: { id: messageId },
         data: { content: newContent },
