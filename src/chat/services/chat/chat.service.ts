@@ -30,16 +30,31 @@ export class ChatService {
   ): Promise<CreateDirectChannelOutput> {
     try {
       const sender = await this.userService.findById(input.userId1);
-      await this.prisma.channel.create({
+
+      const channel = await this.prisma.channel.create({
         data: {
           name: `${sender.name}`,
           isPrivate: true,
           isDirectMessage: true,
-          members: {
-            connect: [{ id: input.userId1 }, { id: input.userId2 }],
-          },
         },
       });
+
+      await this.prisma.channelMember.create({
+        data: {
+          userId: input.userId1,
+          channelId: channel.id,
+          joinedAt: new Date(),
+        },
+      });
+
+      await this.prisma.channelMember.create({
+        data: {
+          userId: input.userId2,
+          channelId: channel.id,
+          joinedAt: new Date(),
+        },
+      });
+      
       this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
       return { success: true };
     } catch (error) {
@@ -189,6 +204,7 @@ export class ChatService {
         },
         include: {
           admins: true,
+          members: true,
         },
       });
 
@@ -351,7 +367,6 @@ export class ChatService {
       throw new Error(`User is not a member of the channel`);
     }
     if (channel.ownerId === userId) {
-      
     }
     await this.prisma.channel.update({
       where: { id: channelId },
