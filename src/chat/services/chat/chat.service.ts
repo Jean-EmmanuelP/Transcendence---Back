@@ -30,10 +30,11 @@ export class ChatService {
   ): Promise<CreateDirectChannelOutput> {
     try {
       const sender = await this.userService.findById(input.userId1);
-
+      const receiver = await this.userService.findById(input.userId2);
+    
       const channel = await this.prisma.channel.create({
         data: {
-          name: `${sender.name}`,
+          name: `${receiver.name}-${sender.name}`,
           isPrivate: true,
           isDirectMessage: true,
         },
@@ -352,6 +353,7 @@ export class ChatService {
     }
   }
 
+  // revise this method
   async unblockUser(
     blockerId: string,
     blockedId: string
@@ -384,7 +386,7 @@ export class ChatService {
       return { success: false, error: error.message };
     }
   }
-
+  //
   async leaveChannel(userId: string, channelId: string) {
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelId },

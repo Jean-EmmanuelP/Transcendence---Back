@@ -382,7 +382,6 @@ export class UserService {
       const createChannelInput: CreateDirectChannelInput = {
         userId1: senderId,
         userId2: receiverId,
-
       };
       await this.chatService.createDirectChannel(createChannelInput);
       return true;
