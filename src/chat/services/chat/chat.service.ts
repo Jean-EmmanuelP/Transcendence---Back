@@ -380,16 +380,7 @@ export class ChatService {
     if (!channel) {
       throw new Error("Channel not found");
     }
-    const isMember = await this.prisma.channel.findFirst({
-      where: {
-        id: channelId,
-        members: {
-          some: {
-            id: userId,
-          },
-        },
-      },
-    });
+    const isMember = channel.members.some(member => member.id === userId);
     if (!isMember) {
       throw new Error(`User is not a member of the channel`);
     }
