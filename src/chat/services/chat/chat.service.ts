@@ -54,7 +54,7 @@ export class ChatService {
           joinedAt: new Date(),
         },
       });
-      
+
       this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
       return { success: true };
     } catch (error) {
@@ -69,6 +69,12 @@ export class ChatService {
     content: string
   ): Promise<SendMessageOutput> {
     try {
+      const userInChannel = await this.prisma.channelMember.findUnique({
+        where: { userId_channelId: { userId, channelId } },
+      });
+      if (!userInChannel) {
+        throw new Error("User is not a member of the channel!");
+      }
       // check if the user is actually a member of the channel
       // check if the user can send a message [if he is not banned, muted]
       await this.prisma.message.create({
