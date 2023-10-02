@@ -375,14 +375,30 @@ export class ChatService {
   async leaveChannel(userId: string, channelId: string) {
     const channel = await this.prisma.channel.findUnique({
       where: { id: channelId },
-      include: { members: true },
+      include: {
+        members: true,
+        admins: {
+          select: {
+            userId: true,
+            assignedAt: true,
+          },
+        },
+        ChannelMember: {
+          select: {
+            userId: true,
+            joinedAt: true,
+          },
+        },
+      },
     });
     if (!channel) {
       throw new Error("Channel not found");
     }
-    const isMember = channel.members.some(member => member.id === userId);
+    const isMember = channel.members.some((member) => member.id === userId);
     if (!isMember) {
       throw new Error(`User is not a member of the channel`);
+    }
+    if (channel.ownerId === userId) {
     }
     if (channel.ownerId === userId) {
     }
