@@ -214,6 +214,7 @@ export class ChatService {
         throw new Error("Password is required for private channels");
       }
       const hashedPassword = password ? await bcrypt.hash(password, 12) : null;
+      // check what its sending back
       const newChannel = await this.prisma.channel.create({
         data: {
           name,
@@ -283,7 +284,6 @@ export class ChatService {
     }
   }
 
-  // change the logic of this function
   async addChannelAdmin(
     channelId: string,
     newAdminId: string,
@@ -319,6 +319,7 @@ export class ChatService {
     }
   }
 
+  // do the same logic like instagram
   async blockUser(
     blockerId: string,
     blockedId: string

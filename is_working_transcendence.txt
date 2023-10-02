@@ -44,7 +44,7 @@ until they leave it.
 ✔️ (must do the change it, and also remove it) : The channel owner can set a password required to access the channel, change
 it, and also remove it.
 
-❌ (must do this in the addChannelAdmin method and the createChannel and also change the db) : 
+✔️ (must do this in the addChannelAdmin method and the createChannel and also change the db) : 
 The channel owner is a channel administrator. They can set other users as
 administrators.
 
