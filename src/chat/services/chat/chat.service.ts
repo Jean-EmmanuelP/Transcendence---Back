@@ -31,7 +31,7 @@ export class ChatService {
     try {
       const sender = await this.userService.findById(input.userId1);
       const receiver = await this.userService.findById(input.userId2);
-    
+
       const channel = await this.prisma.channel.create({
         data: {
           name: `${receiver.name}-${sender.name}`,
@@ -428,10 +428,18 @@ export class ChatService {
         const oldestMember = channel.ChannelMember.sort(
           (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
         )[0];
+
         await this.prisma.channel.update({
           where: { id: channelId },
           data: {
             ownerId: oldestMember.userId,
+          },
+        });
+
+        await this.prisma.channelAdmin.create({
+          data: {
+            userId: oldestMember.userId,
+            channelId,
           },
         });
       } else {
