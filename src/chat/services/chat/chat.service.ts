@@ -409,6 +409,21 @@ export class ChatService {
             ownerId: oldestAdmin.userId,
           },
         });
+      } else if (channel.ChannelMember.length > 1) {
+        const oldestMember = channel.ChannelMember.sort(
+          (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
+        )[0];
+        await this.prisma.channel.update({
+          where: { id: channelId },
+          data: {
+            ownerId: oldestMember.userId,
+          },
+        });
+      } else {
+        await this.prisma.channel.delete({
+          where: { id: channelId },
+        });
+        return;
       }
     }
     await this.prisma.channel.update({
