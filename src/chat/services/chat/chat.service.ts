@@ -195,6 +195,7 @@ export class ChatService {
       return await this.prisma.message.findMany({
         where: { channelId },
         orderBy: { createdAt: "asc" },
+        include: { user: true },
       });
     } catch (error) {
       return [];

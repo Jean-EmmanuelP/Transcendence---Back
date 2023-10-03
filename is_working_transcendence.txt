@@ -33,7 +33,8 @@ thing else useful. Anyone who is logged in should be able to consult it.
 ✔️ TEST ALL : 
 - tested the createChannel and it is working
 - tested the getUserChannel it is working
-- 
+- tested the getMessages it is working (getMessage is working but the user is null)
+- tested the sendMessage it is working
 doing the [sendMessage, updateMessage, deleteMessage, manageuser, setchannelPassword, addChannelAdmin, leaveChannel, getMessages]
 
 ✔️  The user should be able to create channels (chat rooms) that can be either public,
