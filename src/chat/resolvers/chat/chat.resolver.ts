@@ -6,6 +6,7 @@ import {
   DeleteMessageInput,
   DeleteMessageOutput,
   GetMessageInput,
+  ManageUserInput,
   OperationResult,
   SendMessageInput,
   SendMessageOutput,
@@ -48,6 +49,15 @@ export class ChatResolver {
     );
   }
 
+  @Mutation(() => OperationResult)
+  @UseGuards(JwtAuthGuard)
+  async manageUser(
+    @User() userId: string,
+    @Args('input') input: ManageUserInput
+  ): Promise<OperationResult> {
+    return this.chatService.manageUser(userId, input);
+  }
+
   @Mutation(() => DeleteMessageOutput)
   @UseGuards(JwtAuthGuard)
   async deleteMessage(
@@ -56,8 +66,6 @@ export class ChatResolver {
   ): Promise<DeleteMessageOutput> {
     return this.chatService.deleteMessage(input.messageId, userId);
   }
-
-  
 
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)

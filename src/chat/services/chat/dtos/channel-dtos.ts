@@ -36,9 +36,6 @@ export class CreateDirectChannelOutput {
 @InputType()
 export class ManageUserInput {
   @Field()
-  operatorId: string;
-
-  @Field()
   targetUserId: string;
 
   @Field()

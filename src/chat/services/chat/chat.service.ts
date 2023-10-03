@@ -12,6 +12,7 @@ import {
   CreateChannelOutput,
   CreateChannelInput,
   OperationResult,
+  ManageUserInput,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
 import * as bcrypt from "bcrypt";
@@ -461,5 +462,14 @@ export class ChatService {
         },
       },
     });
+  }
+
+  async manageUser(operatorId: string, input: ManageUserInput):Promise<OperationResult>
+  {
+    try {
+      const { targetUserId, channelId, action, duration } = input;
+
+      const operator = 
+    }
   }
 }

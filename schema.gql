@@ -42,6 +42,11 @@ type MessageModel {
   createdAt: DateTime!
 }
 
+type OperationResult {
+  success: Boolean!
+  error: String
+}
+
 type SendMessageOutput {
   success: Boolean!
   error: String
@@ -83,7 +88,7 @@ input GetMessageInput {
 type Mutation {
   sendMessage(input: SendMessageInput!): SendMessageOutput!
   updateMessage(input: UpdateMessageInput!): UpdateMessageOutput!
-  deleteMessage(input: DeleteMessageInput!): DeleteMessageOutput!
+  deleteMessage(input: DeleteMessageInput!): OperationResult!
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
