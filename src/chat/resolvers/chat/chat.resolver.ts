@@ -16,6 +16,7 @@ import {
   UpdateMessageInput,
   UpdateMessageOutput,
   addChannelAdminInput,
+  joinChannelInput,
   leaveChannelInput,
 } from "src/chat/services/chat/dtos/channel-dtos";
 import { MessageModel } from "src/chat/services/chat/models/message.model";
@@ -113,7 +114,9 @@ export class ChatResolver {
 
   @Mutation(() => OperationResult)
   @UseGuards(JwtAuthGuard)
-  async joinChannel(@User() userId: string, @Args("input") input: joinChannelInput)
+  async joinChannel(@User() userId: string, @Args("input") input: joinChannelInput): Promise<OperationResult> {
+    return this.chatService.joinChannel(userId, input.channelId, input.passwordInput);
+  }
 
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)

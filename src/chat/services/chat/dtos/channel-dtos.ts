@@ -1,5 +1,4 @@
 import {
-  InputType,
   Field,
   ObjectType,
   ID,
