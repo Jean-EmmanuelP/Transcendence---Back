@@ -27,6 +27,7 @@ export class ChatService {
     private readonly userService: UserService,
     private readonly userGateway: UserStatusGateway
   ) {}
+  // add the functionnality where u can add people directly during the creation
   async createDirectChannel(
     input: CreateDirectChannelInput
   ): Promise<CreateDirectChannelOutput> {
@@ -536,6 +537,7 @@ export class ChatService {
               joinedAt: new Date(),
             },
           });
+          break;
         case UserAction.KICK:
           await this.prisma.channelMember.delete({
             where: { userId_channelId: { userId: targetUserId, channelId } },
