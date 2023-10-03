@@ -192,12 +192,17 @@ export class ChatService {
   ): Promise<ChannelOutputDTO[] | undefined[]> {
     try {
       // check if ther user is ban
-      const channels = await this.prisma.channel.findMany({
+      const channelsUserIsMemberOf = await this.prisma.channel.findMany({
         where: { members: { some: { id: userId } } },
-        include: { members: true },
+        include: { members: true, bans: true },
       });
 
-      return channels.map((channel) => ({
+      const filteredChannels = channelsUserIsMemberOf.filter(channel => {
+        const notBanned = !channel.bans.some(ban => ban.userId === userId);
+        return notBanned;
+      })
+
+      return filteredChannels.map((channel) => ({
         id: channel.id,
         name: channel.name,
         members: channel.members
