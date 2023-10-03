@@ -98,6 +98,7 @@ type Mutation {
   manageUser(input: ManageUserInput!): OperationResult!
   createChannel(input: CreateChannelInput!): CreateChannelOutput!
   setChannelPassword(input: ChannelPasswordInput!): OperationResult!
+  addChannelAdmin(input: addChannelAdminInput!): OperationResult!
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
@@ -148,6 +149,11 @@ input CreateChannelInput {
 input ChannelPasswordInput {
   channelId: String!
   password: String
+}
+
+input addChannelAdminInput {
+  channelId: String!
+  newAdminId: String!
 }
 
 """The `Upload` scalar type represents a file upload."""

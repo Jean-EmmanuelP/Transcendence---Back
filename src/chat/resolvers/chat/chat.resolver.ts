@@ -15,6 +15,7 @@ import {
   SendMessageOutput,
   UpdateMessageInput,
   UpdateMessageOutput,
+  addChannelAdminInput,
 } from "src/chat/services/chat/dtos/channel-dtos";
 import { MessageModel } from "src/chat/services/chat/models/message.model";
 import { User } from "src/common/decorators/user.decorator";
@@ -89,7 +90,15 @@ export class ChatResolver {
     return this.chatService.setChannelPassword(channelId, password, userId);
   }
 
-  
+  @Mutation(() => OperationResult)
+  @UseGuards(JwtAuthGuard)
+  async addChannelAdmin(
+    @User() userId: string,
+    @Args("input") input: addChannelAdminInput
+  ): Promise<OperationResult> {
+    const { channelId, newAdminId } = input;
+    return this.chatService.addChannelAdmin(channelId, newAdminId, userId);
+  }
 
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
