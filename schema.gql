@@ -93,6 +93,7 @@ type ChannelOutputDTO {
   name: String!
   isPrivate: String!
   members: [UserOutputDTO!]!
+  admins: [UserOutputDTO!]!
 }
 
 type Query {

@@ -239,4 +239,7 @@ export class ChannelOutputDTO {
 
   @Field(() => [UserOutputDTO])
   members: UserOutputDTO[];
+
+  @Field(() => [UserOutputDTO])
+  admins: UserOutputDTO[];
 }

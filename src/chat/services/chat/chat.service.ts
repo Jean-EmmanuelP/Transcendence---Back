@@ -210,6 +210,51 @@ export class ChatService {
     }
   }
 
+  async joinChannel(
+    userId: string,
+    channelId: string,
+    passwordInput?: string
+  ): Promise<OperationResult> {
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: { ChannelMember: true },
+      });
+      if (!channel) {
+        throw new Error("There is no channel with this id");
+      }
+
+      if (channel.ChannelMember.some((member) => member.userId === userId)) {
+        throw new Error("User iks already a member of this channel");
+      }
+      // check the password
+      if (channel.isPrivate && channel.password) {
+        if (!passwordInput) {
+          throw new Error("Password required to join this channel");
+        }
+        const isPasswordMatch = await bcrypt.compare(
+          passwordInput,
+          channel.password
+        );
+        if (!isPasswordMatch) {
+          throw new Error("Incorrect password");
+        }
+      }
+
+      await this.prisma.channelMember.create({
+        data: {
+          userId,
+          channelId,
+          joinedAt: new Date(),
+        },
+      });
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   async getUserChannels(
     userId: string
   ): Promise<ChannelOutputDTO[] | undefined[]> {
@@ -221,6 +266,7 @@ export class ChatService {
           members: true,
           bans: true,
           ChannelMember: { include: { user: true } },
+          admins: { include: { user: true } },
         },
       });
 
@@ -240,6 +286,12 @@ export class ChatService {
           name: channelMember.user.name,
           avatar: channelMember.user.avatar,
           status: channelMember.user.status,
+        })),
+        admins: channel.admins.map((admin) => ({
+          id: admin.user.id,
+          name: admin.user.name,
+          avatar: admin.user.avatar,
+          status: admin.user.status,
         })),
       }));
     } catch (error) {
