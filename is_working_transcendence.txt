@@ -42,7 +42,9 @@ thing else useful. Anyone who is logged in should be able to consult it.
 - did a joinChannel different from the manageUser with case ADD (perspective)
 - tested the addChannelAdmin its working
 - tested the leaveChannel it is working
-- NEED TO IMPLEMENT WHEN THERE IS A PASSWORD AND U WANT TO COME INTO THE CHANNEL
+- tested the addChannelAdmin it is working
+- the leaveChannel implementation is not working
+- NEED TO IMPLEMENT WHEN THERE IS A PASSWORD AND U WANT TO COME INTO THE CHANNEL: done with the joinChannel
 doing the [addChannelAdmin, leaveChannel]
 
 ✔️  The user should be able to create channels (chat rooms) that can be either public,
