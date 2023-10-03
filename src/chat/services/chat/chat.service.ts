@@ -544,8 +544,8 @@ export class ChatService {
         case UserAction.ADD:
           await this.prisma.channelMember.create({
             data: {
-              userId: operatorId,
-              channelId: targetUserId,
+              userId: targetUserId,
+              channelId,
               joinedAt: new Date(),
             },
           });
