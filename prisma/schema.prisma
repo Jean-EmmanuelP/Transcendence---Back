@@ -25,58 +25,120 @@ enum FriendshipStatus {
 }
 
 model User {
-  id                 String  @id @default(cuid())
-  email              String? @unique
+  id                 String          @id @default(cuid())
+  email              String?         @unique
   password           String?
   name               String
-  pseudo             String @unique @default("Pseudo")
-  avatar             String  @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
+  pseudo             String          @unique @default("Pseudo")
+  avatar             String          @default("https://i0.wp.com/sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png?ssl=1")
   oauth              OAuth?
   twoFactorSecret    String?
-  isTwoFactorEnabled Boolean @default(false)
-  sentRequests  Friendship[] @relation("FriendshipSenders")
-  receivedRequests Friendship[] @relation("FriendshipReceivers")
-  status Status @default(OFFLINE)
-  channels Channel[] @relation("ChannelMembers")
-  messages Message[]
-  ownedChannels Channel[] @relation("ChannelOwner")
+  isTwoFactorEnabled Boolean         @default(false)
+  sentRequests       Friendship[]    @relation("FriendshipSenders")
+  receivedRequests   Friendship[]    @relation("FriendshipReceivers")
+  status             Status          @default(OFFLINE)
+  channels           Channel[]       @relation("ChannelMembers")
+  messages           Message[]
+  ownedChannels      Channel[]       @relation("ChannelOwner")
+  blockedUsers       BlockedUser[]   @relation("BlockedByRelation")
+  blockedBy          BlockedUser[]   @relation("BlockedUserRelation")
+  adminInChannels    ChannelAdmin[]
+  ChannelMember      ChannelMember[]
+}
+
+model BlockedUser {
+  blockerId String
+  blockedId String
+  blocked   User   @relation("BlockedUserRelation", fields: [blockedId], references: [id])
+  blocker   User   @relation("BlockedByRelation", fields: [blockerId], references: [id])
+
+  @@id([blockerId, blockedId])
 }
 
 model Channel {
-  id String @id @default(cuid())
-  name String
-  isPrivate Boolean @default(false)
-  isDirectMessage Boolean @default(false)
-  password String?
-  ownerId String?
-  owner User? @relation("ChannelOwner", fields: [ownerId], references: [id])
-  messages Message[]
-  members User[] @relation("ChannelMembers")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String          @id @default(cuid())
+  name            String
+  isPrivate       Boolean         @default(false)
+  isDirectMessage Boolean         @default(false)
+  password        String?
+  ownerId         String?
+  owner           User?           @relation("ChannelOwner", fields: [ownerId], references: [id])
+  messages        Message[]
+  members         User[]          @relation("ChannelMembers")
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  admins          ChannelAdmin[]
+  ChannelMember   ChannelMember[]
+  bans            ChannelBan[]
+  mutes           ChannelMute[]
+}
+
+model ChannelBan {
+  userId    String
+  channelId String
+  bannedId  DateTime  @default(now())
+  expiresAt DateTime?
+  reason    String?
+  bannedBy  String
+
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  @@id([userId, channelId])
+}
+
+model ChannelMute {
+  userId    String
+  channelId String
+  mutedId   DateTime @default(now())
+  expiresAt DateTime
+  reason    String?
+  mutedBy   String
+
+  channel Channel @relation(fields: [channelId], references: [id])
+
+  @@id([userId, channelId])
+}
+
+model ChannelMember {
+  userId    String
+  channelId String
+  joinedAt  DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  channel   Channel  @relation(fields: [channelId], references: [id])
+
+  @@id([userId, channelId])
+}
+
+model ChannelAdmin {
+  userId     String
+  channelId  String
+  assignedAt DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id])
+  channel    Channel  @relation(fields: [channelId], references: [id])
+
+  @@id([userId, channelId])
 }
 
 model Message {
-  id String @id @default(cuid())
-  content String
-  userId String
-  user User @relation(fields: [userId], references: [id])
+  id        String   @id @default(cuid())
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
   channelId String
-  channel Channel @relation(fields: [channelId], references: [id])
+  channel   Channel  @relation(fields: [channelId], references: [id])
   createdAt DateTime @default(now())
 }
 
 model Friendship {
-  id String @id @default(cuid())
-  senderId String
+  id         String           @id @default(cuid())
+  senderId   String
   receiverId String
-  status FriendshipStatus @default(PENDING)
-  createdAt DateTime @default(now())
+  status     FriendshipStatus @default(PENDING)
+  createdAt  DateTime         @default(now())
 
-  sender User @relation("FriendshipSenders", fields: [senderId], references: [id])
+  sender   User @relation("FriendshipSenders", fields: [senderId], references: [id])
   receiver User @relation("FriendshipReceivers", fields: [receiverId], references: [id])
 }
-
 
 model Token {
   id    String @id @default(cuid())

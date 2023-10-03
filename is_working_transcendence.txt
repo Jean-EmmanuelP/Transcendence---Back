@@ -40,20 +40,20 @@ or private, or protected by a password.
 ❌ (done tonight): The user should be able to block other users. This way, they will see no more
 messages from the account they blocked.
 
-❌ (must do the until they leave it): The user who has created a new channel is automatically set as the channel owner
+✔️ (must do the until they leave it): The user who has created a new channel is automatically set as the channel owner
 until they leave it.
 
-❌ (must do the change it, and also remove it) : The channel owner can set a password required to access the channel, change
+✔️ (must do the change it, and also remove it) : The channel owner can set a password required to access the channel, change
 it, and also remove it.
 
-❌ (must do this in the addChannelAdmin method and the createChannel and also change the db) : 
+✔️ (must do this in the addChannelAdmin method and the createChannel and also change the db) : 
 The channel owner is a channel administrator. They can set other users as
 administrators.
 
-❌ (do the kick function, ban and mute function with limited time) : A user who is an administrator of a channel can kick, ban or mute (for a
+✔️ (do the kick function, ban and mute function with limited time) : A user who is an administrator of a channel can kick, ban or mute (for a
 limited time) other users, but not the channel owners.
 
-❌ do a function to say that if the owner of the channel leave, so there is another owner of the channel but if there is no more people
+✔️ do a function to say that if the owner of the channel leave, so there is another owner of the channel but if there is no more people
 so the channel is automatically deleted (the first who came is the future administrator or if there is only one administrator)
 
 ----  Done after ----
@@ -62,3 +62,5 @@ so the channel is automatically deleted (the first who came is the future admini
 interface.
 
 ❌ The user should be able to access other players profiles through the chat interface.
+
+--> must understand the dependencies between the modules, the instanciation of the modules etc

@@ -12,9 +12,10 @@ import { ConfigModule } from "@nestjs/config";
 import { PassportModule } from "@nestjs/passport";
 import { TokenService } from "./token/services/token/token.service";
 import { TokenRevocationMiddleware } from "./middlewares/TokenRevocationMiddleware";
-import { UserStatusGateway } from "./gateways/user-status.gateway";
 import { ChatService } from './chat/services/chat/chat.service';
 import { ChatResolver } from './chat/resolvers/chat/chat.resolver';
+import { WebSocketModule } from "./gateways/websocket.module";
+import { ChatModule } from "./chat/chat.module";
 
 @Module({
   imports: [
@@ -28,8 +29,10 @@ import { ChatResolver } from './chat/resolvers/chat/chat.resolver';
     }),
     PassportModule.register({ defaultStrategy: "jwt" }),
     UserModule,
+    WebSocketModule,
     PrismaModule,
     AuthModule,
+    ChatModule,
   ],
   providers: [
     JwtService,
@@ -37,7 +40,6 @@ import { ChatResolver } from './chat/resolvers/chat/chat.resolver';
     PrismaService,
     AuthService,
     TokenService,
-    UserStatusGateway,
     ChatService,
     ChatResolver,
   ],
