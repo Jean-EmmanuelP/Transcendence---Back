@@ -111,6 +111,10 @@ export class ChatResolver {
     return this.chatService.leaveChannel(userId, channelId);
   }
 
+  @Mutation(() => OperationResult)
+  @UseGuards(JwtAuthGuard)
+  async joinChannel(@User() userId: string, @Args("input") input: joinChannelInput)
+
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
   async getMessages(

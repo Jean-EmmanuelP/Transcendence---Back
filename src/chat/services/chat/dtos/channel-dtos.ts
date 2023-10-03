@@ -4,6 +4,7 @@ import {
   ObjectType,
   ID,
   registerEnumType,
+  InputType,
 } from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
 import { ChannelModel } from "../models/channel.model";
@@ -242,4 +243,12 @@ export class ChannelOutputDTO {
 
   @Field(() => [UserOutputDTO])
   admins: UserOutputDTO[];
+}
+
+@InputType()
+export class joinChannelInput {
+  @Field()
+  channelId: string;
+  @Field({ nullable: true })
+  passwordInput?: string;
 }
