@@ -49,6 +49,15 @@ export class ChatResolver {
     );
   }
 
+  @Mutation(() => DeleteMessageOutput)
+  @UseGuards(JwtAuthGuard)
+  async deleteMessage(
+    @Args("input") input: DeleteMessageInput,
+    @User() userId: string
+  ): Promise<DeleteMessageOutput> {
+    return this.chatService.deleteMessage(input.messageId, userId);
+  }
+  
   @Mutation(() => OperationResult)
   @UseGuards(JwtAuthGuard)
   async manageUser(
@@ -58,14 +67,6 @@ export class ChatResolver {
     return this.chatService.manageUser(userId, input);
   }
 
-  @Mutation(() => DeleteMessageOutput)
-  @UseGuards(JwtAuthGuard)
-  async deleteMessage(
-    @Args("input") input: DeleteMessageInput,
-    @User() userId: string
-  ): Promise<DeleteMessageOutput> {
-    return this.chatService.deleteMessage(input.messageId, userId);
-  }
 
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)

@@ -88,8 +88,8 @@ input GetMessageInput {
 type Mutation {
   sendMessage(input: SendMessageInput!): SendMessageOutput!
   updateMessage(input: UpdateMessageInput!): UpdateMessageOutput!
-  manageUser(input: ManageUserInput!): OperationResult!
   deleteMessage(input: DeleteMessageInput!): DeleteMessageOutput!
+  manageUser(input: ManageUserInput!): OperationResult!
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
@@ -110,6 +110,10 @@ input UpdateMessageInput {
   newContent: String!
 }
 
+input DeleteMessageInput {
+  messageId: String!
+}
+
 input ManageUserInput {
   targetUserId: String!
   channelId: String!
@@ -124,10 +128,6 @@ enum UserAction {
   MUTE
   UNMUTE
   UNBAN
-}
-
-input DeleteMessageInput {
-  messageId: String!
 }
 
 """The `Upload` scalar type represents a file upload."""
