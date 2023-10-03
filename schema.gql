@@ -84,6 +84,8 @@ type UserOutputDTO {
 
 type ChannelOutputDTO {
   id: String!
+  name: String!
+  isPrivate: String!
   members: [UserOutputDTO!]!
 }
 

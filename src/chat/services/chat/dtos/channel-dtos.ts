@@ -218,6 +218,12 @@ export class ChannelOutputDTO {
   @Field()
   id: string;
 
+  @Field()
+  name: string;
+
+  @Field()
+  isPrivate: string;
+
   @Field(() => [UserOutputDTO])
   members: UserOutputDTO[];
 }

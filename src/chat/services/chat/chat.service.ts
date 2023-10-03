@@ -215,6 +215,7 @@ export class ChatService {
       return filteredChannels.map((channel) => ({
         id: channel.id,
         name: channel.name,
+        isPrivate: channel.isPrivate.toString(),
         members: channel.members
           .filter((member) => member.id !== userId)
           .map((member) => ({
