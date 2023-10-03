@@ -6,6 +6,7 @@ import {
   DeleteMessageInput,
   DeleteMessageOutput,
   GetMessageInput,
+  OperationResult,
   SendMessageInput,
   SendMessageOutput,
   UpdateMessageInput,
@@ -55,6 +56,8 @@ export class ChatResolver {
   ): Promise<DeleteMessageOutput> {
     return this.chatService.deleteMessage(input.messageId, userId);
   }
+
+  
 
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)

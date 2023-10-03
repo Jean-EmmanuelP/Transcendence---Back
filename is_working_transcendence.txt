@@ -35,7 +35,7 @@ or private, or protected by a password.
 
 ✔️ The user should be able to send direct messages to other users.
 
-✔️ (done tonight): The user should be able to block other users. This way, they will see no more
+❌ (done tonight): The user should be able to block other users. This way, they will see no more
 messages from the account they blocked.
 
 ✔️ (must do the until they leave it): The user who has created a new channel is automatically set as the channel owner
