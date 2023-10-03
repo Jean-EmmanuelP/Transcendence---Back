@@ -91,14 +91,17 @@ export class ChatService {
           "User cannot send a message because he is banned or muted!"
         );
       }
-      await this.prisma.message.create({
+      const message = await this.prisma.message.create({
         data: {
           content,
           userId,
           channelId,
         },
       });
-      return { success: true };
+      return {
+        success: true,
+        message: { id: message.id, content: message.content },
+      };
     } catch (error) {
       return { success: false, error: error.message };
     }

@@ -34,7 +34,7 @@ export class ChannelPasswordInput {
 @InputType()
 export class leaveChannelInput {
   @Field()
-  channelId: string
+  channelId: string;
 }
 
 @InputType()
@@ -142,10 +142,10 @@ export class SendMessageInput {
 @InputType()
 export class MessageDTO {
   @Field()
-  id: string
+  id: string;
 
   @Field()
-  content: string
+  content: string;
 }
 
 @ObjectType()
@@ -153,8 +153,8 @@ export class SendMessageOutput {
   @Field()
   success: boolean;
 
-  @Field(() => MessageDTO)
-  message: MessageDTO
+  @Field(() => MessageDTO, { nullable: true })
+  message?: MessageDTO;
 
   @Field({ nullable: true })
   error?: string;
