@@ -78,8 +78,16 @@ export class ChatService {
       if (!userInChannel) {
         throw new Error("User is not a member of the channel!");
       }
-      // check if the user is actually a member of the channel
       // check if the user can send a message [if he is not banned, muted]
+      const isBanned = await this.prisma.channelBan.findUnique({
+        where: { userId_channelId: { userId, channelId } },
+      });
+      const isMuted = await this.prisma.channelMute.findUnique({
+        where: { userId_channelId: { userId, channelId } },
+      });
+      if (isBanned || isMuted) {
+        throw new Error("User cannot send a message because he is banned or muted!")
+      }
       await this.prisma.message.create({
         data: {
           content,
@@ -520,11 +528,11 @@ export class ChatService {
             where: { userId_channelId: { userId: targetUserId, channelId } },
           });
           break;
-          case UserAction.UNMUTE:
-            await this.prisma.channelMute.delete({
-              where: { userId_channelId: { userId: targetUserId, channelId } },
-            });
-            break;
+        case UserAction.UNMUTE:
+          await this.prisma.channelMute.delete({
+            where: { userId_channelId: { userId: targetUserId, channelId } },
+          });
+          break;
         case UserAction.MUTE:
           await this.prisma.channelMute.create({
             data: {
