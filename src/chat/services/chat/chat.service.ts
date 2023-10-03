@@ -318,7 +318,7 @@ export class ChatService {
       } else {
         await this.prisma.channel.update({
           where: { id: channelId },
-          data: { password: hashedPassword},
+          data: { password: hashedPassword, isPrivate: false },
         });
       }
 
