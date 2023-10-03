@@ -155,7 +155,11 @@ export class ChatService {
       }
 
       // add a and in the condition to check if the user is in the channel and is not muted
-      if (existingMessage.userId !== userId) {
+      const isBanned = await this.prisma.channelBan.findUnique({
+        where: { userId_channelId: { userId, channelId: existingMessage.channelId } },
+      });
+      
+      if (existingMessage.userId !== userId || isBanned) {
         throw new Error("You do not have permission to edit this message");
       }
 
