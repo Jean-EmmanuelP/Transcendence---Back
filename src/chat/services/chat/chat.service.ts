@@ -198,7 +198,7 @@ export class ChatService {
         where: { userId_channelId: { userId, channelId } },
       });
       if (isBanned) {
-        throw new Error('You are banned from this channel');
+        throw new Error("You are banned from this channel");
       }
       return await this.prisma.message.findMany({
         where: { channelId },
@@ -217,7 +217,11 @@ export class ChatService {
       // check if ther user is ban
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
         where: { ChannelMember: { some: { userId } } },
-        include: { members: true, bans: true, ChannelMember: true },
+        include: {
+          members: true,
+          bans: true,
+          ChannelMember: { include: { user: true } },
+        },
       });
 
       const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
@@ -229,14 +233,14 @@ export class ChatService {
         id: channel.id,
         name: channel.name,
         isPrivate: channel.isPrivate.toString(),
-        members: channel.members
-          .filter((member) => member.id !== userId)
-          .map((member) => ({
-            id: member.id,
-            name: member.name,
-            avatar: member.avatar,
-            status: member.status,
-          })),
+        members: channel.ChannelMember.filter(
+          (channelMember) => channelMember.userId !== userId
+        ).map((channelMember) => ({
+          id: channelMember.user.id,
+          name: channelMember.user.name,
+          avatar: channelMember.user.avatar,
+          status: channelMember.user.status,
+        })),
       }));
     } catch (error) {
       console.log(error);
