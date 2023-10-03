@@ -6,6 +6,8 @@ export enum UserAction {
   KICK = 'KICK',
   BAN = 'BAN',
   MUTE = 'MUTE',
+  UNMUTE = 'UNMUTE',
+  UNBAN = 'UNBAN',
 }
 
 registerEnumType(UserAction, {

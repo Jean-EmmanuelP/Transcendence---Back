@@ -122,6 +122,8 @@ enum UserAction {
   KICK
   BAN
   MUTE
+  UNMUTE
+  UNBAN
 }
 
 input DeleteMessageInput {

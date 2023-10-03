@@ -515,6 +515,7 @@ export class ChatService {
             },
           });
           break;
+        case UserAction.UNBAN:
         case UserAction.MUTE:
           await this.prisma.channelMute.create({
             data: {
