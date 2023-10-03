@@ -40,5 +40,4 @@ jobs:
     - run: rm -rf /home/tselmeg/back
     - run: mkdir /home/tselmeg/back
     - run: cp -ra . /home/tselmeg/back
-    - run: cp -ra /home/tselmeg/back/.env
     - run: pm2 start /home/tselmeg/front.config.js
