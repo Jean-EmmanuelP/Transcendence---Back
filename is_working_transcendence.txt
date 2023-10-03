@@ -30,6 +30,8 @@ thing else useful. Anyone who is logged in should be able to consult it.
 
                         Chat 
 
+✔️ TEST ALL
+
 ✔️  The user should be able to create channels (chat rooms) that can be either public,
 or private, or protected by a password.
 
