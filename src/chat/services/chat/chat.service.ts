@@ -478,7 +478,7 @@ export class ChatService {
       const targetUser = await this.prisma.user.findUnique({
         where: { id: targetUserId },
       });
-      const channel = await this.prisma.user.findUnique({
+      const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
       });
 

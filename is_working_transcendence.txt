@@ -48,10 +48,10 @@ it, and also remove it.
 The channel owner is a channel administrator. They can set other users as
 administrators.
 
-❌ (do the kick function, ban and mute function with limited time) : A user who is an administrator of a channel can kick, ban or mute (for a
+✔️ (do the kick function, ban and mute function with limited time) : A user who is an administrator of a channel can kick, ban or mute (for a
 limited time) other users, but not the channel owners.
 
-❌ do a function to say that if the owner of the channel leave, so there is another owner of the channel but if there is no more people
+✔️ do a function to say that if the owner of the channel leave, so there is another owner of the channel but if there is no more people
 so the channel is automatically deleted (the first who came is the future administrator or if there is only one administrator)
 
 ----  Done after ----
