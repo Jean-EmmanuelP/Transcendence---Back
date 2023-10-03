@@ -469,7 +469,21 @@ export class ChatService {
     try {
       const { targetUserId, channelId, action, duration } = input;
 
-      const operator = 
+      const operator = await this.prisma.user.findUnique({ where: { id: operatorId } });
+      const targetUser = await this.prisma.user.findUnique({ where: { id: targetUserId } });
+      const channel = await this.prisma.user.findUnique({ where: { id: channelId } });
+
+      if (!operator || !targetUser || !channel) {
+        throw new Error("User or channel not found!");
+      }
+
+      const isAdmin = await this.prisma.channelAdmin.findUnique({
+        where: { userId_channelId: {userId: operatorId, channelId} }
+      })
+
+      if (!isAdmin) {
+        throw new Error("Permission denied: Operator is not an admin in the channel");
+      }
     }
   }
 }
