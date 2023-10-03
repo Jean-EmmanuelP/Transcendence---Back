@@ -516,6 +516,15 @@ export class ChatService {
           });
           break;
         case UserAction.UNBAN:
+          await this.prisma.channelBan.delete({
+            where: { userId_channelId: { userId: targetUserId, channelId } },
+          });
+          break;
+          case UserAction.UNMUTE:
+            await this.prisma.channelMute.delete({
+              where: { userId_channelId: { userId: targetUserId, channelId } },
+            });
+            break;
         case UserAction.MUTE:
           await this.prisma.channelMute.create({
             data: {
