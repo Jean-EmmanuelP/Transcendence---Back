@@ -189,9 +189,17 @@ export class ChatService {
     }
   }
 
-  async getMessages(channelId: string): Promise<MessageModel[] | undefined[]> {
+  async getMessages(
+    userId: string,
+    channelId: string
+  ): Promise<MessageModel[] | undefined[]> {
     try {
-      // check with the userId if the user is in the channel and is not banned or muted
+      const isBanned = await this.prisma.channelBan.findUnique({
+        where: { userId_channelId: { userId, channelId } },
+      });
+      if (isBanned) {
+        throw new Error('You are banned from this channel');
+      }
       return await this.prisma.message.findMany({
         where: { channelId },
         orderBy: { createdAt: "asc" },
