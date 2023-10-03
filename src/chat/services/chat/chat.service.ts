@@ -471,7 +471,7 @@ export class ChatService {
             },
           });
         } else {
-          // think about the response and if we need sockets
+          // think about the sockets
           await this.prisma.channel.delete({
             where: { id: channelId },
           });
