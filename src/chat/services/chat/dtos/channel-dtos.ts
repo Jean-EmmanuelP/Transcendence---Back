@@ -139,7 +139,7 @@ export class SendMessageInput {
   content: string;
 }
 
-@InputType()
+@ObjectType()
 export class MessageDTO {
   @Field()
   id: string;

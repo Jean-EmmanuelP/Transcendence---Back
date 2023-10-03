@@ -61,8 +61,14 @@ type CreateChannelOutput {
   channel: ChannelDTO
 }
 
+type MessageDTO {
+  id: String!
+  content: String!
+}
+
 type SendMessageOutput {
   success: Boolean!
+  message: MessageDTO
   error: String
 }
 
