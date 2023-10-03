@@ -203,8 +203,8 @@ export class ChatService {
     try {
       // check if ther user is ban
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
-        where: { members: { some: { id: userId } } },
-        include: { members: true, bans: true },
+        where: { ChannelMember: { some: { userId } } },
+        include: { members: true, bans: true, ChannelMember: true },
       });
 
       const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
