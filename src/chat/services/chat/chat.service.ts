@@ -494,6 +494,7 @@ export class ChatService {
     });
   }
 
+  // add user
   async manageUser(
     operatorId: string,
     input: ManageUserInput
