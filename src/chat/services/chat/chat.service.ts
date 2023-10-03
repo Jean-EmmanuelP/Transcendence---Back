@@ -483,7 +483,7 @@ export class ChatService {
       return { success: false, error: error.message };
     }
   }
-  //
+
   async leaveChannel(userId: string, channelId: string) {
     try {
       const channel = await this.prisma.channel.findUnique({

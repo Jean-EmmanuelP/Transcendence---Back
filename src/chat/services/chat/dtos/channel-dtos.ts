@@ -6,7 +6,6 @@ import {
   InputType,
 } from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
-import { ChannelModel } from "../models/channel.model";
 
 export enum UserAction {
   KICK = "KICK",

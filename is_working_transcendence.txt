@@ -39,8 +39,9 @@ thing else useful. Anyone who is logged in should be able to consult it.
 - tested the deleteMessage it is working
 - tested the manageUser it is working with the case ADD, case KICK, [do special test for BAN, UNBAN, MUTE, UNMUTE]
 - tested the setChannelPassword it is working
-- 
-
+- did a joinChannel different from the manageUser with case ADD (perspective)
+- tested the addChannelAdmin its working
+- tested the leaveChannel it is working
 - NEED TO IMPLEMENT WHEN THERE IS A PASSWORD AND U WANT TO COME INTO THE CHANNEL
 doing the [addChannelAdmin, leaveChannel]
 
