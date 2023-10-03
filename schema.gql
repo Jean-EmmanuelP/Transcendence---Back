@@ -148,6 +148,7 @@ enum UserAction {
   MUTE
   UNMUTE
   UNBAN
+  ADD
 }
 
 input CreateChannelInput {

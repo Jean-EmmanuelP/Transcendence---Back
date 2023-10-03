@@ -528,6 +528,14 @@ export class ChatService {
       }
 
       switch (action) {
+        case UserAction.ADD:
+          await this.prisma.channelMember.create({
+            data: {
+              userId: operatorId,
+              channelId: targetUserId,
+              joinedAt: new Date(),
+            },
+          });
         case UserAction.KICK:
           await this.prisma.channelMember.delete({
             where: { userId_channelId: { userId: targetUserId, channelId } },

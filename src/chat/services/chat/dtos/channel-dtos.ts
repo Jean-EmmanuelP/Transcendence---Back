@@ -14,6 +14,7 @@ export enum UserAction {
   MUTE = "MUTE",
   UNMUTE = "UNMUTE",
   UNBAN = "UNBAN",
+  ADD = "ADD",
 }
 
 registerEnumType(UserAction, {
