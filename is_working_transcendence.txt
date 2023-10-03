@@ -37,8 +37,8 @@ thing else useful. Anyone who is logged in should be able to consult it.
 - tested the sendMessage it is working
 - tested the updateMessage it is working
 - tested the deleteMessage it is working
-- 
-doing the [manageuser, setchannelPassword, addChannelAdmin, leaveChannel]
+- tested the manageUser it is working with the case ADD, case KICK, [do special test for BAN, UNBAN, MUTE, UNMUTE]
+doing the [setchannelPassword, addChannelAdmin, leaveChannel]
 
 ✔️  The user should be able to create channels (chat rooms) that can be either public,
 or private, or protected by a password.
