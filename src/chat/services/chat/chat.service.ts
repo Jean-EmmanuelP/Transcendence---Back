@@ -86,7 +86,9 @@ export class ChatService {
         where: { userId_channelId: { userId, channelId } },
       });
       if (isBanned || isMuted) {
-        throw new Error("User cannot send a message because he is banned or muted!")
+        throw new Error(
+          "User cannot send a message because he is banned or muted!"
+        );
       }
       await this.prisma.message.create({
         data: {
@@ -159,10 +161,12 @@ export class ChatService {
 
       // add a and in the condition to check if the user is in the channel and is not muted
       const isBanned = await this.prisma.channelBan.findUnique({
-        where: { userId_channelId: { userId, channelId: existingMessage.channelId } },
+        where: {
+          userId_channelId: { userId, channelId: existingMessage.channelId },
+        },
       });
       if (isBanned) {
-        throw new Error("You are banned from the channel")
+        throw new Error("You are banned from the channel");
       }
 
       const userInChannel = await this.prisma.channelMember.findUnique({
@@ -203,10 +207,10 @@ export class ChatService {
         include: { members: true, bans: true },
       });
 
-      const filteredChannels = channelsUserIsMemberOf.filter(channel => {
-        const notBanned = !channel.bans.some(ban => ban.userId === userId);
+      const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
+        const notBanned = !channel.bans.some((ban) => ban.userId === userId);
         return notBanned;
-      })
+      });
 
       return filteredChannels.map((channel) => ({
         id: channel.id,
@@ -342,6 +346,7 @@ export class ChatService {
   }
 
   // do the same logic like instagram
+  // think about it and do it later
   async blockUser(
     blockerId: string,
     blockedId: string
@@ -375,6 +380,7 @@ export class ChatService {
   }
 
   // revise this method
+  // same thing
   async unblockUser(
     blockerId: string,
     blockedId: string
@@ -409,67 +415,71 @@ export class ChatService {
   }
   //
   async leaveChannel(userId: string, channelId: string) {
-    const channel = await this.prisma.channel.findUnique({
-      where: { id: channelId },
-      include: {
-        members: true,
-        admins: {
-          select: {
-            userId: true,
-            assignedAt: true,
+    try {
+      const channel = await this.prisma.channel.findUnique({
+        where: { id: channelId },
+        include: {
+          members: true,
+          admins: {
+            select: {
+              userId: true,
+              assignedAt: true,
+            },
+          },
+          ChannelMember: {
+            select: {
+              userId: true,
+              joinedAt: true,
+            },
           },
         },
-        ChannelMember: {
-          select: {
-            userId: true,
-            joinedAt: true,
-          },
-        },
-      },
-    });
-    if (!channel) {
-      throw new Error("Channel not found");
-    }
-    const isMember = channel.members.some((member) => member.id === userId);
-    if (!isMember) {
-      throw new Error(`User is not a member of the channel`);
-    }
-    if (channel.ownerId === userId) {
-      if (channel.admins.length > 0) {
-        const oldestAdmin = channel.admins.sort(
-          (a, b) => a.assignedAt.getTime() - b.assignedAt.getTime()
-        )[0];
-        await this.prisma.channel.update({
-          where: { id: channelId },
-          data: {
-            ownerId: oldestAdmin.userId,
-          },
-        });
-      } else if (channel.ChannelMember.length > 1) {
-        const oldestMember = channel.ChannelMember.sort(
-          (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
-        )[0];
-
-        await this.prisma.channel.update({
-          where: { id: channelId },
-          data: {
-            ownerId: oldestMember.userId,
-          },
-        });
-
-        await this.prisma.channelAdmin.create({
-          data: {
-            userId: oldestMember.userId,
-            channelId,
-          },
-        });
-      } else {
-        // think about the response and if we need sockets
-        await this.prisma.channel.delete({
-          where: { id: channelId },
-        });
-        return;
+      });
+      if (!channel) {
+        throw new Error("Channel not found");
       }
+      const isMember = channel.members.some((member) => member.id === userId);
+      if (!isMember) {
+        throw new Error(`User is not a member of the channel`);
+      }
+      if (channel.ownerId === userId) {
+        if (channel.admins.length > 0) {
+          const oldestAdmin = channel.admins.sort(
+            (a, b) => a.assignedAt.getTime() - b.assignedAt.getTime()
+          )[0];
+          await this.prisma.channel.update({
+            where: { id: channelId },
+            data: {
+              ownerId: oldestAdmin.userId,
+            },
+          });
+        } else if (channel.ChannelMember.length > 1) {
+          const oldestMember = channel.ChannelMember.sort(
+            (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
+          )[0];
+
+          await this.prisma.channel.update({
+            where: { id: channelId },
+            data: {
+              ownerId: oldestMember.userId,
+            },
+          });
+
+          await this.prisma.channelAdmin.create({
+            data: {
+              userId: oldestMember.userId,
+              channelId,
+            },
+          });
+        } else {
+          // think about the response and if we need sockets
+          await this.prisma.channel.delete({
+            where: { id: channelId },
+          });
+          return { success: true };
+        }
+      }
+    } catch (error) {
+      return { success: false, error: error.message };
     }
 
     await this.prisma.channel.update({
