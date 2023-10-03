@@ -139,10 +139,22 @@ export class SendMessageInput {
   content: string;
 }
 
+@InputType()
+export class MessageDTO {
+  @Field()
+  id: string
+
+  @Field()
+  content: string
+}
+
 @ObjectType()
 export class SendMessageOutput {
   @Field()
   success: boolean;
+
+  @Field(() => MessageDTO)
+  message: MessageDTO
 
   @Field({ nullable: true })
   error?: string;
