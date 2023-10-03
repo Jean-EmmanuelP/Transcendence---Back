@@ -47,10 +47,18 @@ type OperationResult {
   error: String
 }
 
+type ChannelDTO {
+  id: ID!
+  name: String!
+  isPrivate: Boolean!
+  password: String
+  ownerId: String!
+}
+
 type CreateChannelOutput {
   success: Boolean!
   error: String
-  channel: ChannelOutputDTO
+  channel: ChannelDTO
 }
 
 type SendMessageOutput {

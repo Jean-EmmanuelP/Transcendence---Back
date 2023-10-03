@@ -125,7 +125,7 @@ export class CreateChannelOutput {
   @Field({ nullable: true })
   error?: string;
 
-  @Field(() => ChannelOutputDTO, { nullable: true })
+  @Field(() => ChannelDTO, { nullable: true })
   channel?: ChannelDTO;
 }
 
