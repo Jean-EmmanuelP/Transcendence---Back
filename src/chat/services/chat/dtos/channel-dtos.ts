@@ -88,9 +88,6 @@ export class CreateChannelInput {
 
   @Field({ nullable: true })
   password?: string;
-
-  @Field()
-  ownerId: string;
 }
 
 @ObjectType()

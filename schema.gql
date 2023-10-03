@@ -144,7 +144,6 @@ input CreateChannelInput {
   name: String!
   isPrivate: Boolean!
   password: String
-  ownerId: String!
 }
 
 input ChannelPasswordInput {
