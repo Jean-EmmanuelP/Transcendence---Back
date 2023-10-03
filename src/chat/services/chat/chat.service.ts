@@ -507,7 +507,7 @@ export class ChatService {
       if (!channel) {
         throw new Error("Channel not found");
       }
-      const isMember = channel.members.some((member) => member.id === userId);
+      const isMember = channel.ChannelMember.some((member) => member.userId === userId);
       if (!isMember) {
         throw new Error(`User is not a member of the channel`);
       }
@@ -545,8 +545,8 @@ export class ChatService {
           await this.prisma.channel.delete({
             where: { id: channelId },
           });
-          return { success: true };
         }
+        return { success: true };
       }
     } catch (error) {
       return { success: false, error: error.message };
