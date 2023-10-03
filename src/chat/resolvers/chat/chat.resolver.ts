@@ -89,6 +89,8 @@ export class ChatResolver {
     return this.chatService.setChannelPassword(channelId, password, userId);
   }
 
+  
+
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
   async getMessages(

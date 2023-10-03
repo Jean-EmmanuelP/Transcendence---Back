@@ -31,6 +31,15 @@ export class ChannelPasswordInput {
 }
 
 @InputType()
+export class addChannelAdminInput {
+  @Field()
+  channelId: string;
+
+  @Field()
+  newAdminId: string;
+}
+
+@InputType()
 export class CreateDirectChannelInput {
   @Field()
   userId1: string;
