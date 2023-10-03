@@ -1,19 +1,34 @@
-import { InputType, Field, ObjectType, ID, registerEnumType } from "@nestjs/graphql";
+import {
+  InputType,
+  Field,
+  ObjectType,
+  ID,
+  registerEnumType,
+} from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
 import { ChannelModel } from "../models/channel.model";
 
 export enum UserAction {
-  KICK = 'KICK',
-  BAN = 'BAN',
-  MUTE = 'MUTE',
-  UNMUTE = 'UNMUTE',
-  UNBAN = 'UNBAN',
+  KICK = "KICK",
+  BAN = "BAN",
+  MUTE = "MUTE",
+  UNMUTE = "UNMUTE",
+  UNBAN = "UNBAN",
 }
 
 registerEnumType(UserAction, {
-  name: 'UserAction',
-  description: "The actions that can be performed on a user"
-})
+  name: "UserAction",
+  description: "The actions that can be performed on a user",
+});
+
+@InputType()
+export class ChannelPasswordInput {
+  @Field()
+  channelId: string;
+
+  @Field({ nullable: true })
+  password?: string;
+}
 
 @InputType()
 export class CreateDirectChannelInput {
@@ -32,8 +47,6 @@ export class CreateDirectChannelOutput {
   @Field({ nullable: true })
   error?: string;
 }
-
-
 
 @InputType()
 export class ManageUserInput {
@@ -99,9 +112,9 @@ export class CreateChannelOutput {
 
   @Field({ nullable: true })
   error?: string;
-  
+
   @Field(() => ChannelOutputDTO, { nullable: true })
-  channel?: ChannelDTO
+  channel?: ChannelDTO;
 }
 
 @InputType()

@@ -3,6 +3,7 @@ import { Args, Context, Mutation, Query, Resolver } from "@nestjs/graphql";
 import { ChatService } from "src/chat/services/chat/chat.service";
 import {
   ChannelOutputDTO,
+  ChannelPasswordInput,
   CreateChannelInput,
   CreateChannelOutput,
   DeleteMessageInput,
@@ -64,19 +65,29 @@ export class ChatResolver {
   @UseGuards(JwtAuthGuard)
   async manageUser(
     @User() userId: string,
-    @Args('input') input: ManageUserInput
+    @Args("input") input: ManageUserInput
   ): Promise<OperationResult> {
     return this.chatService.manageUser(userId, input);
   }
 
   @Mutation(() => CreateChannelOutput)
   @UseGuards(JwtAuthGuard)
-  async createChannel(@User() userId: string,
-  @Args('input') input: CreateChannelInput,
-  ) : Promise<CreateChannelOutput> {
+  async createChannel(
+    @User() userId: string,
+    @Args("input") input: CreateChannelInput
+  ): Promise<CreateChannelOutput> {
     return this.chatService.createChannel(input, userId);
   }
 
+  @Mutation(() => OperationResult)
+  @UseGuards(JwtAuthGuard)
+  async setChannelPassword(
+    @User() userId: string,
+    @Args("input") input: ChannelPasswordInput
+  ): Promise<OperationResult> {
+    const { channelId, password } = input;
+    return this.chatService.setChannelPassword(channelId, password, userId);
+  }
 
   @Query(() => [MessageModel], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
@@ -88,7 +99,9 @@ export class ChatResolver {
 
   @Query(() => [ChannelOutputDTO], { nullable: "items" })
   @UseGuards(JwtAuthGuard)
-  async getUsersChannel(@User() userId: string): Promise<ChannelOutputDTO[] | undefined[]> {
+  async getUsersChannel(
+    @User() userId: string
+  ): Promise<ChannelOutputDTO[] | undefined[]> {
     return this.chatService.getUserChannels(userId);
   }
 }
