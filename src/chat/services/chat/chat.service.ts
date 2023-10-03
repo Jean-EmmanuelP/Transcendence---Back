@@ -13,6 +13,7 @@ import {
   CreateChannelInput,
   OperationResult,
   ManageUserInput,
+  UserAction,
 } from "./dtos/channel-dtos";
 import { MessageModel } from "./models/message.model";
 import * as bcrypt from "bcrypt";
@@ -464,26 +465,76 @@ export class ChatService {
     });
   }
 
-  async manageUser(operatorId: string, input: ManageUserInput):Promise<OperationResult>
-  {
+  async manageUser(
+    operatorId: string,
+    input: ManageUserInput
+  ): Promise<OperationResult> {
     try {
       const { targetUserId, channelId, action, duration } = input;
 
-      const operator = await this.prisma.user.findUnique({ where: { id: operatorId } });
-      const targetUser = await this.prisma.user.findUnique({ where: { id: targetUserId } });
-      const channel = await this.prisma.user.findUnique({ where: { id: channelId } });
+      const operator = await this.prisma.user.findUnique({
+        where: { id: operatorId },
+      });
+      const targetUser = await this.prisma.user.findUnique({
+        where: { id: targetUserId },
+      });
+      const channel = await this.prisma.user.findUnique({
+        where: { id: channelId },
+      });
 
       if (!operator || !targetUser || !channel) {
         throw new Error("User or channel not found!");
       }
 
       const isAdmin = await this.prisma.channelAdmin.findUnique({
-        where: { userId_channelId: {userId: operatorId, channelId} }
-      })
+        where: { userId_channelId: { userId: operatorId, channelId } },
+      });
 
       if (!isAdmin) {
-        throw new Error("Permission denied: Operator is not an admin in the channel");
+        throw new Error(
+          "Permission denied: Operator is not an admin in the channel"
+        );
       }
+
+      switch (action) {
+        case UserAction.KICK:
+          await this.prisma.channelMember.delete({
+            where: { userId_channelId: { userId: targetUserId, channelId } },
+          });
+          break;
+        case UserAction.BAN:
+          await this.prisma.channelBan.create({
+            data: {
+              channelId,
+              userId: targetUserId,
+              bannedId: new Date(),
+              expiresAt: duration
+                ? new Date(Date.now() + duration * 1000)
+                : null,
+              bannedBy: operatorId,
+            },
+          });
+          break;
+        case UserAction.MUTE:
+          await this.prisma.channelMute.create({
+            data: {
+              channelId,
+              userId: targetUserId,
+              mutedId: new Date(),
+              mutedBy: operatorId,
+              expiresAt: duration
+                ? new Date(Date.now() + duration * 1000)
+                : null,
+            },
+          });
+          break;
+        default:
+          throw new Error("Invalid action");
+      }
+
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   }
 }

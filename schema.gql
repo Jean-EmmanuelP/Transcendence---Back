@@ -88,7 +88,8 @@ input GetMessageInput {
 type Mutation {
   sendMessage(input: SendMessageInput!): SendMessageOutput!
   updateMessage(input: UpdateMessageInput!): UpdateMessageOutput!
-  deleteMessage(input: DeleteMessageInput!): OperationResult!
+  manageUser(input: ManageUserInput!): OperationResult!
+  deleteMessage(input: DeleteMessageInput!): DeleteMessageOutput!
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
@@ -107,6 +108,20 @@ input SendMessageInput {
 input UpdateMessageInput {
   messageId: String!
   newContent: String!
+}
+
+input ManageUserInput {
+  targetUserId: String!
+  channelId: String!
+  action: UserAction!
+  duration: Float
+}
+
+"""The actions that can be performed on a user"""
+enum UserAction {
+  KICK
+  BAN
+  MUTE
 }
 
 input DeleteMessageInput {
