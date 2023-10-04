@@ -319,6 +319,36 @@ export class ChatService {
       }
       const hashedPassword = password ? await bcrypt.hash(password, 12) : null;
       // check what its sending back
+      /* possible implementation
+      const newChannel = await this.prisma.channel.create({
+  data: {
+    name,
+    isPrivate,
+    password: hashedPassword,
+    ownerId: userId,
+    ChannelMember: {
+      create: [
+        {
+          userId: userId,
+          joinedAt: new Date(),
+        },
+      ],
+    },
+    admins: {
+      create: [
+        {
+          userId: userId,
+        },
+      ],
+    },
+  },
+  include: {
+    admins: true,
+    members: true,
+    ChannelMember: true,
+  },
+});
+      */
       const newChannel = await this.prisma.channel.create({
         data: {
           name,
