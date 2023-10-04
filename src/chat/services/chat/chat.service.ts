@@ -19,6 +19,7 @@ import { MessageModel } from "./models/message.model";
 import * as bcrypt from "bcrypt";
 
 // implement all the socket connections at the end
+// comment all the members here because we dont even user this relation...
 @Injectable()
 export class ChatService {
   constructor(

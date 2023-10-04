@@ -55,6 +55,7 @@ model BlockedUser {
   @@id([blockerId, blockedId])
 }
 
+// delete the members
 model Channel {
   id              String          @id @default(cuid())
   name            String
