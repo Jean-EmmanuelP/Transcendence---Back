@@ -549,6 +549,8 @@ export class ChatService {
       await this.prisma.channelAdmin.deleteMany({
         where: { userId, channelId },
       });
+
+      return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
     }
