@@ -265,7 +265,6 @@ export class ChatService {
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
         where: { ChannelMember: { some: { userId } } },
         include: {
-          owner: true,
           members: true,
           bans: true,
           ChannelMember: { include: { user: true } },
@@ -283,33 +282,33 @@ export class ChatService {
       });
       console.log(`Filtered Channels:`, filteredChannels);
 
-      return filteredChannels.map((channel) => ({
-        id: channel.id,
-        name: channel.name,
-        isPrivate: channel.isPrivate.toString(),
-        owner: channel.owner
-          ? {
-              id: channel.owner.id,
-              name: channel.owner.name,
-              avatar: channel.owner.avatar,
-              status: channel.owner.status,
-            }
-          : null,
-        members: channel.ChannelMember.filter(
-          (channelMember) => channelMember.userId !== userId
-        ).map((channelMember) => ({
-          id: channelMember.user.id,
-          name: channelMember.user.name,
-          avatar: channelMember.user.avatar,
-          status: channelMember.user.status,
-        })),
-        admins: channel.admins.map((admin) => ({
-          id: admin.user.id,
-          name: admin.user.name,
-          avatar: admin.user.avatar,
-          status: admin.user.status,
-        })),
-      }));
+      const channelDataPreomises = filteredChannels.map(async channel => {
+        const ownerData = await this.userService.findById(channel.ownerId);
+        return {
+          id: channel.id,
+          name: channel.name,
+          isPrivate: channel.isPrivate.toString(),
+          owner: {
+            id: ownerData.id,
+            name: ownerData.name,
+            avatar: ownerData.avatar,
+          },
+          members: channel.ChannelMember.filter(
+            (channelMember) => channelMember.userId !== userId
+          ).map((channelMember) => ({
+            id: channelMember.user.id,
+            name: channelMember.user.name,
+            avatar: channelMember.user.avatar,
+            status: channelMember.user.status,
+          })),
+          admins: channel.admins.map((admin) => ({
+            id: admin.user.id,
+            name: admin.user.name,
+            avatar: admin.user.avatar,
+            status: admin.user.status,
+          })),
+        }
+      })
     } catch (error) {
       console.log(error);
       return [];
@@ -524,7 +523,9 @@ export class ChatService {
         throw new Error("Channel not found");
       }
       if (channel.isDirectMessage) {
-        throw new Error("Not possible to implement this in the front because this a relation between friends!")
+        throw new Error(
+          "Not possible to implement this in the front because this a relation between friends!"
+        );
       }
       const isMember = channel.ChannelMember.some(
         (member) => member.userId === userId
