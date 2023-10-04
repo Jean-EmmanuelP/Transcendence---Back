@@ -92,6 +92,7 @@ type ChannelOutputDTO {
   id: String!
   name: String!
   isPrivate: String!
+  owner: UserOutputDTO!
   members: [UserOutputDTO!]!
   admins: [UserOutputDTO!]!
 }

@@ -27,7 +27,7 @@ export class ChatService {
     private readonly userService: UserService,
     private readonly userGateway: UserStatusGateway
   ) {}
-  // add the functionnality where u can add people directly during the creation
+
   async createDirectChannel(
     input: CreateDirectChannelInput
   ): Promise<CreateDirectChannelOutput> {
