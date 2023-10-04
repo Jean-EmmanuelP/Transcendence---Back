@@ -494,44 +494,90 @@ export class ChatService {
 
   async leaveChannel(userId: string, channelId: string) {
     try {
-      const channel = await this.prisma.channel.findUnique({
+      console.log(
+        "Function leaveChannel started with userId:",
+        userId,
+        " and channelId:",
+        channelId
+      );
+
+      // Get the initial channel data
+      let theChannel = await this.prisma.channel.findUnique({
         where: { id: channelId },
         include: {
           ChannelMember: true,
           admins: true,
         },
       });
-      if (!channel) throw new Error("Channel not found");
-      const isMember = channel.ChannelMember.some(
+      console.log("Initial channel data:", JSON.stringify(theChannel));
+      if (!theChannel) throw new Error("Channel not found");
+
+      const isMember = theChannel.ChannelMember.some(
         (member) => member.userId === userId
       );
+      console.log("Is user a member of the channel:", isMember);
       if (!isMember) throw new Error(`User is not a member of the channel`);
-      if (channel.ChannelMember.length <= 1) {
+
+      if (theChannel.ChannelMember.length <= 1) {
+        console.log("Only one member in the channel. Deleting channel...");
         await this.prisma.channel.delete({ where: { id: channelId } });
+        console.log("Channel deleted successfully!");
         return { success: true };
       }
-      if (channel.ownerId === userId) {
-        let newOwnerId = null;
-        if (channel.admins && channel.admins.length > 0) {
-          newOwnerId = channel.admins.sort(
-            (a, b) => a.assignedAt.getTime() - b.assignedAt.getTime()
-          )[0].userId;
-        } else {
-          newOwnerId = channel.ChannelMember.sort(
-            (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
-          )[0].userId;
-          console.log('enter here', newOwnerId);
-        }
 
-        const newChannel = await this.prisma.channel.update({
+      if (theChannel.ownerId === userId) {
+        console.log("User is the owner of the channel");
+        let newOwnerId = null;
+        if (theChannel.admins && theChannel.admins.length > 1) {
+          console.log("Finding new owner from admins excluding current owner");
+          newOwnerId = theChannel.admins
+            .filter((admin) => admin.userId !== userId) // Filtering out current owner
+            .sort((a, b) => a.assignedAt.getTime() - b.assignedAt.getTime())[0]
+            ?.userId;
+          console.log(
+            "Filtered admins: ",
+            JSON.stringify(
+              theChannel.admins.filter((admin) => admin.userId !== userId)
+            )
+          );
+        } else {
+          console.log(
+            "Finding new owner from channel members excluding current owner"
+          );
+          newOwnerId = theChannel.ChannelMember.filter(
+            (member) => member.userId !== userId
+          ) // Filtering out current owner
+            .sort((a, b) => a.joinedAt.getTime() - b.joinedAt.getTime())[0]
+            ?.userId;
+        }
+        console.log("New owner ID:", newOwnerId);
+
+        // Update the ownerId of the channel
+        console.log("Updating channel owner");
+        await this.prisma.channel.update({
           where: { id: channelId },
           data: { ownerId: newOwnerId },
         });
-        console.log(`newChannel`, newChannel);
-        const isNewOwnerAdmin = channel.admins.some(
+        console.log("Channel owner updated successfully");
+
+        // Re-query to get updated channel data
+        theChannel = await this.prisma.channel.findUnique({
+          where: { id: channelId },
+          include: {
+            ChannelMember: true,
+            admins: true,
+          },
+        });
+        console.log("Requeried channel data:", JSON.stringify(theChannel));
+
+        // Check if the newOwnerId is already an admin
+        const isNewOwnerAdmin = theChannel.admins.some(
           (admin) => admin.userId === newOwnerId
         );
+        console.log("Is new owner already an admin:", isNewOwnerAdmin);
         if (!isNewOwnerAdmin) {
+          // If not, add the newOwnerId as an admin
+          console.log("Adding new owner as admin");
           await this.prisma.channelAdmin.create({
             data: {
               userId: newOwnerId,
@@ -539,19 +585,23 @@ export class ChatService {
               assignedAt: new Date(),
             },
           });
+          console.log("New owner added as admin successfully");
         }
       }
 
+      console.log("Deleting user from channel members and channel admins...");
       await this.prisma.channelMember.deleteMany({
         where: { userId, channelId },
       });
-
       await this.prisma.channelAdmin.deleteMany({
         where: { userId, channelId },
       });
+      console.log("User deleted from channel members and admins successfully!");
 
+      console.log("leaveChannel function completed successfully!");
       return { success: true };
     } catch (error) {
+      console.log("Error in leaveChannel function:", error.message);
       return { success: false, error: error.message };
     }
   }
