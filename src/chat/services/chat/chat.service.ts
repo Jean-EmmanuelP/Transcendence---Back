@@ -42,22 +42,24 @@ export class ChatService {
           isDirectMessage: true,
         },
       });
-
-      await this.prisma.channelMember.create({
+      console.log(`Created Channel`, channel);
+      const senderCreation = await this.prisma.channelMember.create({
         data: {
           userId: input.userId1,
           channelId: channel.id,
           joinedAt: new Date(),
         },
       });
+      console.log(`Created sender`, senderCreation);
 
-      await this.prisma.channelMember.create({
+      const receiverCreation = await this.prisma.channelMember.create({
         data: {
           userId: input.userId2,
           channelId: channel.id,
           joinedAt: new Date(),
         },
       });
+      console.log(`Created receiverCreation`, receiverCreation);
 
       this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
       return { success: true };
@@ -284,7 +286,7 @@ export class ChatService {
           id: channel.owner.id,
           name: channel.owner.name,
           avatar: channel.owner.avatar,
-          status: channel.owner.status
+          status: channel.owner.status,
         },
         members: channel.ChannelMember.filter(
           (channelMember) => channelMember.userId !== userId
@@ -514,7 +516,9 @@ export class ChatService {
       if (!channel) {
         throw new Error("Channel not found");
       }
-      const isMember = channel.ChannelMember.some((member) => member.userId === userId);
+      const isMember = channel.ChannelMember.some(
+        (member) => member.userId === userId
+      );
       if (!isMember) {
         throw new Error(`User is not a member of the channel`);
       }
