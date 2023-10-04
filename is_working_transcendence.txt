@@ -48,6 +48,7 @@ thing else useful. Anyone who is logged in should be able to consult it.
 - block user you must delete the direct canal/ delete the friend link and add the user in the block model [then do all the checks each time ]
 + (the member field in the schema prisma seems not to be used, must check this!)
 - NEED TO IMPLEMENT WHEN THERE IS A PASSWORD AND U WANT TO COME INTO THE CHANNEL: done with the joinChannel
+- leaveChannel is working shit men was long to find the error
 doing the [leaveChannel]
 
 ✔️  The user should be able to create channels (chat rooms) that can be either public,
