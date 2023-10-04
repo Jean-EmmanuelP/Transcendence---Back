@@ -541,6 +541,14 @@ export class ChatService {
           });
         }
       }
+
+      await this.prisma.channelMember.deleteMany({
+        where: { userId, channelId },
+      });
+
+      await this.prisma.channelAdmin.deleteMany({
+        where: { userId, channelId },
+      });
     } catch (error) {
       return { success: false, error: error.message };
     }
