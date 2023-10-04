@@ -45,6 +45,7 @@ thing else useful. Anyone who is logged in should be able to consult it.
 - tested the addChannelAdmin it is working
 - the leaveChannel implementation is not working
 - tested the createdirectchannel and it is working
+- block user you must delete the direct canal/ delete the friend link and add the user in the block model [then do all the checks each time ]
 + (the member field in the schema prisma seems not to be used, must check this!)
 - NEED TO IMPLEMENT WHEN THERE IS A PASSWORD AND U WANT TO COME INTO THE CHANNEL: done with the joinChannel
 doing the [leaveChannel]
