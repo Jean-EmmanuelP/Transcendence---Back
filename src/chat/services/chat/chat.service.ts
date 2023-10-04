@@ -497,86 +497,53 @@ export class ChatService {
       const channel = await this.prisma.channel.findUnique({
         where: { id: channelId },
         include: {
-          members: true,
-          admins: {
-            select: {
-              userId: true,
-              assignedAt: true,
-            },
-          },
-          ChannelMember: {
-            select: {
-              userId: true,
-              joinedAt: true,
-            },
-          },
+          ChannelMember: true,
+          admins: true,
         },
       });
-      if (!channel) {
-        throw new Error("Channel not found");
-      }
-      if (channel.isDirectMessage) {
-        throw new Error(
-          "Not possible to implement this in the front because this a relation between friends!"
-        );
-      }
+      if (!channel) throw new Error("Channel not found");
       const isMember = channel.ChannelMember.some(
         (member) => member.userId === userId
       );
-      if (!isMember) {
-        throw new Error(`User is not a member of the channel`);
-      }
+      if (!isMember) throw new Error(`User is not a member of the channel`);
       if (channel.ownerId === userId) {
-        if (channel.admins.length > 0) {
-          const oldestAdmin = channel.admins.sort(
+        if (channel.ChannelMember.length <= 1) {
+          await this.prisma.channel.delete({ where: { id: channelId } });
+          return { success: true };
+        }
+
+        let newOwnerId = null;
+        if (channel.admins && channel.admins.length > 0) {
+          newOwnerId = channel.admins.sort(
             (a, b) => a.assignedAt.getTime() - b.assignedAt.getTime()
-          )[0];
-          await this.prisma.channel.update({
-            where: { id: channelId },
-            data: {
-              ownerId: oldestAdmin.userId,
-            },
-          });
-        } else if (channel.ChannelMember.length > 1) {
-          const oldestMember = channel.ChannelMember.sort(
+          )[0].userId;
+        } else {
+          newOwnerId = channel.ChannelMember.sort(
             (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
-          )[0];
+          )[0].userId;
+        }
 
-          await this.prisma.channel.update({
-            where: { id: channelId },
-            data: {
-              ownerId: oldestMember.userId,
-            },
-          });
+        await this.prisma.channel.update({
+          where: { id: channelId },
+          data: { ownerId: newOwnerId },
+        });
 
+        const isNewOwnerAdmin = channel.admins.some(
+          (admin) => admin.userId === userId
+        );
+        if (!isNewOwnerAdmin) {
           await this.prisma.channelAdmin.create({
             data: {
-              userId: oldestMember.userId,
+              userId,
               channelId,
+              assignedAt: new Date(),
             },
           });
-        } else {
-          // think about the sockets
-          await this.prisma.channel.delete({
-            where: { id: channelId },
-          });
         }
-        return { success: true };
       }
     } catch (error) {
       return { success: false, error: error.message };
     }
-
-    await this.prisma.channel.update({
-      where: { id: channelId },
-      data: {
-        members: {
-          disconnect: {
-            id: userId,
-          },
-        },
-      },
-    });
   }
 
   // add user
