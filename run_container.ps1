@@ -8,7 +8,7 @@ $port_check = docker ps --format '{{.Ports}}' | Select-String "5432"
 $name_check = docker ps --format '{{.Names}}' | Select-String "my_postgres_container"
 
 # Vérifie que le port 5432 n'est pas utilisé et qu'aucun conteneur ne porte le nom my_postgres_container
-if (-not $port_check -and -not $name_check) {
+# if (-not $port_check -and -not $name_check) {
     # Démarre les conteneurs Docker avec Docker Compose
     docker-compose up -d
 
@@ -23,7 +23,7 @@ if (-not $port_check -and -not $name_check) {
 
     # Lance Prisma Studio en arrière-plan
     Start-Process -NoNewWindow -FilePath "npx" -ArgumentList "prisma studio"
-}
-else {
-    Write-Host "Un conteneur Docker utilise déjà le port 5432 ou le nom my_postgres_container. Arrêtez le conteneur avant de relancer ce script."
-}
+# }
+# else {
+    # Write-Host "Un conteneur Docker utilise déjà le port 5432 ou le nom my_postgres_container. Arrêtez le conteneur avant de relancer ce script."
+# }
