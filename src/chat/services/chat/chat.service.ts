@@ -263,6 +263,7 @@ export class ChatService {
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
         where: { ChannelMember: { some: { userId } } },
         include: {
+          owner: true,
           members: true,
           bans: true,
           ChannelMember: { include: { user: true } },
@@ -279,6 +280,12 @@ export class ChatService {
         id: channel.id,
         name: channel.name,
         isPrivate: channel.isPrivate.toString(),
+        owner: {
+          id: channel.owner.id,
+          name: channel.owner.name,
+          avatar: channel.owner.avatar,
+          status: channel.owner.status
+        },
         members: channel.ChannelMember.filter(
           (channelMember) => channelMember.userId !== userId
         ).map((channelMember) => ({

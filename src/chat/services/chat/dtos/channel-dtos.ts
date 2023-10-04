@@ -235,6 +235,8 @@ export class ChannelOutputDTO {
 
   @Field()
   isPrivate: string;
+  @Field(() => UserOutputDTO)
+  owner: UserOutputDTO;
 
   @Field(() => [UserOutputDTO])
   members: UserOutputDTO[];
