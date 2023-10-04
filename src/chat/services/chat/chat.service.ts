@@ -523,6 +523,9 @@ export class ChatService {
       if (!channel) {
         throw new Error("Channel not found");
       }
+      if (channel.isDirectMessage) {
+        throw new Error("Not possible to implement this in the front because this a relation between friends!")
+      }
       const isMember = channel.ChannelMember.some(
         (member) => member.userId === userId
       );
