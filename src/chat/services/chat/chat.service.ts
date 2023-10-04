@@ -273,21 +273,28 @@ export class ChatService {
         },
       });
 
+      console.log(
+        `Retrieved Channels Before Filtering:`,
+        channelsUserIsMemberOf
+      );
       const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
         const notBanned = !channel.bans.some((ban) => ban.userId === userId);
         return notBanned;
       });
+      console.log(`Filtered Channels:`, filteredChannels);
 
       return filteredChannels.map((channel) => ({
         id: channel.id,
         name: channel.name,
         isPrivate: channel.isPrivate.toString(),
-        owner: {
-          id: channel.owner.id,
-          name: channel.owner.name,
-          avatar: channel.owner.avatar,
-          status: channel.owner.status,
-        },
+        owner: channel.owner
+          ? {
+              id: channel.owner.id,
+              name: channel.owner.name,
+              avatar: channel.owner.avatar,
+              status: channel.owner.status,
+            }
+          : null,
         members: channel.ChannelMember.filter(
           (channelMember) => channelMember.userId !== userId
         ).map((channelMember) => ({
