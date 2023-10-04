@@ -62,7 +62,7 @@ model Channel {
   isDirectMessage Boolean         @default(false)
   password        String?
   ownerId         String?
-  owner           User?           @relation("ChannelOwner", fields: [ownerId], references: [id])
+  owner           User?           @relation("ChannelOwner", fields: [ownerId], references: [id], onDelete: Cascade)
   messages        Message[]
   members         User[]          @relation("ChannelMembers")
   createdAt       DateTime        @default(now())
@@ -103,8 +103,8 @@ model ChannelMember {
   userId    String
   channelId String
   joinedAt  DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
-  channel   Channel  @relation(fields: [channelId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel   Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@id([userId, channelId])
 }

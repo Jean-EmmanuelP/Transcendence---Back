@@ -506,12 +506,11 @@ export class ChatService {
         (member) => member.userId === userId
       );
       if (!isMember) throw new Error(`User is not a member of the channel`);
+      if (channel.ChannelMember.length <= 1) {
+        await this.prisma.channel.delete({ where: { id: channelId } });
+        return { success: true };
+      }
       if (channel.ownerId === userId) {
-        if (channel.ChannelMember.length <= 1) {
-          await this.prisma.channel.delete({ where: { id: channelId } });
-          return { success: true };
-        }
-
         let newOwnerId = null;
         if (channel.admins && channel.admins.length > 0) {
           newOwnerId = channel.admins.sort(
@@ -521,20 +520,21 @@ export class ChatService {
           newOwnerId = channel.ChannelMember.sort(
             (a, b) => a.joinedAt.getTime() - b.joinedAt.getTime()
           )[0].userId;
+          console.log('enter here', newOwnerId);
         }
 
-        await this.prisma.channel.update({
+        const newChannel = await this.prisma.channel.update({
           where: { id: channelId },
           data: { ownerId: newOwnerId },
         });
-
+        console.log(`newChannel`, newChannel);
         const isNewOwnerAdmin = channel.admins.some(
-          (admin) => admin.userId === userId
+          (admin) => admin.userId === newOwnerId
         );
         if (!isNewOwnerAdmin) {
           await this.prisma.channelAdmin.create({
             data: {
-              userId,
+              userId: newOwnerId,
               channelId,
               assignedAt: new Date(),
             },
