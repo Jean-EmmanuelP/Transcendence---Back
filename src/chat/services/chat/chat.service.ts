@@ -282,36 +282,26 @@ export class ChatService {
       });
       console.log(`Filtered Channels:`, filteredChannels);
 
-      const channelDataPromises = filteredChannels.map(async (channel) => {
-        const ownerData = await this.userService.findById(channel.ownerId);
-        return {
-          id: channel.id,
-          name: channel.name,
-          isPrivate: channel.isPrivate.toString(),
-          owner: {
-            name: ownerData.name,
-            avatar: ownerData.avatar,
-            status: ownerData.status,
-          },
-          members: channel.ChannelMember.filter(
-            (channelMember) => channelMember.userId !== userId
-          ).map((channelMember) => ({
-            id: channelMember.user.id,
-            name: channelMember.user.name,
-            avatar: channelMember.user.avatar,
-            status: channelMember.user.status,
-          })),
-          admins: channel.admins.map((admin) => ({
-            id: admin.user.id,
-            name: admin.user.name,
-            avatar: admin.user.avatar,
-            status: admin.user.status,
-          })),
-        };
-      });
-
-      const channelData = await Promise.all(channelDataPromises);
-      return channelData;
+      return filteredChannels.map((channel) => ({
+        id: channel.id,
+        name: channel.name,
+        isPrivate: channel.isPrivate.toString(),
+        ownerId: channel.ownerId,
+        members: channel.ChannelMember.filter(
+          (channelMember) => channelMember.userId !== userId
+        ).map((channelMember) => ({
+          id: channelMember.user.id,
+          name: channelMember.user.name,
+          avatar: channelMember.user.avatar,
+          status: channelMember.user.status,
+        })),
+        admins: channel.admins.map((admin) => ({
+          id: admin.user.id,
+          name: admin.user.name,
+          avatar: admin.user.avatar,
+          status: admin.user.status,
+        })),
+      }));
     } catch (error) {
       console.log(error);
       return [];
