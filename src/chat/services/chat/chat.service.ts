@@ -282,16 +282,16 @@ export class ChatService {
       });
       console.log(`Filtered Channels:`, filteredChannels);
 
-      const channelDataPreomises = filteredChannels.map(async channel => {
+      const channelDataPromises = filteredChannels.map(async (channel) => {
         const ownerData = await this.userService.findById(channel.ownerId);
         return {
           id: channel.id,
           name: channel.name,
           isPrivate: channel.isPrivate.toString(),
           owner: {
-            id: ownerData.id,
             name: ownerData.name,
             avatar: ownerData.avatar,
+            status: ownerData.status,
           },
           members: channel.ChannelMember.filter(
             (channelMember) => channelMember.userId !== userId
@@ -307,8 +307,11 @@ export class ChatService {
             avatar: admin.user.avatar,
             status: admin.user.status,
           })),
-        }
-      })
+        };
+      });
+
+      const channelData = await Promise.all(channelDataPromises);
+      return channelData;
     } catch (error) {
       console.log(error);
       return [];
