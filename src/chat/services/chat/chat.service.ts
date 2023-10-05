@@ -120,12 +120,21 @@ export class ChatService {
       const existingMessage = await this.prisma.message.findUnique({
         where: { id: messageId },
       });
-
       if (!existingMessage) {
         throw new Error("Message not found");
       }
-
-      // add a and in the condition to check if the user is in the channel and is not muted
+      const channelId = existingMessage.channelId
+      const isBanned = await this.prisma.channelBan.findUnique({
+        where: { userId_channelId: { userId, channelId } },
+      });
+      const isMuted = await this.prisma.channelMute.findUnique({
+        where: { userId_channelId: { userId, channelId } },
+      });
+      if (isBanned || isMuted) {
+        throw new Error(
+          "User cannot send a message because he is banned or muted!"
+        );
+      }
       if (existingMessage.userId !== userId) {
         throw new Error("You do not have permission to edit this message");
       }
