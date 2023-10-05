@@ -287,6 +287,7 @@ export class ChatService {
         id: channel.id,
         name: channel.name,
         isPrivate: channel.isPrivate.toString(),
+        isDirectMessage: channel.isDirectMessage,
         ownerId: channel.ownerId,
         members: channel.ChannelMember.filter(
           (channelMember) => channelMember.userId !== userId

@@ -1,9 +1,10 @@
-import { ValidationPipe } from "@nestjs/common";
+import { BadRequestException, ValidationPipe } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import * as passport from "passport";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { graphqlUploadExpress } from "graphql-upload-ts";
+import { ValidationError } from "class-validator";
 
 async function bootstrap() {
   // means that from another origin you can go threw our application
@@ -15,22 +16,37 @@ async function bootstrap() {
       "Here you can see all the routes and what it will render to you, also how to use it!"
     )
     .setVersion("1.0")
-    .addBearerAuth({
-      type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-    },
-      'Authorization'
+    .addBearerAuth(
+      {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
+      },
+      "Authorization"
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api", app, document, {
     swaggerOptions: {
-      persistAuthorization: true
-    }
+      persistAuthorization: true,
+    },
   });
 
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      exceptionFactory: (errors: ValidationError[]) => {
+        const formattedErrors = errors.map((error) => {
+          // You can extract and format the errors from each ValidationError here
+          return {
+            property: error.property,
+            constraints: error.constraints,
+          };
+        });
+
+        return new BadRequestException(formattedErrors);
+      },
+    })
+  );
   app.use(passport.initialize());
   app.use(graphqlUploadExpress({ maxFileSize: 1000000, maxFiles: 10 }));
 

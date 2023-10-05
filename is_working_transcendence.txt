@@ -18,7 +18,7 @@ website.
 ✔️ The user should be able to add other users as friends
 
 🧪 The user should be able to upload an avatar. If the user doesn’t upload an avatar,
-a default one must be set
+a default one must be set [AWS]
 
 ❌ Tselmeg: in a game, and so forth.
 

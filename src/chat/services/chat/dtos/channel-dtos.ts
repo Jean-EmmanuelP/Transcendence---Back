@@ -6,6 +6,7 @@ import {
   InputType,
 } from "@nestjs/graphql";
 import { MessageModel } from "../models/message.model";
+import { IsBoolean, IsOptional, IsString, isString } from "class-validator";
 
 export enum UserAction {
   KICK = "KICK",
@@ -81,12 +82,16 @@ export class ManageUserInput {
 @InputType()
 export class CreateChannelInput {
   @Field()
+  @IsString()
   name: string;
 
   @Field()
+  @IsBoolean()
   isPrivate: boolean;
 
   @Field({ nullable: true })
+  @IsOptional()
+  @IsString()
   password?: string;
 }
 
@@ -234,7 +239,10 @@ export class ChannelOutputDTO {
   name: string;
 
   @Field()
-  isPrivate: string;
+  isPrivate: boolean;
+
+  @Field()
+  isDirectMessage: boolean;
 
   @Field({ nullable: true })
   ownerId?: string;

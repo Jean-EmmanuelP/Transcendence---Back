@@ -114,8 +114,8 @@ model ChannelAdmin {
   userId     String
   channelId  String
   assignedAt DateTime @default(now())
-  user       User     @relation(fields: [userId], references: [id])
-  channel    Channel  @relation(fields: [channelId], references: [id])
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel    Channel  @relation(fields: [channelId], references: [id], onDelete: Cascade)
 
   @@id([userId, channelId])
 }
@@ -151,6 +151,6 @@ model OAuth {
   accessToken String
   tokenType   String
   createdAt   Int
-  user        User   @relation(fields: [userId], references: [id])
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String @unique
 }
