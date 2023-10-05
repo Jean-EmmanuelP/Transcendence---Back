@@ -267,6 +267,7 @@ export class ChatService {
         where: { ChannelMember: { some: { userId } } },
         include: {
           members: true,
+          owner: true,
           bans: true,
           ChannelMember: { include: { user: true } },
           admins: { include: { user: true } },
@@ -286,9 +287,10 @@ export class ChatService {
       return filteredChannels.map((channel) => ({
         id: channel.id,
         name: channel.name,
-        isPrivate: channel.isPrivate.toString(),
+        isPrivate: channel.isPrivate,
         isDirectMessage: channel.isDirectMessage,
         ownerId: channel.ownerId,
+        owner: channel.owner,
         members: channel.ChannelMember.filter(
           (channelMember) => channelMember.userId !== userId
         ).map((channelMember) => ({

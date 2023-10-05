@@ -247,6 +247,9 @@ export class ChannelOutputDTO {
   @Field({ nullable: true })
   ownerId?: string;
 
+  @Field(() => UserOutputDTO, { nullable: true})
+  owner: UserOutputDTO;
+
   @Field(() => [UserOutputDTO])
   members: UserOutputDTO[];
 

@@ -31,8 +31,8 @@ thing else useful. Anyone who is logged in should be able to consult it.
                         Chat 
 
 ✔️ TEST ALL : 
-- tested the createChannel and it is working
-- tested the getUserChannel it is working
+- tested the createChannel and it is working ✔️,  
+- tested the getUserChannel it is working ✔️
 - tested the getMessages it is working 
 - tested the sendMessage it is working
 - tested the updateMessage it is working
