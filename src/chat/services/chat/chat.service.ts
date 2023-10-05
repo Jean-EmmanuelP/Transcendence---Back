@@ -626,7 +626,8 @@ export class ChatService {
             admins: true,
           },
         });
-        if (channel.ownerId === targetUserId) throw new Error("You cannot manage the owner of the channel!");
+        if (channel.ownerId === targetUserId)
+          throw new Error("You cannot manage the owner of the channel!");
         if (channel.ownerId !== operatorId)
           throw new Error(
             "Only the owner can add, or upgrade new administrator"
@@ -663,7 +664,8 @@ export class ChatService {
         const channel = await this.prisma.channel.findUnique({
           where: { id: channelId },
         });
-        if (channel.ownerId === targetUserId) throw new Error("You cannot manage the owner of the channel!");
+        if (channel.ownerId === targetUserId)
+          throw new Error("You cannot manage the owner of the channel!");
         if (!operator || !targetUser || !channel) {
           throw new Error("User or channel not found!");
         }
@@ -719,13 +721,14 @@ export class ChatService {
           case UserAction.MUTE:
             await this.prisma.channelMute.create({
               data: {
-                channelId,
                 userId: targetUserId,
                 mutedId: new Date(),
                 mutedBy: operatorId,
-                expiresAt: duration
-                  ? new Date(Date.now() + duration * 1000)
-                  : null,
+                channel: {
+                  connect: {
+                    id: channelId,
+                  },
+                },
               },
             });
             break;
@@ -746,7 +749,5 @@ export class ChatService {
 
 /* 
   NEED TO BE DONE
-
-  lowercase for the pseudo : pseudo
   error not handled in the back
 */
