@@ -324,6 +324,7 @@ export class ChatService {
     }
   }
 
+  // in the getUserChannels add the blocked function
   async getUserChannels(
     userId: string
   ): Promise<ChannelOutputDTO[] | undefined[]> {
@@ -332,6 +333,7 @@ export class ChatService {
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
         where: { ChannelMember: { some: { userId } } },
         include: {
+
           members: true,
           owner: true,
           bans: true,
