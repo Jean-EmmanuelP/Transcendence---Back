@@ -98,13 +98,23 @@ export class ChatResolver {
 
   @Mutation(() => OperationResult)
   @UseGuards(JwtAuthGuard)
-  async joinChannel(@User() userId: string, @Args("input") input: joinChannelInput): Promise<OperationResult> {
-    return this.chatService.joinChannel(userId, input.channelId, input.passwordInput);
+  async joinChannel(
+    @User() userId: string,
+    @Args("input") input: joinChannelInput
+  ): Promise<OperationResult> {
+    return this.chatService.joinChannel(
+      userId,
+      input.channelId,
+      input.passwordInput
+    );
   }
 
   @Mutation(() => OperationResult)
   @UseGuards(JwtAuthGuard)
-  async blockUser(@User() userId: string, @Args("input") input: blockUserInput): Promise<OperationResult> {
+  async blockUser(
+    @User() userId: string,
+    @Args("input") input: blockUserInput
+  ): Promise<OperationResult> {
     return this.chatService.blockUser(userId, input.blockedId);
   }
 

@@ -613,14 +613,12 @@ export class ChatService {
     }
   }
 
-  // add user
   async manageUser(
     operatorId: string,
     input: ManageUserInput
   ): Promise<OperationResult> {
     try {
       const { targetUserId, channelId, action, duration } = input;
-
       if (action === UserAction.UPADMIN || action === UserAction.DOWNADMIN) {
         const channel = await this.prisma.channel.findUnique({
           where: { id: input.channelId },
@@ -628,6 +626,7 @@ export class ChatService {
             admins: true,
           },
         });
+        if (channel.ownerId === targetUserId) throw new Error("You cannot manage the owner of the channel!");
         if (channel.ownerId !== operatorId)
           throw new Error(
             "Only the owner can add, or upgrade new administrator"
