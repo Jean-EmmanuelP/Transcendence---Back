@@ -88,12 +88,16 @@ export class ChatService {
       const isMuted = await this.prisma.channelMute.findUnique({
         where: { userId_channelId: { userId, channelId } },
       });
-      if (isBanned || isMuted) {
-        throw new Error(
-          `User cannot send a message because he is ${
-            isBanned ? "banned" : "muted"
-          }!`
-        );
+      if (isBanned) {
+        throw new Error(`User cannot send a message because he is banned!`);
+      }
+      if (isMuted) {
+        const expiringDate = isMuted.expireAt;
+        if (expiringDate.getTime() < Date.now()) {
+          await this.prisma.channelMute.delete({
+            where: { userId_channelId: { userId, channelId } },
+          });
+        }
       }
       const message = await this.prisma.message.create({
         data: {
