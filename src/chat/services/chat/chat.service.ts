@@ -69,7 +69,6 @@ export class ChatService {
     }
   }
 
-  // can be for private and public depends on the channelId
   async sendMessage(
     channelId: string,
     userId: string,
@@ -91,7 +90,9 @@ export class ChatService {
       });
       if (isBanned || isMuted) {
         throw new Error(
-          "User cannot send a message because he is banned or muted!"
+          `User cannot send a message because he is ${
+            isBanned ? "banned" : "muted"
+          }!`
         );
       }
       const message = await this.prisma.message.create({
@@ -724,6 +725,9 @@ export class ChatService {
                 userId: targetUserId,
                 mutedId: new Date(),
                 mutedBy: operatorId,
+                expireAt: duration
+                  ? new Date(Date.now() + duration * 1000)
+                  : null,
                 channel: {
                   connect: {
                     id: channelId,
@@ -743,8 +747,7 @@ export class ChatService {
   }
 }
 
-// manage the mute function
-// manage the limited time
+// manage the time of the mute
 // do the block logic, implement the checks
 
 /* 

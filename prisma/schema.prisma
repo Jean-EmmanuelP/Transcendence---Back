@@ -92,6 +92,7 @@ model ChannelMute {
   channelId String
   mutedId   DateTime @default(now())
   reason    String?
+  expireAt DateTime?
   mutedBy   String
 
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
