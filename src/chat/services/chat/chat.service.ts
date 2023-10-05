@@ -137,9 +137,6 @@ export class ChatService {
         where: { userId_channelId: { userId, channelId } },
       });
 
-      if (isBanned) {
-        throw new Error("User cannot send a message because he is banned!");
-      }
       if (isMuted) {
         const expiringDate = isMuted.expireAt;
         if (expiringDate.getTime() < Date.now()) {
@@ -149,6 +146,9 @@ export class ChatService {
         } else {
           throw new Error("User cannot send a message because he is muted!");
         }
+      }
+      if (isBanned) {
+        throw new Error("User cannot send a message because he is banned!");
       }
       if (existingMessage.userId !== userId) {
         throw new Error("You do not have permission to edit this message");
@@ -198,6 +198,20 @@ export class ChatService {
       });
       if (isBanned) {
         throw new Error("You are banned from the channel");
+      }
+      const isMuted = await this.prisma.channelMute.findUnique({
+        where: { userId_channelId: { userId, channelId: existingMessage.channelId } },
+      });
+
+      if (isMuted) {
+        const expiringDate = isMuted.expireAt;
+        if (expiringDate.getTime() < Date.now()) {
+          await this.prisma.channelMute.delete({
+            where: { userId_channelId: { userId, channelId: existingMessage.channelId } },
+          });
+        } else {
+          throw new Error("User cannot send a message because he is muted!");
+        }
       }
 
       const userInChannel = await this.prisma.channelMember.findUnique({
