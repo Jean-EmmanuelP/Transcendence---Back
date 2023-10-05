@@ -654,8 +654,7 @@ export class ChatService {
             },
           });
         }
-      }
-      {
+      } else {
         const operator = await this.prisma.user.findUnique({
           where: { id: operatorId },
         });
