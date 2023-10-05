@@ -81,7 +81,6 @@ export class ChatService {
       if (!userInChannel) {
         throw new Error("User is not a member of the channel!");
       }
-      // check if the user can send a message [if he is not banned, muted]
       const isBanned = await this.prisma.channelBan.findUnique({
         where: { userId_channelId: { userId, channelId } },
       });
