@@ -663,7 +663,7 @@ export class ChatService {
         const channel = await this.prisma.channel.findUnique({
           where: { id: channelId },
         });
-
+        if (channel.ownerId === targetUserId) throw new Error("You cannot manage the owner of the channel!");
         if (!operator || !targetUser || !channel) {
           throw new Error("User or channel not found!");
         }
