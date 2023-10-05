@@ -97,7 +97,7 @@ export class ChatService {
             where: { userId_channelId: { userId, channelId } },
           });
         } else {
-          throw new Error("User cannot send a message because he is muted!")
+          throw new Error("User cannot send a message because he is muted!");
         }
       }
       const message = await this.prisma.message.create({
@@ -200,14 +200,21 @@ export class ChatService {
         throw new Error("You are banned from the channel");
       }
       const isMuted = await this.prisma.channelMute.findUnique({
-        where: { userId_channelId: { userId, channelId: existingMessage.channelId } },
+        where: {
+          userId_channelId: { userId, channelId: existingMessage.channelId },
+        },
       });
 
       if (isMuted) {
         const expiringDate = isMuted.expireAt;
         if (expiringDate.getTime() < Date.now()) {
           await this.prisma.channelMute.delete({
-            where: { userId_channelId: { userId, channelId: existingMessage.channelId } },
+            where: {
+              userId_channelId: {
+                userId,
+                channelId: existingMessage.channelId,
+              },
+            },
           });
         } else {
           throw new Error("User cannot send a message because he is muted!");
@@ -230,6 +237,22 @@ export class ChatService {
     }
   }
 
+  async userHasBlocked(blockerId: string, blockedId: string): Promise<boolean> {
+    try {
+      const block = await this.prisma.blockedUser.findUnique({
+        where: {
+          blockerId_blockedId: {
+            blockerId,
+            blockedId,
+          },
+        },
+      });
+      return !!block;
+    } catch (error) {
+      return false;
+    }
+  }
+
   async getMessages(
     userId: string,
     channelId: string
@@ -241,11 +264,16 @@ export class ChatService {
       if (isBanned) {
         throw new Error("You are banned from this channel");
       }
-      return await this.prisma.message.findMany({
+      let messages = await this.prisma.message.findMany({
         where: { channelId },
         orderBy: { createdAt: "asc" },
         include: { user: true },
       });
+
+      messages = (messages.filter(
+        (async message => !await this.userHasBlocked(userId, message.user.id))
+      ));
+      return messages;
     } catch (error) {
       return [];
     }
@@ -775,7 +803,6 @@ export class ChatService {
   }
 }
 
-// manage the time of the mute
 // do the block logic, implement the checks
 
 /* 
