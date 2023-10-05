@@ -739,3 +739,14 @@ export class ChatService {
     }
   }
 }
+
+// manage the mute function
+// manage the limited time
+// do the block logic, implement the checks
+
+/* 
+  NEED TO BE DONE
+
+  lowercase for the pseudo : pseudo
+  error not handled in the back
+*/
