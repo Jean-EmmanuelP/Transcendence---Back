@@ -96,6 +96,8 @@ export class ChatService {
           await this.prisma.channelMute.delete({
             where: { userId_channelId: { userId, channelId } },
           });
+        } else {
+          throw new Error("User cannot send a message because he is muted!")
         }
       }
       const message = await this.prisma.message.create({
