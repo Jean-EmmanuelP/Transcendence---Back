@@ -15,6 +15,8 @@ export enum UserAction {
   UNMUTE = "UNMUTE",
   UNBAN = "UNBAN",
   ADD = "ADD",
+  UPADMIN = "UPADMIN",
+  DOWNADMIN = "DOWNADMIN",
 }
 
 registerEnumType(UserAction, {
@@ -263,4 +265,10 @@ export class joinChannelInput {
   channelId: string;
   @Field({ nullable: true })
   passwordInput?: string;
+}
+
+@InputType()
+export class blockUserInput {
+  @Field()
+  blockedId: string;
 }

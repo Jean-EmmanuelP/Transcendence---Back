@@ -123,7 +123,7 @@ export class ChatService {
       if (!existingMessage) {
         throw new Error("Message not found");
       }
-      const channelId = existingMessage.channelId
+      const channelId = existingMessage.channelId;
       const isBanned = await this.prisma.channelBan.findUnique({
         where: { userId_channelId: { userId, channelId } },
       });
@@ -237,9 +237,9 @@ export class ChatService {
       }
 
       if (channel.ChannelMember.some((member) => member.userId === userId)) {
-        throw new Error("User iks already a member of this channel");
+        throw new Error("User is already a member of this channel");
       }
-      // check the password
+
       if (channel.isPrivate && channel.password) {
         if (!passwordInput) {
           throw new Error("Password required to join this channel");
@@ -379,7 +379,6 @@ export class ChatService {
         data: {
           userId,
           channelId: newChannel.id,
-          joinedAt: new Date(),
         },
       });
 
@@ -425,41 +424,6 @@ export class ChatService {
         });
       }
 
-      return { success: true };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  }
-
-  async addChannelAdmin(
-    channelId: string,
-    newAdminId: string,
-    userId: string
-  ): Promise<OperationResult> {
-    try {
-      const channel = await this.prisma.channel.findUnique({
-        where: { id: channelId },
-        include: { admins: true, owner: true },
-      });
-      if (!channel) {
-        throw new Error("Channel not found");
-      }
-      if (channel.ownerId !== userId) {
-        throw new Error(
-          "User does not have permission to change administrator"
-        );
-      }
-
-      if (channel.admins.some((admin) => admin.userId === newAdminId)) {
-        throw new Error("User is already an administrator");
-      }
-
-      await this.prisma.channelAdmin.create({
-        data: {
-          userId: newAdminId,
-          channelId,
-        },
-      });
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -657,6 +621,40 @@ export class ChatService {
     try {
       const { targetUserId, channelId, action, duration } = input;
 
+      if (action === UserAction.UPADMIN || action === UserAction.DOWNADMIN) {
+        const channel = await this.prisma.channel.findUnique({
+          where: { id: input.channelId },
+          include: {
+            admins: true,
+          },
+        });
+        if (channel.ownerId !== operatorId)
+          throw new Error(
+            "Only the owner can add, or upgrade new administrator"
+          );
+        const isAlreadyAdmin = channel.admins.some(
+          (admin) => admin.userId === targetUserId
+        );
+        if (isAlreadyAdmin && action === UserAction.UPADMIN)
+          throw new Error("User is already an administrator!");
+        if (action === UserAction.UPADMIN) {
+          await this.prisma.channelAdmin.create({
+            data: {
+              userId: targetUserId,
+              channelId,
+            },
+          });
+        }
+        await this.prisma.channelAdmin.delete({
+          where: {
+            userId_channelId: {
+              userId: targetUserId,
+              channelId
+            }
+          }
+        })
+        
+      }
       const operator = await this.prisma.user.findUnique({
         where: { id: operatorId },
       });

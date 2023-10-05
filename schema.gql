@@ -118,9 +118,9 @@ type Mutation {
   manageUser(input: ManageUserInput!): OperationResult!
   createChannel(input: CreateChannelInput!): CreateChannelOutput!
   setChannelPassword(input: ChannelPasswordInput!): OperationResult!
-  addChannelAdmin(input: addChannelAdminInput!): OperationResult!
   leaveChannel(input: leaveChannelInput!): OperationResult!
   joinChannel(input: joinChannelInput!): OperationResult!
+  blockUser(input: blockUserInput!): OperationResult!
   uploadAvatar(image: Upload!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
@@ -160,6 +160,8 @@ enum UserAction {
   UNMUTE
   UNBAN
   ADD
+  UPADMIN
+  DOWNADMIN
 }
 
 input CreateChannelInput {
@@ -173,11 +175,6 @@ input ChannelPasswordInput {
   password: String
 }
 
-input addChannelAdminInput {
-  channelId: String!
-  newAdminId: String!
-}
-
 input leaveChannelInput {
   channelId: String!
 }
@@ -185,6 +182,10 @@ input leaveChannelInput {
 input joinChannelInput {
   channelId: String!
   passwordInput: String
+}
+
+input blockUserInput {
+  blockedId: String!
 }
 
 """The `Upload` scalar type represents a file upload."""

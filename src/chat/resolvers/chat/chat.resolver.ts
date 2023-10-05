@@ -16,6 +16,7 @@ import {
   UpdateMessageInput,
   UpdateMessageOutput,
   addChannelAdminInput,
+  blockUserInput,
   joinChannelInput,
   leaveChannelInput,
 } from "src/chat/services/chat/dtos/channel-dtos";
@@ -94,16 +95,6 @@ export class ChatResolver {
 
   @Mutation(() => OperationResult)
   @UseGuards(JwtAuthGuard)
-  async addChannelAdmin(
-    @User() userId: string,
-    @Args("input") input: addChannelAdminInput
-  ): Promise<OperationResult> {
-    const { channelId, newAdminId } = input;
-    return this.chatService.addChannelAdmin(channelId, newAdminId, userId);
-  }
-
-  @Mutation(() => OperationResult)
-  @UseGuards(JwtAuthGuard)
   async leaveChannel(
     @User() userId: string,
     @Args("input") input: leaveChannelInput
@@ -116,6 +107,12 @@ export class ChatResolver {
   @UseGuards(JwtAuthGuard)
   async joinChannel(@User() userId: string, @Args("input") input: joinChannelInput): Promise<OperationResult> {
     return this.chatService.joinChannel(userId, input.channelId, input.passwordInput);
+  }
+
+  @Mutation(() => OperationResult)
+  @UseGuards(JwtAuthGuard)
+  async blockUser(@User() userId: string, @Args("input") input: blockUserInput): Promise<OperationResult> {
+    return this.chatService.blockUser(userId, input.blockedId);
   }
 
   @Query(() => [MessageModel], { nullable: "items" })
