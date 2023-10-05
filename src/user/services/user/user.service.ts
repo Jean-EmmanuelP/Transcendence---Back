@@ -216,7 +216,8 @@ export class UserService {
     const { email, firstName, lastName } = registerDto;
 
     try {
-      const pseudo = await this.createUniquePseudo(firstName, lastName);
+      let pseudo = await this.createUniquePseudo(firstName, lastName);
+      pseudo = pseudo.toLowerCase();
       let user = await this.prisma.user.create({
         data: {
           email,
