@@ -27,13 +27,6 @@ import { JwtAuthGuard } from "src/guards/jwt.guard";
 @Resolver()
 export class ChatResolver {
   constructor(private readonly chatService: ChatService) {}
-  // commented it cause we createdirectchannel automatically when a user accept the request of another user!
-  // @Mutation(() => CreateDirectChannelOutput)
-  // async createDirectChannel(
-  //     @Args('input') input: createDirectChannelInput,
-  // ): Promise<CreateDirectChannelOutput> {
-  //     return this.chatService.createDirectChannel(input);
-  // }
   @Mutation(() => SendMessageOutput)
   @UseGuards(JwtAuthGuard)
   async sendMessage(
