@@ -80,7 +80,6 @@ export class AuthController {
     }
     res.cookie("access_token", user.access_token, {
       httpOnly: true,
-      secure: true,
     });
     res.redirect(302, "http://localhost:5173");
   }
