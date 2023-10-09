@@ -6,6 +6,7 @@ import { ConfigService } from "@nestjs/config";
 import { RegisterDto } from "src/auth/dto/register.input";
 import * as bcrypt from "bcrypt";
 import { LoginDto } from "src/auth/dto/login.input";
+import { AuthOutput } from "src/auth/dto/auth.input";
 
 @Injectable()
 export class AuthService {
@@ -15,9 +16,13 @@ export class AuthService {
     private readonly userService: UserService
   ) {}
   //typer pour google et 42
-  async OauthLogin(req, oauthService: "google" | "42") {
+  async OauthLogin(req, oauthService: "google" | "42") : Promise<AuthOutput>{
     if (!req.user) {
-      return `No user from ${oauthService}`;
+      return {
+        message: 'User is undefined!',
+        user: req.user,
+        access_token: "undefined",
+      };
     }
 
     // eviter les let sans les definir
@@ -59,7 +64,7 @@ export class AuthService {
       { userId: user.id, email: user.email },
       { secret: process.env.JWT_SECRET }
     );
-
+    
     return {
       message: "User information saved in the database",
       user: user,

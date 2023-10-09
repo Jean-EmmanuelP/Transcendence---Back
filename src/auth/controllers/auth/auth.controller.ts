@@ -67,7 +67,15 @@ export class AuthController {
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
     const user = await this.authService.OauthLogin(req, "42");
-    return res.send(user);
+    if (user.access_token === "undefined") {
+      throw new Error("The forty-two response is not working!");
+    }
+    res.cookie('access_token', user.access_token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'Strict'
+  });
+  res.redirect('http://localhost:5173');
   }
 
   @Post("register")
