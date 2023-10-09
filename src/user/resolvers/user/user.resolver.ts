@@ -62,6 +62,12 @@ export class UserResolver {
     });
   }
 
+  @Query((returns) => String)
+  async testingConnexion() {
+    let test = 'The connexion to the back has been established CONGRATS!';
+    return test;
+  }
+
   // should be able to check its own information via its id (via jwt token decrypted)
   @Query((returns) => UserModel)
   @UseGuards(JwtAuthGuard)
