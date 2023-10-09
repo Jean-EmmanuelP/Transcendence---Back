@@ -40,14 +40,22 @@ export class AuthController {
   })
   @UseGuards(GoogleOAuthGuard)
   async googleAuth(@Request() req) {}
-  
+
   @Get("google-redirect")
   @ApiOperation({
     summary: "linked to the /google endpoint, so you dont need to use it",
   })
   @UseGuards(GoogleOAuthGuard)
-  googleAuthRedirect(@Request() req) {
-    return this.authService.OauthLogin(req, "google");
+  async googleAuthRedirect(@Request() req, @Res() res) {
+    const user = await this.authService.OauthLogin(req, "google");
+    if (user.access_token === "undefined") {
+      throw new Error("The google response is not working!");
+    }
+    res.cookie("access_token", user.access_token, {
+      httpOnly: true,
+      secure: true,
+    });
+    res.redirect("http://localhost:5173");
   }
 
   @Get("42")
@@ -70,12 +78,11 @@ export class AuthController {
     if (user.access_token === "undefined") {
       throw new Error("The forty-two response is not working!");
     }
-    res.cookie('access_token', user.access_token, {
+    res.cookie("access_token", user.access_token, {
       httpOnly: true,
       secure: true,
-      sameSite: 'Strict'
-  });
-  res.redirect('http://localhost:5173');
+    });
+    res.redirect("http://localhost:5173");
   }
 
   @Post("register")
@@ -104,7 +111,9 @@ export class AuthController {
   }
 
   @Post("loginCredentials")
-  @ApiOperation({ summary: "Used to login (can be first step if the user activated the 2FA)" })
+  @ApiOperation({
+    summary: "Used to login (can be first step if the user activated the 2FA)",
+  })
   @ApiBody({
     schema: {
       type: "object",
@@ -117,8 +126,7 @@ export class AuthController {
   })
   @ApiResponse({
     status: 200,
-    description:
-      "return token and twoFactorEnable which is a boolean",
+    description: "return token and twoFactorEnable which is a boolean",
   })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.validateUserCredentials(loginDto);
@@ -151,8 +159,7 @@ export class AuthController {
   @Post("enable-two-factor")
   @UseGuards(JwtAuthGuard)
   @ApiOperation({
-    summary:
-      "activate the 2FA + return qrcode",
+    summary: "activate the 2FA + return qrcode",
   })
   @ApiResponse({
     status: 200,
@@ -176,7 +183,7 @@ export class AuthController {
     await this.authService.disable2FA(userId);
     return { message: "Two factor authentication has been disabled" };
   }
-  
+
   @Post("logout")
   @ApiOperation({
     summary: "the logout button will blacklist the current token",
