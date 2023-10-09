@@ -34,7 +34,7 @@ jobs:
     - run: npm ci --legacy-peer-deps
     - run: cp -ra /home/tselmeg/.env .
     - name: prisma
-      run: npx prisma generate
+      run: npx prisma migrate dev
       env:
         CI: false
     - run: rm -rf /home/tselmeg/back
