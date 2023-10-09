@@ -19,8 +19,8 @@ export class AuthOutput {
   @Field()
   message: string;
 
-  @Field(() => UserModel)
-  user: UserModel;
+  @Field(() => UserModel, { nullable: true })
+  user?: UserModel;
 
   @Field()
   access_token: string;
