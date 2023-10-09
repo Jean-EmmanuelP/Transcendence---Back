@@ -40,7 +40,7 @@ export class AuthController {
   })
   @UseGuards(GoogleOAuthGuard)
   async googleAuth(@Request() req) {}
-
+  
   @Get("google-redirect")
   @ApiOperation({
     summary: "linked to the /google endpoint, so you dont need to use it",

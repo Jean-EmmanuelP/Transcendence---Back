@@ -14,7 +14,7 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
     super({
       clientID: process.env.FORTYTWO_CLIENT_ID,
       clientSecret: process.env.FORTYTWO_CLIENT_SECRET,
-      callbackURL: "http://localhost:3000/auth/42-redirect",
+      callbackURL: "http://42pong.com:3000/auth/42-redirect",
     });
   }
 
