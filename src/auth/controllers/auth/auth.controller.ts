@@ -81,7 +81,7 @@ export class AuthController {
     res.cookie("access_token", user.access_token, {
       httpOnly: true,
     });
-    res.redirect(302, "http://localhost:5173");
+    res.redirect("http://localhost:5173");
   }
 
   @Post("register")
