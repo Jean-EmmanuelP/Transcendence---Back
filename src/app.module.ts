@@ -27,7 +27,7 @@ import { ChatModule } from "./chat/chat.module";
       installSubscriptionHandlers: true,
       playground: true
     }),
-    PassportModule.register({ defaultStrategy: "jwt" }),
+    PassportModule.register({ secret: process.env.JWT_SECRET ,defaultStrategy: "jwt" }),
     UserModule,
     WebSocketModule,
     PrismaModule,
