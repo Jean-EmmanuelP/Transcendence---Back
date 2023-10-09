@@ -82,7 +82,7 @@ export class AuthController {
       httpOnly: true,
       secure: true,
     });
-    res.redirect("http://localhost:5173");
+    res.redirect(302, "http://localhost:5173");
   }
 
   @Post("register")
