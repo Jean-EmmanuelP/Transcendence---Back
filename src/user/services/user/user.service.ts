@@ -3,7 +3,7 @@ import {
   Injectable,
   UnauthorizedException,
   forwardRef,
-  Inject
+  Inject,
 } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { CreateUserDto } from "src/user/dto/create-user.dto";
@@ -20,7 +20,7 @@ import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 import { Status } from "@prisma/client";
 import * as jwt from "jsonwebtoken";
 import { transporter } from "src/common/transporter";
-import { ChatService } from './../../../chat/services/chat/chat.service';
+import { ChatService } from "./../../../chat/services/chat/chat.service";
 import { CreateDirectChannelInput } from "src/chat/services/chat/dtos/channel-dtos";
 
 @Injectable()
@@ -29,7 +29,7 @@ export class UserService {
     private readonly prisma: PrismaService,
     private jwtService: JwtService,
     @Inject(forwardRef(() => ChatService))
-    private readonly chatService: ChatService,
+    private readonly chatService: ChatService
   ) {}
 
   private async createUniquePseudo(
@@ -161,11 +161,25 @@ export class UserService {
       return {
         token: tempToken,
         twoFactorEnable: true,
+        id: user.id,
+        avatar: user.avatar,
+        email: user.email,
+        isTwoFactorEnabled: user.isTwoFactorEnabled,
+        name: user.name,
+        pseudo: user.pseudo,
+        status: user.status,
       };
     }
     return {
       token: accessToken,
       twoFactorEnable: false,
+      id: user.id,
+      avatar: user.avatar,
+      email: user.email,
+      isTwoFactorEnabled: user.isTwoFactorEnabled,
+      name: user.name,
+      pseudo: user.pseudo,
+      status: user.status,
     };
   }
 
@@ -377,9 +391,8 @@ export class UserService {
         status: "ACCEPTED",
       },
     });
-    
-    if (updatedFriendship.count > 0)
-    {
+
+    if (updatedFriendship.count > 0) {
       const createChannelInput: CreateDirectChannelInput = {
         userId1: senderId,
         userId2: receiverId,
