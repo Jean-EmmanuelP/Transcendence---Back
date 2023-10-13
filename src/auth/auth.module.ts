@@ -16,7 +16,7 @@ import { ChatModule } from "src/chat/chat.module";
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    PassportModule,
+    PassportModule.register({ secret: process.env.JWT_SECRET ,defaultStrategy: "jwt" }),
     JwtModule.register(jwtConfig),
     PrismaModule,
     ChatModule
