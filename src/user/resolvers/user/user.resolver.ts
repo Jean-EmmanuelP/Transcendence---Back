@@ -26,6 +26,8 @@ export class UserResolver {
     return this.userService.findAll();
   }
 
+  @Query((returns) => [FriendShip])
+
   // upload an avatar
   // you must find how to test it
   @Mutation(() => UserModel)

@@ -1,5 +1,5 @@
-import { InputType, Field } from "@nestjs/graphql";
-import { IsString, IsOptional, IsEmail } from "class-validator";
+import { InputType, Field, ObjectType, registerEnumType } from "@nestjs/graphql";
+import { IsString, IsOptional, IsEmail, IsNotEmpty, IsEnum } from "class-validator";
 
 @InputType()
 export class CreateUserDto {
@@ -21,4 +21,31 @@ export class CreateUserDto {
     @IsString()
     @IsOptional()
     avatar?: string;
+}
+
+export enum FriendshipStatus {
+    PENDING = "PENDING",
+    ACCEPTED = "ACCEPTED",
+    REJECTED = "REJECTED",
+}
+
+registerEnumType(FriendshipStatus, {
+    name: "FriendshipStatus",
+});
+
+@ObjectType()
+export class Friendship {
+    @Field()
+    @IsString()
+    @IsNotEmpty()
+    senderId: string;
+
+    @Field()
+    @IsString()
+    @IsNotEmpty()
+    receiverId: string;
+
+    @Field(() => FriendshipStatus, { defaultValue: FriendshipStatus.PENDING })
+    @IsEnum(FriendshipStatus)
+    status: FriendshipStatus;
 }
