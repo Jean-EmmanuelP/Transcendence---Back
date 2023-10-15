@@ -208,5 +208,21 @@ export class UserResolver {
       throw new Error(error.message);
     }
   }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async changePassword(
+    @Context() context,
+    @Args('currentPassword') currentPassword: string,
+    @Args('newPassword') newPassword: string,
+  ) : Promise<boolean> {
+    try {
+      const req = context.req;
+      const userId = req.user.userId;
+      await this.userService.changePassword(userId, currentPassword, newPassword);
+    } catch(error) {
+      throw new Error(error.message);
+    }
+  }
   // should be able to check its own history -> (wins and losses, ladder level, achievements)
 }

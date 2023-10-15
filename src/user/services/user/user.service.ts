@@ -546,6 +546,24 @@ export class UserService {
     }
   }
 
+  async changePassword(
+    id: string,
+    currentPassword: string,
+    newPassword: string
+  ): Promise<boolean> {
+    try {
+      const user = await this.findById(id);
+      if (!user) throw new Error("User not found!");
+
+      if (!(await bcrypt.compare(currentPassword, user.password))) {
+        throw new Error("current password is incorrect!");
+      }
+    } catch (error) {
+      console.log(error);
+      return error;
+    }
+  }
+
   async getPendingSentFriendRequests(userId: string): Promise<Friendship[]> {
     return this.prisma.friendship.findMany({
       where: {
