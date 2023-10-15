@@ -555,9 +555,14 @@ export class UserService {
       const user = await this.findById(id);
       if (!user) throw new Error("User not found!");
 
+      // check the password first
       if (!(await bcrypt.compare(currentPassword, user.password))) {
         throw new Error("current password is incorrect!");
       }
+
+      // set the password
+      const hashedPassword = bcrypt.hash(newPassword, 12);
+      await this.updateUserPassword(id, hashedPassword);
     } catch (error) {
       console.log(error);
       return error;
