@@ -221,7 +221,8 @@ export class UserResolver {
       const userId = req.user.userId;
       return await this.userService.changePassword(userId, currentPassword, newPassword);
     } catch(error) {
-      throw new Error(error.message);
+      console.log(error.message);
+      return false;
     }
   }
   // should be able to check its own history -> (wins and losses, ladder level, achievements)

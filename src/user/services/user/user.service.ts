@@ -561,9 +561,11 @@ export class UserService {
 
       const hashedPassword = await bcrypt.hash(newPassword, 12);
       await this.updateUserPassword(id, hashedPassword);
+
+      return true;
     } catch (error) {
       console.log(error);
-      return error;
+      return false;
     }
   }
 
