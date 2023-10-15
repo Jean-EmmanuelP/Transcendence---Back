@@ -99,10 +99,25 @@ type ChannelOutputDTO {
   admins: [UserOutputDTO!]!
 }
 
+type Friendship {
+  id: String!
+  senderId: String!
+  receiverId: String!
+  status: FriendshipStatus!
+  createdAt: DateTime!
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 type Query {
   getMessages(input: GetMessageInput!): [MessageModel]!
   getUsersChannel: [ChannelOutputDTO]!
   users: [UserModel!]!
+  getPendingSentFriendRequests: [Friendship!]!
   testingConnexion: String!
   userInformation: UserModel!
   getAllFriendsOfUser: [UserModel!]!
@@ -130,6 +145,7 @@ type Mutation {
   updatePseudo(newPseudo: String!): Boolean!
   forgotPassword(email: String!): Boolean!
   resetPassword(resetToken: String!, newPassword: String!): Boolean!
+  changePassword(currentPassword: String!, newPassword: String!): Boolean!
 }
 
 input SendMessageInput {
