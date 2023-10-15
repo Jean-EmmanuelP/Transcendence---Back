@@ -1,7 +1,7 @@
 import { Resolver, Query, Args, Mutation, Context } from "@nestjs/graphql";
 import { UserService } from "./../../services/user/user.service";
 import { UserModel } from "src/user/models/user.model";
-import { CreateUserDto } from "src/user/dto/create-user.dto";
+import { CreateUserDto, Friendship } from "src/user/dto/create-user.dto";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { createWriteStream } from "fs";
 import { join } from "path";
@@ -26,7 +26,13 @@ export class UserResolver {
     return this.userService.findAll();
   }
 
-  @Query((returns) => [FriendShip])
+  @Query((returns) => [Friendship])
+  @UseGuards(JwtAuthGuard)
+  async getPendingSentFriendRequests(@Context() context): Promise<Friendship[]> {
+    const req = context.req;
+    const userId = req.user.userId;
+    return this.userService.getPendingSentFriendRequests(userId);
+  }
 
   // upload an avatar
   // you must find how to test it
