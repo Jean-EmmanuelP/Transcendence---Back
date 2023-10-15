@@ -219,7 +219,7 @@ export class UserResolver {
     try {
       const req = context.req;
       const userId = req.user.userId;
-      await this.userService.changePassword(userId, currentPassword, newPassword);
+      return await this.userService.changePassword(userId, currentPassword, newPassword);
     } catch(error) {
       throw new Error(error.message);
     }
