@@ -23,11 +23,11 @@ export class CreateUserDto {
     avatar?: string;
 }
 
-export enum FriendshipStatus {
-    PENDING = "PENDING",
-    ACCEPTED = "ACCEPTED",
-    REJECTED = "REJECTED",
-}
+export const FriendshipStatus = {
+    PENDING: "PENDING",
+    ACCEPTED: "ACCEPTED",
+    REJECTED: "REJECTED",
+} as const;
 
 registerEnumType(FriendshipStatus, {
     name: "FriendshipStatus",
@@ -35,6 +35,9 @@ registerEnumType(FriendshipStatus, {
 
 @ObjectType()
 export class Friendship {
+    @Field()
+    id: string;
+
     @Field()
     @IsString()
     @IsNotEmpty()
@@ -47,5 +50,8 @@ export class Friendship {
 
     @Field(() => FriendshipStatus, { defaultValue: FriendshipStatus.PENDING })
     @IsEnum(FriendshipStatus)
-    status: FriendshipStatus;
+    status: keyof typeof FriendshipStatus;
+
+    @Field()
+    createdAt: Date
 }

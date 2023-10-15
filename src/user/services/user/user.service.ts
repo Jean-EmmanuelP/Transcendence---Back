@@ -6,7 +6,7 @@ import {
   Inject,
 } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
-import { CreateUserDto } from "src/user/dto/create-user.dto";
+import { CreateUserDto, Friendship } from "src/user/dto/create-user.dto";
 import { UserModel } from "src/user/models/user.model";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
@@ -544,5 +544,14 @@ export class UserService {
       console.log(`Error in resetPassword:`, error.message);
       throw error;
     }
+  }
+
+  async getPendingSentFriendRequests(userId: string): Promise<Friendship[]> {
+    return this.prisma.friendship.findMany({
+      where: {
+        senderId: userId,
+        status: "PENDING",
+      },
+    });
   }
 }
