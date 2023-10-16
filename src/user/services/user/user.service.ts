@@ -581,10 +581,16 @@ export class UserService {
   }
 
   async deleteAccount(userId: string): Promise<boolean> {
-    await this.prisma.user.delete({
-      where: { id: userId },
-    });
+    try {
 
-    return true;
+      const deletingUser = await this.prisma.user.delete({
+        where: { id: userId },
+      });
+      if (!deletingUser) throw new Error('The delete prisma user doesnt work!');
+      return true;
+    } catch(error) {
+      console.error(error.message);
+      return false;
+    }
   }
 }
