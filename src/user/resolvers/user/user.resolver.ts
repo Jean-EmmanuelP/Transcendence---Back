@@ -28,7 +28,9 @@ export class UserResolver {
 
   @Query((returns) => [Friendship])
   @UseGuards(JwtAuthGuard)
-  async getPendingSentFriendRequests(@Context() context): Promise<Friendship[]> {
+  async getPendingSentFriendRequests(
+    @Context() context
+  ): Promise<Friendship[]> {
     const req = context.req;
     const userId = req.user.userId;
     return this.userService.getPendingSentFriendRequests(userId);
@@ -72,7 +74,7 @@ export class UserResolver {
 
   @Query((returns) => String)
   async testingConnexion() {
-    let test = 'The connexion to the back has been established CONGRATS!';
+    let test = "The connexion to the back has been established CONGRATS!";
     return test;
   }
 
@@ -115,7 +117,7 @@ export class UserResolver {
     if (!receiver) {
       throw new Error("User not found");
     }
-    
+
     return this.userService.sendFriendRequest(senderId, receiver.id);
   }
 
@@ -186,7 +188,7 @@ export class UserResolver {
 
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
-  async forgotPassword(@Args('email') email: string): Promise<boolean> {
+  async forgotPassword(@Args("email") email: string): Promise<boolean> {
     try {
       await this.userService.forgotPassword(email);
       return true;
@@ -198,13 +200,13 @@ export class UserResolver {
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   async resetPassword(
-    @Args('resetToken') resetToken: string,
-    @Args('newPassword') newPassword: string,
+    @Args("resetToken") resetToken: string,
+    @Args("newPassword") newPassword: string
   ): Promise<boolean> {
     try {
       await this.userService.resetPassword(resetToken, newPassword);
       return true;
-    } catch(error) {
+    } catch (error) {
       throw new Error(error.message);
     }
   }
@@ -213,16 +215,33 @@ export class UserResolver {
   @UseGuards(JwtAuthGuard)
   async changePassword(
     @Context() context,
-    @Args('currentPassword') currentPassword: string,
-    @Args('newPassword') newPassword: string,
-  ) : Promise<boolean> {
+    @Args("currentPassword") currentPassword: string,
+    @Args("newPassword") newPassword: string
+  ): Promise<boolean> {
     try {
       const req = context.req;
       const userId = req.user.userId;
-      return await this.userService.changePassword(userId, currentPassword, newPassword);
-    } catch(error) {
+      return await this.userService.changePassword(
+        userId,
+        currentPassword,
+        newPassword
+      );
+    } catch (error) {
       console.log(error.message);
       return false;
+    }
+  }
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async deleteAccount(@Context() context): Promise<boolean> {
+    const req = context.req;
+    const userId = req.user.userId;
+    if (!userId) throw new Error("User not found in the JWT");
+    try {
+      return await this.userService.deleteAccount(userId);
+    } catch (error) {
+      throw new Error("Failed to delete account");
     }
   }
   // should be able to check its own history -> (wins and losses, ladder level, achievements)
