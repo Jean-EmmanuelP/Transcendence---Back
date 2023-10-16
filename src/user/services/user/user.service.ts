@@ -579,4 +579,12 @@ export class UserService {
       },
     });
   }
+
+  async deleteAccount(userId: string): Promise<boolean> {
+    await this.prisma.user.delete({
+      where: { id: userId },
+    });
+
+    return true;
+  }
 }
