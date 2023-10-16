@@ -85,6 +85,7 @@ export class UserResolver {
     const req = context.req;
     console.log("This is the information of the user", req);
     const userId = req.user.userId;
+    if (!userId) throw new Error("There is no userId in the JWT");
     return this.userService.findOne(userId);
   }
 

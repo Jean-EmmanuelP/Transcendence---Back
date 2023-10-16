@@ -146,6 +146,7 @@ type Mutation {
   forgotPassword(email: String!): Boolean!
   resetPassword(resetToken: String!, newPassword: String!): Boolean!
   changePassword(currentPassword: String!, newPassword: String!): Boolean!
+  deleteAccount: Boolean!
 }
 
 input SendMessageInput {
