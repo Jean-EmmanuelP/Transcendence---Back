@@ -242,6 +242,7 @@ export class UserResolver {
     try {
       return await this.userService.deleteAccount(userId);
     } catch (error) {
+      console.log(error);
       throw new Error("Failed to delete account");
     }
   }
