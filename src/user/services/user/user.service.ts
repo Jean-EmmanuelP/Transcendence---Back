@@ -577,6 +577,13 @@ export class UserService {
         senderId: userId,
         status: "PENDING",
       },
+      include: {
+        sender: {
+          select: {
+            avatar: true
+          }
+        }
+      }
     });
   }
 
