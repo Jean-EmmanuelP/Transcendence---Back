@@ -104,6 +104,7 @@ type Friendship {
   senderId: String!
   receiverId: String!
   status: FriendshipStatus!
+  sender: UserModel
   createdAt: DateTime!
 }
 

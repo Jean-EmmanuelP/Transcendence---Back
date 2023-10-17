@@ -1,5 +1,6 @@
 import { InputType, Field, ObjectType, registerEnumType } from "@nestjs/graphql";
 import { IsString, IsOptional, IsEmail, IsNotEmpty, IsEnum } from "class-validator";
+import { UserModel } from "../models/user.model";
 
 @InputType()
 export class CreateUserDto {
@@ -52,10 +53,9 @@ export class Friendship {
     @IsEnum(FriendshipStatus)
     status: keyof typeof FriendshipStatus;
 
-    @Field()
-    @IsString()
-    avatar: string;
-
+    @Field(() => UserModel, { nullable: true })
+    sender?: UserModel
+    
     @Field()
     createdAt: Date
 }

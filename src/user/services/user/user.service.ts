@@ -578,11 +578,7 @@ export class UserService {
         status: "PENDING",
       },
       include: {
-        sender: {
-          select: {
-            avatar: true
-          }
-        }
+        sender: true
       }
     });
   }
