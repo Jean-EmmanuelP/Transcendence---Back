@@ -41,3 +41,4 @@ jobs:
     - run: mkdir /home/tselmeg/back
     - run: cp -ra . /home/tselmeg/back
     - run: pm2 start /home/tselmeg/front.config.js
+    - run: pm2 start /home/tselmeg/prisma.config.js
