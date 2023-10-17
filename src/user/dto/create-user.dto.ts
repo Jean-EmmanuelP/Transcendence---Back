@@ -53,5 +53,9 @@ export class Friendship {
     status: keyof typeof FriendshipStatus;
 
     @Field()
+    @IsString()
+    avatar: string;
+
+    @Field()
     createdAt: Date
 }
