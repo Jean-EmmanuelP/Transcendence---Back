@@ -148,7 +148,8 @@ export class UserResolver {
     try {
       return await this.userService.findByPseudo(pseudo);
     } catch (error) {
-      throw new Error("error getting the information of the user !");
+      console.error(error);
+      throw new Error("Error getting the information of the user !");
     }
   }
 
