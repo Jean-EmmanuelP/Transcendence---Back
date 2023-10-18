@@ -122,6 +122,8 @@ type Query {
   testingConnexion: String!
   userInformation: UserModel!
   getAllFriendsOfUser: [UserModel!]!
+  getUserInformationWithPseudo(pseudo: String!): UserModel!
+  searchUsers(term: String!): [UserModel!]!
 }
 
 input GetMessageInput {
