@@ -525,6 +525,27 @@ export class UserService {
     });
   }
 
+  async searchUsersByNameOrPseudo(term: string): Promise<UserModel[]> {
+    return await this.prisma.user.findMany({
+      where: {
+        OR: [
+          {
+            name: {
+              contains: term,
+              mode: "insensitive",
+            },
+          },
+          {
+            pseudo: {
+              contains: term,
+              mode: "insensitive",
+            },
+          },
+        ],
+      },
+    });
+  }
+
   async resetPassword(token: string, newPassword: string): Promise<void> {
     try {
       const payload = jwt.verify(
@@ -578,20 +599,19 @@ export class UserService {
         status: "PENDING",
       },
       include: {
-        sender: true
-      }
+        sender: true,
+      },
     });
   }
 
   async deleteAccount(userId: string): Promise<boolean> {
     try {
-
       const deletingUser = await this.prisma.user.delete({
         where: { id: userId },
       });
-      if (!deletingUser) throw new Error('The delete prisma user doesnt work!');
+      if (!deletingUser) throw new Error("The delete prisma user doesnt work!");
       return true;
-    } catch(error) {
+    } catch (error) {
       console.error(error.message);
       return false;
     }
