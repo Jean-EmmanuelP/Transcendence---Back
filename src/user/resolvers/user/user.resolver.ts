@@ -140,6 +140,14 @@ export class UserResolver {
     return this.userService.acceptFriendRequest(sender.id, receiverId);
   }
 
+  @Query((returns) => [UserModel])
+  @UseGuards(JwtAuthGuard)
+  async searchUsers(
+    @Args("term", { type: () => String }) term: string
+  ): Promise<UserModel[]> {
+    return this.userService.searchUsersByNameOrPseudo(term);
+  }
+
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   async rejectFriendRequest(
