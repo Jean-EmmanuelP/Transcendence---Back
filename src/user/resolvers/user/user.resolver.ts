@@ -140,6 +140,18 @@ export class UserResolver {
     return this.userService.acceptFriendRequest(sender.id, receiverId);
   }
 
+  @Query((returns) => UserModel)
+  @UseGuards(JwtAuthGuard)
+  async getUserInformationWithPseudo(
+    @Args("pseudo") pseudo: string
+  ): Promise<UserModel> {
+    try {
+      return await this.userService.findByPseudo(pseudo);
+    } catch (error) {
+      throw new Error("error getting the information of the user !");
+    }
+  }
+
   @Query((returns) => [UserModel])
   @UseGuards(JwtAuthGuard)
   async searchUsers(
