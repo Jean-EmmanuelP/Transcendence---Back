@@ -55,7 +55,10 @@ export class Friendship {
 
     @Field(() => UserModel, { nullable: true })
     sender?: UserModel
-    
+
+	@Field(() => UserModel, { nullable: true })
+    receiver?: UserModel
+
     @Field()
     createdAt: Date
 }
