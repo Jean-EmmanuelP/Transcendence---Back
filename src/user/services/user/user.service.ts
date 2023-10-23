@@ -605,6 +605,18 @@ export class UserService {
     });
   }
 
+  async getPendingFriendRequests(userId: string): Promise<Friendship[]> {
+    return this.prisma.friendship.findMany({
+      where: {
+        receiverId: userId,
+        status: "PENDING",
+      },
+      include: {
+        receiver: true,
+      },
+    });
+  }
+
   async deleteAccount(userId: string): Promise<boolean> {
     try {
       const deletingUser = await this.prisma.user.delete({

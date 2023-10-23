@@ -119,6 +119,7 @@ type Query {
   getUsersChannel: [ChannelOutputDTO]!
   users: [UserModel!]!
   getPendingSentFriendRequests: [Friendship!]!
+  getPendingFriendRequests: [Friendship!]!
   testingConnexion: String!
   userInformation: UserModel!
   getAllFriendsOfUser: [UserModel!]!

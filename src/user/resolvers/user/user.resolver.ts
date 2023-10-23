@@ -36,6 +36,16 @@ export class UserResolver {
     return this.userService.getPendingSentFriendRequests(userId);
   }
 
+  @Query((returns) => [Friendship])
+  @UseGuards(JwtAuthGuard)
+  async getPendingFriendRequests(
+    @Context() context
+  ): Promise<Friendship[]> {
+    const req = context.req;
+    const userId = req.user.userId;
+    return this.userService.getPendingFriendRequests(userId);
+  }
+
   // upload an avatar
   // you must find how to test it
   @Mutation(() => UserModel)
