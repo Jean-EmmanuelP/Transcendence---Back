@@ -613,6 +613,7 @@ export class UserService {
       },
       include: {
         receiver: true,
+        sender: true,
       },
     });
   }
