@@ -134,4 +134,12 @@ export class ChatResolver {
   ): Promise<ChannelOutputDTO[] | undefined[]> {
     return this.chatService.getUserChannels(userId);
   }
+
+  @Query(() => [ChannelOutputDTO], { nullable: "items" })
+  @UseGuards(JwtAuthGuard)
+  async getAllChannels(
+    @User() userId: string
+  ): Promise<ChannelOutputDTO[] | undefined[]> {
+    return this.chatService.getAllChannels(userId);
+  }
 }

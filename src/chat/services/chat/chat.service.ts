@@ -380,6 +380,59 @@ export class ChatService {
     }
   }
 
+  async getAllChannels(
+    userId: string
+  ): Promise<ChannelOutputDTO[] | undefined[]> {
+    try {
+      // check if ther user is ban
+      const channelsUserIsMemberOf = await this.prisma.channel.findMany({
+        NOT: {
+			ChannelMember: {
+			  some: { userId }
+			}
+		},
+        include: {
+          members: true,
+          owner: true,
+          bans: true,
+          ChannelMember: { include: { user: true } },
+          admins: { include: { user: true } },
+        },
+      });
+
+      const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
+        const notBanned = !channel.bans.some((ban) => ban.userId === userId);
+        return notBanned;
+      });
+
+      return filteredChannels.map((channel) => ({
+        id: channel.id,
+        name: channel.name,
+        isPrivate: channel.isPrivate,
+        isDirectMessage: channel.isDirectMessage,
+        ownerId: channel.ownerId,
+        owner: channel.owner,
+        members: channel.ChannelMember.filter(
+          (channelMember) => channelMember.userId !== userId
+        ).map((channelMember) => ({
+          id: channelMember.user.id,
+          name: channelMember.user.name,
+          avatar: channelMember.user.avatar,
+          status: channelMember.user.status,
+        })),
+        admins: channel.admins.map((admin) => ({
+          id: admin.user.id,
+          name: admin.user.name,
+          avatar: admin.user.avatar,
+          status: admin.user.status,
+        })),
+      }));
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
   async createChannel(
     input: CreateChannelInput,
     userId: string
@@ -807,7 +860,7 @@ export class ChatService {
 
 // do the block logic, implement the checks
 
-/* 
+/*
   NEED TO BE DONE
   error not handled in the back
 */
