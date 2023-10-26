@@ -601,6 +601,7 @@ export class UserService {
       },
       include: {
         sender: true,
+		receiver: true,
       },
     });
   }
