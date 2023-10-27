@@ -128,7 +128,7 @@ export class ChatResolver {
     return this.chatService.getMessages(userId, input.channelId);
   }
 
-  @Query(() => [ChannelOutputDTO], { nullable: "items" })
+  @Query(() => ChannelOutputDTO, { nullable: true })
   @UseGuards(JwtAuthGuard)
   async getChannel(
 	@Args("input") input: GetChannelInput,
