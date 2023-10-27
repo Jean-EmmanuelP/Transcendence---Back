@@ -8,6 +8,7 @@ import {
   CreateChannelOutput,
   DeleteMessageInput,
   DeleteMessageOutput,
+  GetChannelInput,
   GetMessageInput,
   ManageUserInput,
   OperationResult,
@@ -125,6 +126,15 @@ export class ChatResolver {
     @User() userId: string
   ): Promise<MessageModel[]> {
     return this.chatService.getMessages(userId, input.channelId);
+  }
+
+  @Query(() => [ChannelOutputDTO], { nullable: "items" })
+  @UseGuards(JwtAuthGuard)
+  async getChannel(
+	@Args("input") input: GetChannelInput,
+    @User() userId: string,
+  ): Promise<ChannelOutputDTO | undefined> {
+    return this.chatService.getChannel(userId, input.channelId);
   }
 
   @Query(() => [ChannelOutputDTO], { nullable: "items" })

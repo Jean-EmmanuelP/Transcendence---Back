@@ -172,6 +172,12 @@ export class GetMessageInput {
   channelId: string;
 }
 
+@InputType()
+export class GetChannelInput {
+  @Field()
+  channelId: string;
+}
+
 @ObjectType()
 export class MessageObjectType {
   @Field()

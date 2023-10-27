@@ -435,6 +435,54 @@ export class ChatService {
     }
   }
 
+  async getChannel(
+    userId: string,
+	channelId: string
+  ): Promise<ChannelOutputDTO | undefined> {
+    try {
+		const channel = await this.prisma.channel.findUnique({
+			where: {
+				id: channelId
+			},
+			include: {
+				members: true,
+				owner: true,
+				bans: true,
+				ChannelMember: { include: { user: true } },
+				admins: { include: { user: true } },
+			},
+		});
+		const notBanned = !channel.bans.some((ban) => ban.userId === userId);
+		if (!notBanned)
+			return (undefined);
+		return ({
+			id: channel.id,
+			name: channel.name,
+			isPrivate: channel.isPrivate,
+			isDirectMessage: channel.isDirectMessage,
+			ownerId: channel.ownerId,
+			owner: channel.owner,
+			members: channel.ChannelMember.filter(
+				(channelMember) => channelMember.userId !== userId
+				).map((channelMember) => ({
+				id: channelMember.user.id,
+				name: channelMember.user.name,
+				avatar: channelMember.user.avatar,
+				status: channelMember.user.status,
+				})),
+			admins: channel.admins.map((admin) => ({
+			id: admin.user.id,
+			name: admin.user.name,
+			avatar: admin.user.avatar,
+			status: admin.user.status,
+			})),
+		});
+    } catch (error) {
+      console.log(error);
+      return undefined;
+    }
+  }
+
   async createChannel(
     input: CreateChannelInput,
     userId: string
