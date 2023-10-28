@@ -480,7 +480,7 @@ export class UserService {
 			where: {
 				isDirectMessage: true,
 				ChannelMember: {
-				every: {
+				some: {
 					OR: [
 					  { userId: f.senderId },
 					  { userId: f.receiverId },
@@ -508,7 +508,7 @@ export class UserService {
 			where: {
 				isDirectMessage: true,
 				ChannelMember: {
-				every: {
+				some: {
 					OR: [
 					  { userId: f.senderId },
 					  { userId: f.receiverId },
