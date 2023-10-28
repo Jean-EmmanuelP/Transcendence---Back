@@ -482,10 +482,10 @@ export class UserService {
 				{ isPrivate: true },
 				{ isDirectMessage: true },
 				{
-				  AND: [
-					{ members: { some: { id: f.receiverId } } },
-					{ members: { some: { id: f.senderId } } },
-				  ],
+					AND: [
+						{ members: { some: { userId: f.receiverId } } },
+						{ members: { some: { userId: f.senderId } } },
+					],
 				},
 			  ],
 			},
@@ -509,8 +509,8 @@ export class UserService {
 				{ isDirectMessage: true },
 				{
 				  AND: [
-					{ members: { some: { id: f.receiverId } } },
-					{ members: { some: { id: f.senderId } } },
+					{ members: { some: { userId: f.receiverId } } },
+					{ members: { some: { userId: f.senderId } } },
 				  ],
 				},
 			  ],
