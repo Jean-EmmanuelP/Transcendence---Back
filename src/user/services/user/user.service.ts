@@ -573,16 +573,17 @@ async getAllFriendOfUser(userId: string): Promise<FriendModel[]> {
                 ChannelMember: { include: { user: true } },
             },
         });
-
-        const res: FriendModel = {
-            id: f.sender.id,
-            email: f.sender.email,
-            name: f.sender.name,
-            pseudo: f.sender.pseudo,
-            avatar: f.sender.avatar,
-            status: f.sender.status,
+		
+		const res: FriendModel = {
+            id: f.receiver.id,
+            email: f.receiver.email,
+            name: f.receiver.name,
+            pseudo: f.receiver.pseudo,
+            avatar: f.receiver.avatar,
+            status: f.receiver.status,
             channelId: channel.id
         }
+
         friends.push(res);
     }
     for (const f of receivedFriendships) {
@@ -602,15 +603,17 @@ async getAllFriendOfUser(userId: string): Promise<FriendModel[]> {
                 ChannelMember: { include: { user: true } },
             },
         });
-        const res: FriendModel = {
-            id: f.receiver.id,
-            email: f.receiver.email,
-            name: f.receiver.name,
-            pseudo: f.receiver.pseudo,
-            avatar: f.receiver.avatar,
-            status: f.receiver.status,
+
+		const res: FriendModel = {
+            id: f.sender.id,
+            email: f.sender.email,
+            name: f.sender.name,
+            pseudo: f.sender.pseudo,
+            avatar: f.sender.avatar,
+            status: f.sender.status,
             channelId: channel.id
         }
+
         friends.push(res);
     }
     return friends;
