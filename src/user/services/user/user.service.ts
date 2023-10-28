@@ -478,18 +478,20 @@ export class UserService {
 	sentFriendships.map(async (f) => {
 		const channel = await this.prisma.channel.findFirst({
 			where: {
-			  AND: [
-				{ isPrivate: true },
-				{ isDirectMessage: true },
-				{
-					AND: [
-						{ members: { some: { userId: f.receiverId } } },
-						{ members: { some: { userId: f.senderId } } },
-					],
-				},
-			  ],
+				isDirectMessage: true,
+				ChannelMember: {
+				every: {
+					OR: [
+					  { userId: f.senderId },
+					  { userId: f.receiverId },
+					]
+				  }
+			 } },
+			include: {
+			  ChannelMember: { include: { user: true } },
 			},
 		});
+
 		const res: FriendModel = {
 			id: f.sender.id,
 			email: f.sender.email,
@@ -504,16 +506,17 @@ export class UserService {
 	receivedFriendships.map(async (f) => {
 		const channel = await this.prisma.channel.findFirst({
 			where: {
-			  AND: [
-				{ isPrivate: true },
-				{ isDirectMessage: true },
-				{
-				  AND: [
-					{ members: { some: { userId: f.receiverId } } },
-					{ members: { some: { userId: f.senderId } } },
-				  ],
-				},
-			  ],
+				isDirectMessage: true,
+				ChannelMember: {
+				every: {
+					OR: [
+					  { userId: f.senderId },
+					  { userId: f.receiverId },
+					]
+				  }
+			 } },
+			include: {
+			  ChannelMember: { include: { user: true } },
 			},
 		});
 		const res: FriendModel = {
