@@ -228,8 +228,15 @@ export class DeleteMessageOutput {
 
 @ObjectType()
 export class UserOutputDTO {
+
+	@Field()
+	id: string;
+
   @Field()
   name: string;
+
+  @Field()
+  pseudo: string;
 
   @Field()
   avatar: string;

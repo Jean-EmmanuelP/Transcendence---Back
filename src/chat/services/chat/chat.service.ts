@@ -363,12 +363,14 @@ export class ChatService {
         ).map((channelMember) => ({
           id: channelMember.user.id,
           name: channelMember.user.name,
+          pseudo: channelMember.user.pseudo,
           avatar: channelMember.user.avatar,
           status: channelMember.user.status,
         })),
         admins: channel.admins.map((admin) => ({
           id: admin.user.id,
           name: admin.user.name,
+		  pseudo: admin.user.pseudo,
           avatar: admin.user.avatar,
           status: admin.user.status,
         })),
@@ -417,12 +419,14 @@ export class ChatService {
           (channelMember) => channelMember.userId !== userId
         ).map((channelMember) => ({
           id: channelMember.user.id,
+		  pseudo: channelMember.user.pseudo,
           name: channelMember.user.name,
           avatar: channelMember.user.avatar,
           status: channelMember.user.status,
         })),
         admins: channel.admins.map((admin) => ({
           id: admin.user.id,
+		  pseudo: admin.user.pseudo,
           name: admin.user.name,
           avatar: admin.user.avatar,
           status: admin.user.status,
@@ -461,16 +465,16 @@ export class ChatService {
 			isDirectMessage: channel.isDirectMessage,
 			ownerId: channel.ownerId,
 			owner: channel.owner,
-			members: channel.ChannelMember.filter(
-				(channelMember) => channelMember.userId !== userId
-				).map((channelMember) => ({
+			members: channel.ChannelMember.map((channelMember) => ({
 				id: channelMember.user.id,
+				pseudo: channelMember.user.pseudo,
 				name: channelMember.user.name,
 				avatar: channelMember.user.avatar,
 				status: channelMember.user.status,
 				})),
 			admins: channel.admins.map((admin) => ({
 			id: admin.user.id,
+			pseudo: admin.user.pseudo,
 			name: admin.user.name,
 			avatar: admin.user.avatar,
 			status: admin.user.status,
