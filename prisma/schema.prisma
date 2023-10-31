@@ -44,6 +44,8 @@ model User {
   blockedBy          BlockedUser[]   @relation("BlockedUserRelation")
   adminInChannels    ChannelAdmin[]
   ChannelMember      ChannelMember[]
+  ChannelBan         ChannelBan[]
+  ChannelMute        ChannelMute[]
 }
 
 model BlockedUser {
@@ -82,7 +84,8 @@ model ChannelBan {
   reason    String?
   bannedBy  String
 
-  channel Channel @relation(fields: [channelId], references: [id])
+  channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, channelId])
 }
@@ -90,12 +93,13 @@ model ChannelBan {
 model ChannelMute {
   userId    String
   channelId String
-  mutedId   DateTime @default(now())
+  mutedId   DateTime  @default(now())
   reason    String?
-  expireAt DateTime?
+  expireAt  DateTime?
   mutedBy   String
 
   channel Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@id([userId, channelId])
 }

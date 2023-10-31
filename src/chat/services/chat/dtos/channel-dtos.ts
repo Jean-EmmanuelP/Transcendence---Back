@@ -246,6 +246,39 @@ export class UserOutputDTO {
 }
 
 @ObjectType()
+export class ChannelMuteDTO {
+  @Field()
+  userId: string;
+
+  @Field()
+  channelId: string;
+
+  @Field({ nullable: true })
+  expireAt: Date;
+
+  @Field()
+  mutedBy: string;
+
+  @Field(() => UserOutputDTO)
+  user: UserOutputDTO;
+}
+
+@ObjectType()
+export class ChannelBanDTO {
+  @Field()
+  userId: string;
+
+  @Field()
+  channelId: string;
+
+  @Field()
+  bannedBy: string;
+
+  @Field(() => UserOutputDTO)
+  user: UserOutputDTO;
+}
+
+@ObjectType()
 export class ChannelOutputDTO {
   @Field()
   id: string;
@@ -264,6 +297,12 @@ export class ChannelOutputDTO {
 
   @Field(() => UserOutputDTO, { nullable: true})
   owner: UserOutputDTO;
+
+  @Field(() => [ChannelMuteDTO], { nullable: true})
+  mutes?: ChannelMuteDTO[];
+
+  @Field(() => [ChannelBanDTO], { nullable: true})
+  bans?: ChannelBanDTO[];
 
   @Field(() => [UserOutputDTO])
   members: UserOutputDTO[];

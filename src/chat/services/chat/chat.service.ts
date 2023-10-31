@@ -450,7 +450,8 @@ export class ChatService {
 			include: {
 				members: true,
 				owner: true,
-				bans: true,
+				bans: { include: { user: true } },
+				mutes: { include: { user: true } },
 				ChannelMember: { include: { user: true } },
 				admins: { include: { user: true } },
 			},
@@ -458,6 +459,8 @@ export class ChatService {
 		const notBanned = !channel.bans.some((ban) => ban.userId === userId);
 		if (!notBanned)
 			return (undefined);
+		console.log("-------------------------------");
+		console.log(channel);
 		return ({
 			id: channel.id,
 			name: channel.name,
@@ -465,19 +468,33 @@ export class ChatService {
 			isDirectMessage: channel.isDirectMessage,
 			ownerId: channel.ownerId,
 			owner: channel.owner,
+			bans: channel.bans,
+			mutes: channel.mutes.map((channelMute) => ({
+				userId: channelMute.userId,
+				channelId: channelMute.channelId,
+				expireAt: channelMute.expireAt,
+				mutedBy: channelMute.mutedBy,
+				user: {
+					id: channelMute.user.id,
+					pseudo: channelMute.user.pseudo,
+					name: channelMute.user.name,
+					avatar: channelMute.user.avatar,
+					status: channelMute.user.status,
+				}
+			})),
 			members: channel.ChannelMember.map((channelMember) => ({
 				id: channelMember.user.id,
 				pseudo: channelMember.user.pseudo,
 				name: channelMember.user.name,
 				avatar: channelMember.user.avatar,
 				status: channelMember.user.status,
-				})),
+			})),
 			admins: channel.admins.map((admin) => ({
-			id: admin.user.id,
-			pseudo: admin.user.pseudo,
-			name: admin.user.name,
-			avatar: admin.user.avatar,
-			status: admin.user.status,
+				id: admin.user.id,
+				pseudo: admin.user.pseudo,
+				name: admin.user.name,
+				avatar: admin.user.avatar,
+				status: admin.user.status,
 			})),
 		});
     } catch (error) {
@@ -885,20 +902,22 @@ export class ChatService {
             break;
           case UserAction.MUTE:
             await this.prisma.channelMute.create({
-              data: {
-                userId: targetUserId,
-                mutedId: new Date(),
-                mutedBy: operatorId,
-                expireAt: duration
-                  ? new Date(Date.now() + duration * 1000)
-                  : null,
-                channel: {
-                  connect: {
-                    id: channelId,
-                  },
-                },
-              },
-            });
+				data: {
+				  mutedId: new Date(),
+				  mutedBy: operatorId, // Ensure operatorId is a string
+				  expireAt: duration ? new Date(Date.now() + duration * 1000) : null,
+				  channel: {
+					connect: {
+					  id: channelId, // Ensure channelId is a string
+					},
+				  },
+				  user: {
+					connect: {
+					  id: targetUserId, // Ensure targetUserId is a string
+					},
+				  },
+				},
+			  });
             break;
           default:
             throw new Error("Invalid action");
