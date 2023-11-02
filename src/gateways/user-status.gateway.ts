@@ -4,12 +4,15 @@ import {
   OnGatewayConnection,
   OnGatewayDisconnect,
   WebSocketServer,
+  MessageBody,
+  ConnectedSocket,
 } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { UserService } from "src/user/services/user/user.service";
 import * as jwt from "jsonwebtoken";
-import { forwardRef } from '@nestjs/common';
-import { Inject } from '@nestjs/common';
+import { forwardRef } from "@nestjs/common";
+import { Inject } from "@nestjs/common";
+import { PrismaService } from "prisma/services/prisma/prisma.service";
 
 @WebSocketGateway()
 export class UserStatusGateway
@@ -20,10 +23,32 @@ export class UserStatusGateway
 
   constructor(
     @Inject(forwardRef(() => UserService))
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly prisma: PrismaService
   ) {}
   private clients = new Map<string, string>();
   private userSockets = new Map<string, string[]>();
+
+  private async getGroupMembersSockets(groupId: string): Promise<string[]> {
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: groupId },
+      include: { members: true },
+    });
+
+    if (!channel) return [];
+
+    const memberIds = channel.members.map((member) => member.id);
+    const memberSockets: string[] = [];
+
+    memberIds.forEach((memberId) => {
+      const sockets = this.userSockets.get(memberId);
+      if (sockets) {
+        memberSockets.push(...sockets);
+      }
+    });
+
+    return memberSockets;
+  }
 
   handleConnection(client: Socket, ...args: any[]) {
     try {
@@ -96,6 +121,37 @@ export class UserStatusGateway
           .to(socketId)
           .emit("directChannelCreated", { userId1, userId2 });
       });
+    }
+  }
+
+  @SubscribeMessage("newMessage")
+  async handleMessage(
+    @MessageBody() data: { groupId: string; message: string },
+    @ConnectedSocket() client: Socket
+  ) {
+    const userId = this.clients.get(client.id);
+    if (!userId) {
+      console.log("User ID not found for client:", client.id);
+      return;
+    }
+    try {
+      const newMessage = await this.prisma.message.create({
+        data: {
+          content: data.message,
+          channelId: data.groupId,
+          userId: userId,
+        },
+      });
+
+      const groupMembersSocketIds = await this.getGroupMembersSockets(
+        data.groupId
+      );
+
+      groupMembersSocketIds.forEach((socketId) => {
+        this.server.to(socketId).emit("newMessage", newMessage);
+      });
+    } catch (error) {
+      console.error("Failed to insert message in DB", error);
     }
   }
 }
