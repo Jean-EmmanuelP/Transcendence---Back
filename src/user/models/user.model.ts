@@ -29,3 +29,27 @@ export class UserModel {
   @Field()
   status: string;
 }
+
+@ObjectType()
+export class FriendModel {
+  @Field(() => String)
+  id: string;
+
+  @Field()
+  email?: string;
+
+  @Field()
+  name: string;
+
+  @Field()
+  pseudo: string;
+
+  @Field()
+  channelId?: string;
+
+  @Field(() => String)
+  avatar?: string;
+
+  @Field()
+  status: string;
+}

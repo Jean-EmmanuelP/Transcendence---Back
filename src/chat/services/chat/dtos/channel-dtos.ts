@@ -172,6 +172,12 @@ export class GetMessageInput {
   channelId: string;
 }
 
+@InputType()
+export class GetChannelInput {
+  @Field()
+  channelId: string;
+}
+
 @ObjectType()
 export class MessageObjectType {
   @Field()
@@ -222,14 +228,54 @@ export class DeleteMessageOutput {
 
 @ObjectType()
 export class UserOutputDTO {
+
+	@Field()
+	id: string;
+
   @Field()
   name: string;
+
+  @Field()
+  pseudo: string;
 
   @Field()
   avatar: string;
 
   @Field()
   status: string;
+}
+
+@ObjectType()
+export class ChannelMuteDTO {
+  @Field()
+  userId: string;
+
+  @Field()
+  channelId: string;
+
+  @Field({ nullable: true })
+  expireAt: Date;
+
+  @Field()
+  mutedBy: string;
+
+  @Field(() => UserOutputDTO)
+  user: UserOutputDTO;
+}
+
+@ObjectType()
+export class ChannelBanDTO {
+  @Field()
+  userId: string;
+
+  @Field()
+  channelId: string;
+
+  @Field()
+  bannedBy: string;
+
+  @Field(() => UserOutputDTO)
+  user: UserOutputDTO;
 }
 
 @ObjectType()
@@ -251,6 +297,12 @@ export class ChannelOutputDTO {
 
   @Field(() => UserOutputDTO, { nullable: true})
   owner: UserOutputDTO;
+
+  @Field(() => [ChannelMuteDTO], { nullable: true})
+  mutes?: ChannelMuteDTO[];
+
+  @Field(() => [ChannelBanDTO], { nullable: true})
+  bans?: ChannelBanDTO[];
 
   @Field(() => [UserOutputDTO])
   members: UserOutputDTO[];

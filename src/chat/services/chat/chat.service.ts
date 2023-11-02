@@ -333,7 +333,6 @@ export class ChatService {
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
         where: { ChannelMember: { some: { userId } } },
         include: {
-
           members: true,
           owner: true,
           bans: true,
@@ -364,11 +363,70 @@ export class ChatService {
         ).map((channelMember) => ({
           id: channelMember.user.id,
           name: channelMember.user.name,
+          pseudo: channelMember.user.pseudo,
           avatar: channelMember.user.avatar,
           status: channelMember.user.status,
         })),
         admins: channel.admins.map((admin) => ({
           id: admin.user.id,
+          name: admin.user.name,
+		  pseudo: admin.user.pseudo,
+          avatar: admin.user.avatar,
+          status: admin.user.status,
+        })),
+      }));
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  }
+
+  async getAllChannels(
+    userId: string
+  ): Promise<ChannelOutputDTO[] | undefined[]> {
+    try {
+      // check if ther user is ban
+      const channelsUserIsMemberOf = await this.prisma.channel.findMany({
+       where: {
+		NOT: {
+			ChannelMember: {
+			  some: { userId }
+			}
+		},
+	   },
+        include: {
+          members: true,
+          owner: true,
+          bans: true,
+          ChannelMember: { include: { user: true } },
+          admins: { include: { user: true } },
+        },
+      });
+
+      const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
+        const notBanned = !channel.bans.some((ban) => ban.userId === userId);
+        return notBanned;
+      });
+
+      return filteredChannels.map((channel) => ({
+        id: channel.id,
+        name: channel.name,
+        isPrivate: channel.isPrivate,
+        isDirectMessage: channel.isDirectMessage,
+        ownerId: channel.ownerId,
+        owner: channel.owner,
+        members: channel.ChannelMember.filter(
+          (channelMember) => channelMember.userId !== userId
+        ).map((channelMember) => ({
+          id: channelMember.user.id,
+		  pseudo: channelMember.user.pseudo,
+          name: channelMember.user.name,
+          avatar: channelMember.user.avatar,
+          status: channelMember.user.status,
+        })),
+        admins: channel.admins.map((admin) => ({
+          id: admin.user.id,
+		  pseudo: admin.user.pseudo,
           name: admin.user.name,
           avatar: admin.user.avatar,
           status: admin.user.status,
@@ -377,6 +435,71 @@ export class ChatService {
     } catch (error) {
       console.log(error);
       return [];
+    }
+  }
+
+  async getChannel(
+    userId: string,
+	channelId: string
+  ): Promise<ChannelOutputDTO | undefined> {
+    try {
+		const channel = await this.prisma.channel.findUnique({
+			where: {
+				id: channelId
+			},
+			include: {
+				members: true,
+				owner: true,
+				bans: { include: { user: true } },
+				mutes: { include: { user: true } },
+				ChannelMember: { include: { user: true } },
+				admins: { include: { user: true } },
+			},
+		});
+		const notBanned = !channel.bans.some((ban) => ban.userId === userId);
+		if (!notBanned)
+			return (undefined);
+		console.log("-------------------------------");
+		console.log(channel);
+		return ({
+			id: channel.id,
+			name: channel.name,
+			isPrivate: channel.isPrivate,
+			isDirectMessage: channel.isDirectMessage,
+			ownerId: channel.ownerId,
+			owner: channel.owner,
+			bans: channel.bans,
+			mutes: channel.mutes.map((channelMute) => ({
+				userId: channelMute.userId,
+				channelId: channelMute.channelId,
+				expireAt: channelMute.expireAt,
+				mutedBy: channelMute.mutedBy,
+				user: {
+					id: channelMute.user.id,
+					pseudo: channelMute.user.pseudo,
+					name: channelMute.user.name,
+					avatar: channelMute.user.avatar,
+					status: channelMute.user.status,
+				}
+			})),
+			members: channel.ChannelMember.map((channelMember) => ({
+				id: channelMember.user.id,
+				pseudo: channelMember.user.pseudo,
+				name: channelMember.user.name,
+				avatar: channelMember.user.avatar,
+				status: channelMember.user.status,
+			})),
+			admins: channel.admins.map((admin) => ({
+				id: admin.user.id,
+				pseudo: admin.user.pseudo,
+				name: admin.user.name,
+				avatar: admin.user.avatar,
+				status: admin.user.status,
+			})),
+		});
+    } catch (error) {
+      console.log(error);
+      return undefined;
     }
   }
 
@@ -779,20 +902,22 @@ export class ChatService {
             break;
           case UserAction.MUTE:
             await this.prisma.channelMute.create({
-              data: {
-                userId: targetUserId,
-                mutedId: new Date(),
-                mutedBy: operatorId,
-                expireAt: duration
-                  ? new Date(Date.now() + duration * 1000)
-                  : null,
-                channel: {
-                  connect: {
-                    id: channelId,
-                  },
-                },
-              },
-            });
+				data: {
+				  mutedId: new Date(),
+				  mutedBy: operatorId, // Ensure operatorId is a string
+				  expireAt: duration ? new Date(Date.now() + duration * 1000) : null,
+				  channel: {
+					connect: {
+					  id: channelId, // Ensure channelId is a string
+					},
+				  },
+				  user: {
+					connect: {
+					  id: targetUserId, // Ensure targetUserId is a string
+					},
+				  },
+				},
+			  });
             break;
           default:
             throw new Error("Invalid action");
@@ -807,7 +932,7 @@ export class ChatService {
 
 // do the block logic, implement the checks
 
-/* 
+/*
   NEED TO BE DONE
   error not handled in the back
 */

@@ -10,11 +10,17 @@ import {
 import { Server, Socket } from "socket.io";
 import { UserService } from "src/user/services/user/user.service";
 import * as jwt from "jsonwebtoken";
+<<<<<<< HEAD
 import { forwardRef } from "@nestjs/common";
 import { Inject } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
+=======
+import { forwardRef } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
+import { FriendModel } from "src/user/models/user.model";
+>>>>>>> 8c4d48604276aaf9a2eeaa8bdc24e8b5fa3f6610
 
-@WebSocketGateway()
+@WebSocketGateway({ cors: true })
 export class UserStatusGateway
   implements OnGatewayConnection, OnGatewayDisconnect
 {
@@ -29,6 +35,7 @@ export class UserStatusGateway
   private clients = new Map<string, string>();
   private userSockets = new Map<string, string[]>();
 
+<<<<<<< HEAD
   private async getGroupMembersSockets(groupId: string): Promise<string[]> {
     const channel = await this.prisma.channel.findUnique({
       where: { id: groupId },
@@ -51,8 +58,13 @@ export class UserStatusGateway
   }
 
   handleConnection(client: Socket, ...args: any[]) {
+=======
+  async handleConnection(client: Socket, ...args: any[]) {
+>>>>>>> 8c4d48604276aaf9a2eeaa8bdc24e8b5fa3f6610
     try {
-      const token = client.handshake.query.token;
+		console.log("-------------SOCKET--------------");
+		const token = client.handshake.query.token;
+		console.log(token);
       if (typeof token === "string") {
         const payload = jwt.verify(
           token,
@@ -62,12 +74,30 @@ export class UserStatusGateway
         if (userId) {
           this.clients.set(client.id, userId);
           this.userService.updateUserStatus(userId, "ONLINE");
-
-          if (this.userSockets.has(userId)) {
+		  if (this.userSockets.has(userId)) {
             this.userSockets.get(userId).push(client.id);
           } else {
             this.userSockets.set(userId, [client.id]);
           }
+		  //Get all friend socket id and emit to each of them
+			const friends : FriendModel[] = await this.userService.getAllFriendOfUser(userId);
+			for (let i = 0; i < friends.length; i++)
+			{
+				if (this.userSockets.has(friends[i].id)) {
+					const cliendIds = this.userSockets.get(friends[i].id);
+					for (let d = 0; d < cliendIds.length; d++)
+						this.server.to(cliendIds[d]).emit("updateChat");
+				}
+			}
+			// friends.forEach(element => {
+			// 	if (this.userSockets.has(element.id))
+			// 	{
+			// 		this.userSockets[element.id].forEach((sockId: string) => {
+			// 			this.server.to(sockId).emit("updateChat");
+			// 		})
+			// 	}
+			// });
+
         } else {
           console.log("userId is not defined in the token payload");
           client.disconnect();
@@ -82,11 +112,23 @@ export class UserStatusGateway
     }
   }
 
-  handleDisconnect(client: Socket) {
+  async handleDisconnect(client: Socket) {
     const userId = this.clients.get(client.id);
     if (userId) {
+		console.log("SOCKET_DISCONNECT");
+		this.clients.delete(client.id);
       this.userService.updateUserStatus(userId, "OFFLINE");
-      this.clients.delete(client.id);
+	  const friends : FriendModel[] = await this.userService.getAllFriendOfUser(userId);
+	  console.log("Friends:", friends);
+		for (let i = 0; i < friends.length; i++)
+		{
+			if (this.userSockets.has(friends[i].id)) {
+				const cliendIds = this.userSockets.get(friends[i].id);
+				for (let d = 0; d < cliendIds.length; d++)
+					this.server.to(cliendIds[d]).emit("updateChat");
+			}
+		}
+
 
       const userSocketIds = this.userSockets.get(userId);
       if (userSocketIds) {

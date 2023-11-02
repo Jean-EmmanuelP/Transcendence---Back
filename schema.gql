@@ -14,6 +14,16 @@ type UserModel {
   status: String!
 }
 
+type FriendModel {
+  id: String!
+  email: String!
+  name: String!
+  pseudo: String!
+  channelId: String!
+  avatar: String!
+  status: String!
+}
+
 type ChannelModel {
   id: ID!
   name: String!
@@ -83,9 +93,26 @@ type DeleteMessageOutput {
 }
 
 type UserOutputDTO {
+  id: String!
   name: String!
+  pseudo: String!
   avatar: String!
   status: String!
+}
+
+type ChannelMuteDTO {
+  userId: String!
+  channelId: String!
+  expireAt: DateTime
+  mutedBy: String!
+  user: UserOutputDTO!
+}
+
+type ChannelBanDTO {
+  userId: String!
+  channelId: String!
+  bannedBy: String!
+  user: UserOutputDTO!
 }
 
 type ChannelOutputDTO {
@@ -95,6 +122,8 @@ type ChannelOutputDTO {
   isDirectMessage: Boolean!
   ownerId: String
   owner: UserOutputDTO
+  mutes: [ChannelMuteDTO!]
+  bans: [ChannelBanDTO!]
   members: [UserOutputDTO!]!
   admins: [UserOutputDTO!]!
 }
@@ -105,6 +134,7 @@ type Friendship {
   receiverId: String!
   status: FriendshipStatus!
   sender: UserModel
+  receiver: UserModel
   createdAt: DateTime!
 }
 
@@ -116,17 +146,24 @@ enum FriendshipStatus {
 
 type Query {
   getMessages(input: GetMessageInput!): [MessageModel]!
+  getChannel(input: GetChannelInput!): ChannelOutputDTO
   getUsersChannel: [ChannelOutputDTO]!
+  getAllChannels: [ChannelOutputDTO]!
   users: [UserModel!]!
   getPendingSentFriendRequests: [Friendship!]!
+  getPendingFriendRequests: [Friendship!]!
   testingConnexion: String!
   userInformation: UserModel!
-  getAllFriendsOfUser: [UserModel!]!
+  getAllFriendsOfUser: [FriendModel!]!
   getUserInformationWithPseudo(pseudo: String!): UserModel!
   searchUsers(term: String!): [UserModel!]!
 }
 
 input GetMessageInput {
+  channelId: String!
+}
+
+input GetChannelInput {
   channelId: String!
 }
 

@@ -1,6 +1,6 @@
 import { Resolver, Query, Args, Mutation, Context } from "@nestjs/graphql";
 import { UserService } from "./../../services/user/user.service";
-import { UserModel } from "src/user/models/user.model";
+import { FriendModel, UserModel } from "src/user/models/user.model";
 import { CreateUserDto, Friendship } from "src/user/dto/create-user.dto";
 import { GraphQLUpload } from "graphql-upload-ts";
 import { createWriteStream } from "fs";
@@ -34,6 +34,16 @@ export class UserResolver {
     const req = context.req;
     const userId = req.user.userId;
     return this.userService.getPendingSentFriendRequests(userId);
+  }
+
+  @Query((returns) => [Friendship])
+  @UseGuards(JwtAuthGuard)
+  async getPendingFriendRequests(
+    @Context() context
+  ): Promise<Friendship[]> {
+    const req = context.req;
+    const userId = req.user.userId;
+    return this.userService.getPendingFriendRequests(userId);
   }
 
   // upload an avatar
@@ -89,9 +99,9 @@ export class UserResolver {
     return this.userService.findOne(userId);
   }
 
-  @Query((returns) => [UserModel])
+  @Query((returns) => [FriendModel])
   @UseGuards(JwtAuthGuard)
-  async getAllFriendsOfUser(@Context() context): Promise<UserModel[]> {
+  async getAllFriendsOfUser(@Context() context): Promise<FriendModel[]> {
     const req = context.req;
     const userId = req.user.userId;
     if (!userId) {

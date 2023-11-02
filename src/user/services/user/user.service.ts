@@ -7,7 +7,7 @@ import {
 } from "@nestjs/common";
 import { PrismaService } from "prisma/services/prisma/prisma.service";
 import { CreateUserDto, Friendship } from "src/user/dto/create-user.dto";
-import { UserModel } from "src/user/models/user.model";
+import { FriendModel, UserModel } from "src/user/models/user.model";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import * as speakeasy from "speakeasy";
@@ -452,46 +452,173 @@ export class UserService {
     return deletedFriendship.count > 0;
   }
 
-  async getAllFriendOfUser(userId: string): Promise<UserModel[]> {
+//   async getAllFriendOfUser(userId: string): Promise<FriendModel[]> {
+//     console.log(`Getting friends for user ID:`, userId);
+//     const sentFriendships = await this.prisma.friendship.findMany({
+//       where: {
+//         senderId: userId,
+//         status: "ACCEPTED",
+//       },
+//       include: {
+// 		sender: true,
+//         receiver: true,
+//       },
+//     });
+//     const receivedFriendships = await this.prisma.friendship.findMany({
+//       where: {
+//         receiverId: userId,
+//         status: "ACCEPTED",
+//       },
+//       include: {
+//         sender: true,
+//         receiver: true,
+//       },
+//     });
+// 	let friends: FriendModel[] = [];
+// 	sentFriendships.map(async (f) => {
+// 		const channel = await this.prisma.channel.findFirst({
+// 			where: {
+// 				isDirectMessage: true,
+// 				ChannelMember: {
+// 				some: {
+// 					OR: [
+// 					  { userId: f.senderId },
+// 					  { userId: f.receiverId },
+// 					]
+// 				  }
+// 			 } },
+// 			include: {
+// 			  ChannelMember: { include: { user: true } },
+// 			},
+// 		});
+
+// 		const res: FriendModel = {
+// 			id: f.sender.id,
+// 			email: f.sender.email,
+// 			name: f.sender.name,
+// 			pseudo: f.sender.pseudo,
+// 			avatar: f.sender.avatar,
+// 			status: f.sender.status,
+// 			channelId: channel.id
+// 		}
+//         friends.push(res);
+// 	});
+// 	receivedFriendships.map(async (f) => {
+// 		const channel = await this.prisma.channel.findFirst({
+// 			where: {
+// 				isDirectMessage: true,
+// 				ChannelMember: {
+// 				some: {
+// 					OR: [
+// 					  { userId: f.senderId },
+// 					  { userId: f.receiverId },
+// 					]
+// 				  }
+// 			 } },
+// 			include: {
+// 			  ChannelMember: { include: { user: true } },
+// 			},
+// 		});
+// 		const res: FriendModel = {
+// 			id: f.receiver.id,
+// 			email: f.receiver.email,
+// 			name: f.receiver.name,
+// 			pseudo: f.receiver.pseudo,
+// 			avatar: f.receiver.avatar,
+// 			status: f.receiver.status,
+// 			channelId: channel.id
+// 		}
+// 		friends.push(res);
+// 	});
+//     return friends;
+//   }
+
+async getAllFriendOfUser(userId: string): Promise<FriendModel[]> {
     console.log(`Getting friends for user ID:`, userId);
     const sentFriendships = await this.prisma.friendship.findMany({
-      where: {
-        senderId: userId,
-        status: "ACCEPTED",
-      },
-      include: {
-        receiver: true,
-      },
+        where: {
+            senderId: userId,
+            status: "ACCEPTED",
+        },
+        include: {
+            sender: true,
+            receiver: true,
+        },
     });
-    console.log(`Sent friendship: ${JSON.stringify(sentFriendships)}`);
-
     const receivedFriendships = await this.prisma.friendship.findMany({
-      where: {
-        receiverId: userId,
-        status: "ACCEPTED",
-      },
-      include: {
-        sender: true,
-      },
+        where: {
+            receiverId: userId,
+            status: "ACCEPTED",
+        },
+        include: {
+            sender: true,
+            receiver: true,
+        },
     });
-    console.log(`Received friendship: ${JSON.stringify(receivedFriendships)}`);
-    const friends = [
-      ...sentFriendships.map((f) => {
-        if (!f.receiver.name) {
-          throw new Error(`User with ID ${f.receiver.id} has null name`);
+    let friends: FriendModel[] = [];
+    for (const f of sentFriendships) {
+        const channel = await this.prisma.channel.findFirst({
+            where: {
+                isDirectMessage: true,
+                ChannelMember: {
+                    some: {
+                        OR: [
+                            { userId: f.senderId },
+                            { userId: f.receiverId },
+                        ]
+                    }
+                }
+            },
+            include: {
+                ChannelMember: { include: { user: true } },
+            },
+        });
+		
+		const res: FriendModel = {
+            id: f.receiver.id,
+            email: f.receiver.email,
+            name: f.receiver.name,
+            pseudo: f.receiver.pseudo,
+            avatar: f.receiver.avatar,
+            status: f.receiver.status,
+            channelId: channel.id
         }
-        return f.receiver;
-      }),
-      ...receivedFriendships.map((f) => {
-        if (!f.sender.name) {
-          throw new Error(`User with ID ${f.sender.id} has null name`);
+
+        friends.push(res);
+    }
+    for (const f of receivedFriendships) {
+        const channel = await this.prisma.channel.findFirst({
+            where: {
+                isDirectMessage: true,
+                ChannelMember: {
+                    some: {
+                        OR: [
+                            { userId: f.senderId },
+                            { userId: f.receiverId },
+                        ]
+                    }
+                }
+            },
+            include: {
+                ChannelMember: { include: { user: true } },
+            },
+        });
+
+		const res: FriendModel = {
+            id: f.sender.id,
+            email: f.sender.email,
+            name: f.sender.name,
+            pseudo: f.sender.pseudo,
+            avatar: f.sender.avatar,
+            status: f.sender.status,
+            channelId: channel.id
         }
-        return f.sender;
-      }),
-    ];
-    console.log(`friends: `, friends);
+
+        friends.push(res);
+    }
     return friends;
-  }
+}
+
 
   async updateUserStatus(id: string, status: Status) {
     return await this.prisma.user.update({
@@ -600,6 +727,20 @@ export class UserService {
         status: "PENDING",
       },
       include: {
+        sender: true,
+		receiver: true,
+      },
+    });
+  }
+
+  async getPendingFriendRequests(userId: string): Promise<Friendship[]> {
+    return this.prisma.friendship.findMany({
+      where: {
+        receiverId: userId,
+        status: "PENDING",
+      },
+      include: {
+        receiver: true,
         sender: true,
       },
     });
