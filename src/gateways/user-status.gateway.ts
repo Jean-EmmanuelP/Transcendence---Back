@@ -134,6 +134,29 @@ export class UserStatusGateway
     }
   }
 
+  async notifyChannel(channelId: string): Promise<void> {
+	const channel = await this.prisma.channel.findUnique({
+		where: {id: channelId},
+		include: { ChannelMember: true },
+	});
+	for (let i = 0; channel && channel.ChannelMember && i < channel.ChannelMember.length; i++)
+	{
+		if (this.userSockets.has(channel.ChannelMember[i].userId)) {
+			const cliendIds = this.userSockets.get(channel.ChannelMember[i].userId);
+			for (let d = 0; d < cliendIds.length; d++)
+			  this.server.to(cliendIds[d]).emit("updateChat");
+		}
+	}
+  }
+
+  notifyUser(userId: string): void {
+	if (this.userSockets.has(userId)) {
+		const cliendIds = this.userSockets.get(userId);
+		for (let d = 0; d < cliendIds.length; d++)
+			this.server.to(cliendIds[d]).emit("updateChat");
+	}
+  }
+
   notifyDirectChannelCreated(userId1: string, userId2: string): void {
     const sockets1 = this.userSockets.get(userId1);
     const sockets2 = this.userSockets.get(userId2);

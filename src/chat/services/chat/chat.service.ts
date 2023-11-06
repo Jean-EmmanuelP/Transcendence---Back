@@ -61,8 +61,8 @@ export class ChatService {
         },
       });
       console.log(`Created receiverCreation`, receiverCreation);
-
-      this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
+    //   this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
+	  await this.userGateway.notifyChannel(channel.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -107,6 +107,7 @@ export class ChatService {
           channelId,
         },
       });
+	  await this.userGateway.notifyChannel(channelId);
       return {
         success: true,
         message: { id: message.id, content: message.content },
@@ -167,7 +168,7 @@ export class ChatService {
         where: { id: messageId },
         data: { content: newContent },
       });
-
+	  await this.userGateway.notifyChannel(existingMessage.channelId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -229,8 +230,8 @@ export class ChatService {
       if (!userInChannel) {
         throw new Error("You are not a member of the channel");
       }
-
       await this.prisma.message.delete({ where: { id: messageId } });
+	  await this.userGateway.notifyChannel(existingMessage.channelId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -317,7 +318,7 @@ export class ChatService {
           joinedAt: new Date(),
         },
       });
-
+	  await this.userGateway.notifyChannel(channelId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -570,7 +571,7 @@ export class ChatService {
           channelId: newChannel.id,
         },
       });
-
+	  await this.userGateway.notifyChannel(newChannel.id);
       return { success: true, channel: newChannel };
     } catch (error) {
       return { success: false, error: error.message };
@@ -711,6 +712,7 @@ export class ChatService {
         console.log("Only one member in the channel. Deleting channel...");
         await this.prisma.channel.delete({ where: { id: channelId } });
         console.log("Channel deleted successfully!");
+		this.userGateway.notifyUser(userId);
         return { success: true };
       }
 
@@ -786,7 +788,8 @@ export class ChatService {
         where: { userId, channelId },
       });
       console.log("User deleted from channel members and admins successfully!");
-
+	  this.userGateway.notifyUser(userId);
+	  await this.userGateway.notifyChannel(channelId);
       console.log("leaveChannel function completed successfully!");
       return { success: true };
     } catch (error) {
@@ -923,6 +926,8 @@ export class ChatService {
             throw new Error("Invalid action");
         }
       }
+	  await this.userGateway.notifyChannel(channelId);
+	  this.userGateway.notifyUser(targetUserId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
