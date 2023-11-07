@@ -80,9 +80,9 @@ export class AuthController {
     }
     res.cookie("access_token", user.access_token, {
       httpOnly: true,
-      maxAge: 2 * 60 * 60 * 1000, 
+      maxAge: 2 * 60 * 60 * 1000,
     });
-    res.redirect("http://localhost:5173");
+    res.redirect("http://42pong.com");
   }
 
   @Post("register")
