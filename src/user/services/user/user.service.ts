@@ -121,12 +121,28 @@ export class UserService {
         },
       });
     } else {
-      await this.prisma.oAuth.update({
-        where: { userId: user.id },
-        data: {
-          accessToken: accessToken,
-        },
-      });
+		const userOAuth = await this.prisma.oAuth.findUnique({
+			where: { userId: user.id },
+		  });
+		if (!userOAuth) {
+			await this.prisma.oAuth.create({
+			  data: {
+				accessToken: accessToken,
+				tokenType: "Bearer",
+				createdAt: Math.floor(Date.now() / 1000),
+				user: {
+				  connect: { id: user.id },
+				},
+			  },
+			});
+		  } else {
+			await this.prisma.oAuth.update({
+			  where: { userId: user.id },
+			  data: {
+				accessToken: accessToken,
+			  },
+			});
+		  }
     }
 
     return user;
@@ -573,7 +589,7 @@ async getAllFriendOfUser(userId: string): Promise<FriendModel[]> {
                 ChannelMember: { include: { user: true } },
             },
         });
-		
+
 		const res: FriendModel = {
             id: f.receiver.id,
             email: f.receiver.email,

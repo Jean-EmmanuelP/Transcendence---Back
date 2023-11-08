@@ -55,7 +55,10 @@ export class AuthController {
       httpOnly: true,
       secure: true,
     });
-    res.redirect("http://localhost:5173");
+	if (user.user.isTwoFactorEnabled)
+		res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
+	else
+    	res.redirect(process.env.REDIRECT_URL_FRONT);
   }
 
   @Get("42")
@@ -74,6 +77,7 @@ export class AuthController {
   })
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
+	console.log("USEEEER")
     const user = await this.authService.OauthLogin(req, "42");
     if (user.access_token === "undefined") {
       throw new Error("The forty-two response is not working!");
@@ -82,7 +86,11 @@ export class AuthController {
       httpOnly: true,
       maxAge: 2 * 60 * 60 * 1000,
     });
-    res.redirect("http://42pong.com");
+	console.log("USER", user);
+	if (user.user.isTwoFactorEnabled)
+		res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
+	else
+    	res.redirect(process.env.REDIRECT_URL_FRONT);
   }
 
   @Post("register")
