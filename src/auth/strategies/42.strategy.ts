@@ -14,7 +14,7 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
     super({
       clientID: process.env.FORTYTWO_CLIENT_ID,
       clientSecret: process.env.FORTYTWO_CLIENT_SECRET,
-      callbackURL: "http://42pong.com:3000/auth/42-redirect",
+      callbackURL: `${process.env.REDIRECT_URL}/auth/42-redirect`,
     });
   }
 
@@ -27,8 +27,6 @@ export class FortyTwoAuthStrategy extends PassportStrategy(
         'Authorization': `Bearer ${accessToken}`
       }
     })
-    // console.log(apiResponse.data.first_name);
-    // console.log(accessToken);
     return {
       apiData: {
         ...apiResponse.data,
