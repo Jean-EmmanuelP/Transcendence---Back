@@ -38,9 +38,7 @@ export class UserResolver {
 
   @Query((returns) => [Friendship])
   @UseGuards(JwtAuthGuard)
-  async getPendingFriendRequests(
-    @Context() context
-  ): Promise<Friendship[]> {
+  async getPendingFriendRequests(@Context() context): Promise<Friendship[]> {
     const req = context.req;
     const userId = req.user.userId;
     return this.userService.getPendingFriendRequests(userId);
@@ -52,34 +50,17 @@ export class UserResolver {
   @UseGuards(JwtAuthGuard)
   async uploadAvatar(
     @Context() context,
-    @Args({ name: "image", type: () => GraphQLUpload }) image: FileUpload
-  ): Promise<UploadImageResponse | Error> {
-    const { createReadStream, filename } = await image;
+    @Args("avatarUrl") avatarUrl: string
+  ): Promise<boolean> {
     const req = context.req;
     const userId = req.user.userId;
-
-    return new Promise(async (resolve, reject) => {
-      createReadStream()
-        .pipe(
-          createWriteStream(join(process.cwd(), `./src/upload/${filename}`))
-        )
-        .on("finish", async () => {
-          try {
-            const uploadAvatar = await this.userService.updateAvatar(
-              userId,
-              filename
-            );
-            resolve(uploadAvatar);
-          } catch (error) {
-            reject(error);
-          }
-        })
-        .on("error", () => {
-          reject(
-            new HttpException("Could not save image", HttpStatus.BAD_REQUEST)
-          );
-        });
-    });
+    try {
+      await this.userService.updateAvatar(userId, avatarUrl);
+      return true;
+    } catch (error) {
+      console.log(`There was an error during the upload of the avatar`, error);
+      return false;
+    }
   }
 
   @Query((returns) => String)
