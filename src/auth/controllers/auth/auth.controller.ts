@@ -52,8 +52,8 @@ export class AuthController {
       throw new Error("The google response is not working!");
     }
     res.cookie("access_token", user.access_token, {
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
     if (user.user.isTwoFactorEnabled)
       res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
@@ -82,15 +82,16 @@ export class AuthController {
     if (user.access_token === "undefined") {
       throw new Error("The forty-two response is not working!");
     }
-    res.cookie("access_token", user.access_token, {
-      httpOnly: true,
-      maxAge: 2 * 60 * 60 * 1000,
-    });
-    // console.log("USER", user);
-    if (user.user.isTwoFactorEnabled)
-      res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
-    else
-      res.redirect(process.env.REDIRECT_URL_FRONT);
+
+	res.cookie("access_token", user.access_token, {
+		httpOnly: false,
+		secure: false,
+	});
+	if (user.user.isTwoFactorEnabled === true)
+		res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
+	else
+    	res.redirect(process.env.REDIRECT_URL_FRONT);
+
   }
 
   @Post("register")
