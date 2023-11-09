@@ -13,9 +13,9 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
   canActivate(context: ExecutionContext) {
     const ctx = GqlExecutionContext.create(context);
     const request = ctx.getContext().req;
-    console.log(`from the canactivate`, request.headers.authorization);
-	if (!request.headers.authorization)
-		throw new UnauthorizedException('Invalid token');
+    // console.log(`from the canactivate`, request.headers.authorization);
+    if (!request.headers.authorization)
+      throw new UnauthorizedException('Invalid token');
     const token = request.headers.authorization?.split(' ')[1];
     try {
       const { isTemporary } = this.jwtService.verify(token, {
@@ -24,7 +24,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
       if (isTemporary && request.path !== '/auth/validate-two-factor') {
         throw new UnauthorizedException('Invalid token');
       }
-    } catch(error) {
+    } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new UnauthorizedException('Your session has expired. Please log in again.');
       } else {

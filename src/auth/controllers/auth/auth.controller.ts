@@ -29,7 +29,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly tokenService: TokenService
-  ) {}
+  ) { }
 
   @Get("google")
   @ApiOperation({ summary: "Get the google authentication" })
@@ -39,7 +39,7 @@ export class AuthController {
       "Will redirect you to the endpoint google-redirect then send you back a message, user information and an accessToken which is the jwtToken of the user",
   })
   @UseGuards(GoogleOAuthGuard)
-  async googleAuth(@Request() req) {}
+  async googleAuth(@Request() req) { }
 
   @Get("google-redirect")
   @ApiOperation({
@@ -52,13 +52,13 @@ export class AuthController {
       throw new Error("The google response is not working!");
     }
     res.cookie("access_token", user.access_token, {
-      httpOnly: true,
-      secure: true,
+      httpOnly: false,
+      secure: false,
     });
-	if (user.user.isTwoFactorEnabled)
-		res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
-	else
-    	res.redirect(process.env.REDIRECT_URL_FRONT);
+    if (user.user.isTwoFactorEnabled)
+      res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
+    else
+      res.redirect(process.env.REDIRECT_URL_FRONT);
   }
 
   @Get("42")
@@ -69,7 +69,7 @@ export class AuthController {
       "Will redirect you to the endpoint 42-redirect then send you back a message, user information and an accessToken which is the jwtToken of the user",
   })
   @UseGuards(FortyTwoGuard)
-  async fortyTwoAuth(@Request() req) {}
+  async fortyTwoAuth(@Request() req) { }
 
   @Get("42-redirect")
   @ApiOperation({
@@ -77,20 +77,21 @@ export class AuthController {
   })
   @UseGuards(FortyTwoGuard)
   async fortyTwoAuthRedirect(@Request() req, @Res() res) {
-	console.log("USEEEER")
+    // console.log("USEEEER")
     const user = await this.authService.OauthLogin(req, "42");
     if (user.access_token === "undefined") {
       throw new Error("The forty-two response is not working!");
     }
-    res.cookie("access_token", user.access_token, {
-      httpOnly: true,
-      maxAge: 2 * 60 * 60 * 1000,
-    });
-	console.log("USER", user);
-	if (user.user.isTwoFactorEnabled)
+
+	res.cookie("access_token", user.access_token, {
+		httpOnly: false,
+		secure: false,
+	});
+	if (user.user.isTwoFactorEnabled === true)
 		res.redirect(process.env.REDIRECT_URL_FRONT + "/2fa");
 	else
     	res.redirect(process.env.REDIRECT_URL_FRONT);
+
   }
 
   @Post("register")
@@ -203,7 +204,7 @@ export class AuthController {
   @ApiBearerAuth("Authorization")
   async logout(@Request() req) {
     const token = req.headers.authorization.split(" ")[1];
-    console.log(`This is the actual token you are revoking:`, token);
+    // console.log(`This is the actual token you are revoking:`, token);
     this.tokenService.revokeToken(token);
     const expiredToken = verify(token, process.env.JWT_SECRET) as {
       [key: string]: any;

@@ -61,7 +61,7 @@ export class AuthService {
 			});
 		}
 		const jwtToken = this.jwtService.sign(
-			{ userId: user.id, email: user.email },
+			{ userId: user.id, email: user.email, pseudo: user.pseudo },
 			{ secret: process.env.JWT_SECRET }
 		);
 
