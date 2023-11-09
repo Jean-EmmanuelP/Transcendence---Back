@@ -27,7 +27,7 @@ export class ChatService {
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly userGateway: UserStatusGateway
-  ) {}
+  ) { }
 
   async createDirectChannel(
     input: CreateDirectChannelInput
@@ -43,7 +43,7 @@ export class ChatService {
           isDirectMessage: true,
         },
       });
-      console.log(`Created Channel`, channel);
+      // console.log(`Created Channel`, channel);
       const senderCreation = await this.prisma.channelMember.create({
         data: {
           userId: input.userId1,
@@ -51,7 +51,7 @@ export class ChatService {
           joinedAt: new Date(),
         },
       });
-      console.log(`Created sender`, senderCreation);
+      // console.log(`Created sender`, senderCreation);
 
       const receiverCreation = await this.prisma.channelMember.create({
         data: {
@@ -60,9 +60,9 @@ export class ChatService {
           joinedAt: new Date(),
         },
       });
-      console.log(`Created receiverCreation`, receiverCreation);
-    //   this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
-	  await this.userGateway.notifyChannel(channel.id);
+      // console.log(`Created receiverCreation`, receiverCreation);
+      //   this.userGateway.notifyDirectChannelCreated(input.userId1, input.userId2);
+      await this.userGateway.notifyChannel(channel.id);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -107,7 +107,7 @@ export class ChatService {
           channelId,
         },
       });
-	  await this.userGateway.notifyChannel(channelId);
+      await this.userGateway.notifyChannel(channelId);
       return {
         success: true,
         message: { id: message.id, content: message.content },
@@ -168,7 +168,7 @@ export class ChatService {
         where: { id: messageId },
         data: { content: newContent },
       });
-	  await this.userGateway.notifyChannel(existingMessage.channelId);
+      await this.userGateway.notifyChannel(existingMessage.channelId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -231,7 +231,7 @@ export class ChatService {
         throw new Error("You are not a member of the channel");
       }
       await this.prisma.message.delete({ where: { id: messageId } });
-	  await this.userGateway.notifyChannel(existingMessage.channelId);
+      await this.userGateway.notifyChannel(existingMessage.channelId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -318,7 +318,7 @@ export class ChatService {
           joinedAt: new Date(),
         },
       });
-	  await this.userGateway.notifyChannel(channelId);
+      await this.userGateway.notifyChannel(channelId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };
@@ -342,15 +342,15 @@ export class ChatService {
         },
       });
 
-      console.log(
-        `Retrieved Channels Before Filtering:`,
-        channelsUserIsMemberOf
-      );
+      // console.log(
+      // `Retrieved Channels Before Filtering:`,
+      //   channelsUserIsMemberOf
+      // );
       const filteredChannels = channelsUserIsMemberOf.filter((channel) => {
         const notBanned = !channel.bans.some((ban) => ban.userId === userId);
         return notBanned;
       });
-      console.log(`Filtered Channels:`, filteredChannels);
+      // console.log(`Filtered Channels:`, filteredChannels);
 
       return filteredChannels.map((channel) => ({
         id: channel.id,
@@ -371,13 +371,13 @@ export class ChatService {
         admins: channel.admins.map((admin) => ({
           id: admin.user.id,
           name: admin.user.name,
-		  pseudo: admin.user.pseudo,
+          pseudo: admin.user.pseudo,
           avatar: admin.user.avatar,
           status: admin.user.status,
         })),
       }));
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return [];
     }
   }
@@ -388,13 +388,13 @@ export class ChatService {
     try {
       // check if ther user is ban
       const channelsUserIsMemberOf = await this.prisma.channel.findMany({
-       where: {
-		NOT: {
-			ChannelMember: {
-			  some: { userId }
-			}
-		},
-	   },
+        where: {
+          NOT: {
+            ChannelMember: {
+              some: { userId }
+            }
+          },
+        },
         include: {
           members: true,
           owner: true,
@@ -420,86 +420,86 @@ export class ChatService {
           (channelMember) => channelMember.userId !== userId
         ).map((channelMember) => ({
           id: channelMember.user.id,
-		  pseudo: channelMember.user.pseudo,
+          pseudo: channelMember.user.pseudo,
           name: channelMember.user.name,
           avatar: channelMember.user.avatar,
           status: channelMember.user.status,
         })),
         admins: channel.admins.map((admin) => ({
           id: admin.user.id,
-		  pseudo: admin.user.pseudo,
+          pseudo: admin.user.pseudo,
           name: admin.user.name,
           avatar: admin.user.avatar,
           status: admin.user.status,
         })),
       }));
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return [];
     }
   }
 
   async getChannel(
     userId: string,
-	channelId: string
+    channelId: string
   ): Promise<ChannelOutputDTO | undefined> {
     try {
-		const channel = await this.prisma.channel.findUnique({
-			where: {
-				id: channelId
-			},
-			include: {
-				members: true,
-				owner: true,
-				bans: { include: { user: true } },
-				mutes: { include: { user: true } },
-				ChannelMember: { include: { user: true } },
-				admins: { include: { user: true } },
-			},
-		});
-		const notBanned = !channel.bans.some((ban) => ban.userId === userId);
-		if (!notBanned)
-			return (undefined);
-		console.log("-------------------------------");
-		console.log(channel);
-		return ({
-			id: channel.id,
-			name: channel.name,
-			isPrivate: channel.isPrivate,
-			isDirectMessage: channel.isDirectMessage,
-			ownerId: channel.ownerId,
-			owner: channel.owner,
-			bans: channel.bans,
-			mutes: channel.mutes.map((channelMute) => ({
-				userId: channelMute.userId,
-				channelId: channelMute.channelId,
-				expireAt: channelMute.expireAt,
-				mutedBy: channelMute.mutedBy,
-				user: {
-					id: channelMute.user.id,
-					pseudo: channelMute.user.pseudo,
-					name: channelMute.user.name,
-					avatar: channelMute.user.avatar,
-					status: channelMute.user.status,
-				}
-			})),
-			members: channel.ChannelMember.map((channelMember) => ({
-				id: channelMember.user.id,
-				pseudo: channelMember.user.pseudo,
-				name: channelMember.user.name,
-				avatar: channelMember.user.avatar,
-				status: channelMember.user.status,
-			})),
-			admins: channel.admins.map((admin) => ({
-				id: admin.user.id,
-				pseudo: admin.user.pseudo,
-				name: admin.user.name,
-				avatar: admin.user.avatar,
-				status: admin.user.status,
-			})),
-		});
+      const channel = await this.prisma.channel.findUnique({
+        where: {
+          id: channelId
+        },
+        include: {
+          members: true,
+          owner: true,
+          bans: { include: { user: true } },
+          mutes: { include: { user: true } },
+          ChannelMember: { include: { user: true } },
+          admins: { include: { user: true } },
+        },
+      });
+      const notBanned = !channel.bans.some((ban) => ban.userId === userId);
+      if (!notBanned)
+        return (undefined);
+      // console.log("-------------------------------");
+      // console.log(channel);
+      return ({
+        id: channel.id,
+        name: channel.name,
+        isPrivate: channel.isPrivate,
+        isDirectMessage: channel.isDirectMessage,
+        ownerId: channel.ownerId,
+        owner: channel.owner,
+        bans: channel.bans,
+        mutes: channel.mutes.map((channelMute) => ({
+          userId: channelMute.userId,
+          channelId: channelMute.channelId,
+          expireAt: channelMute.expireAt,
+          mutedBy: channelMute.mutedBy,
+          user: {
+            id: channelMute.user.id,
+            pseudo: channelMute.user.pseudo,
+            name: channelMute.user.name,
+            avatar: channelMute.user.avatar,
+            status: channelMute.user.status,
+          }
+        })),
+        members: channel.ChannelMember.map((channelMember) => ({
+          id: channelMember.user.id,
+          pseudo: channelMember.user.pseudo,
+          name: channelMember.user.name,
+          avatar: channelMember.user.avatar,
+          status: channelMember.user.status,
+        })),
+        admins: channel.admins.map((admin) => ({
+          id: admin.user.id,
+          pseudo: admin.user.pseudo,
+          name: admin.user.name,
+          avatar: admin.user.avatar,
+          status: admin.user.status,
+        })),
+      });
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return undefined;
     }
   }
@@ -571,7 +571,7 @@ export class ChatService {
           channelId: newChannel.id,
         },
       });
-	  await this.userGateway.notifyChannel(newChannel.id);
+      await this.userGateway.notifyChannel(newChannel.id);
       return { success: true, channel: newChannel };
     } catch (error) {
       return { success: false, error: error.message };
@@ -677,19 +677,19 @@ export class ChatService {
 
       return { success: true };
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       return { success: false, error: error.message };
     }
   }
 
   async leaveChannel(userId: string, channelId: string) {
     try {
-      console.log(
-        "Function leaveChannel started with userId:",
-        userId,
-        " and channelId:",
-        channelId
-      );
+      // console.log(
+      // "Function leaveChannel started with userId:",
+      //   userId,
+      //   " and channelId:",
+      //   channelId
+      // );
 
       // Get the initial channel data
       let theChannel = await this.prisma.channel.findUnique({
@@ -699,57 +699,57 @@ export class ChatService {
           admins: true,
         },
       });
-      console.log("Initial channel data:", JSON.stringify(theChannel));
+      // console.log("Initial channel data:", JSON.stringify(theChannel));
       if (!theChannel) throw new Error("Channel not found");
 
       const isMember = theChannel.ChannelMember.some(
         (member) => member.userId === userId
       );
-      console.log("Is user a member of the channel:", isMember);
+      // console.log("Is user a member of the channel:", isMember);
       if (!isMember) throw new Error(`User is not a member of the channel`);
 
       if (theChannel.ChannelMember.length <= 1) {
-        console.log("Only one member in the channel. Deleting channel...");
+        // console.log("Only one member in the channel. Deleting channel...");
         await this.prisma.channel.delete({ where: { id: channelId } });
-        console.log("Channel deleted successfully!");
-		this.userGateway.notifyUser(userId);
+        // console.log("Channel deleted successfully!");
+        this.userGateway.notifyUser(userId);
         return { success: true };
       }
 
       if (theChannel.ownerId === userId) {
-        console.log("User is the owner of the channel");
+        // console.log("User is the owner of the channel");
         let newOwnerId = null;
         if (theChannel.admins && theChannel.admins.length > 1) {
-          console.log("Finding new owner from admins excluding current owner");
+          // console.log("Finding new owner from admins excluding current owner");
           newOwnerId = theChannel.admins
             .filter((admin) => admin.userId !== userId) // Filtering out current owner
             .sort((a, b) => a.assignedAt.getTime() - b.assignedAt.getTime())[0]
             ?.userId;
-          console.log(
-            "Filtered admins: ",
-            JSON.stringify(
-              theChannel.admins.filter((admin) => admin.userId !== userId)
-            )
-          );
+          // console.log(
+          // "Filtered admins: ",
+          //   JSON.stringify(
+          //     theChannel.admins.filter((admin) => admin.userId !== userId)
+          //   )
+          // );
         } else {
-          console.log(
-            "Finding new owner from channel members excluding current owner"
-          );
+          // console.log(
+          // "Finding new owner from channel members excluding current owner"
+          // );
           newOwnerId = theChannel.ChannelMember.filter(
             (member) => member.userId !== userId
           ) // Filtering out current owner
             .sort((a, b) => a.joinedAt.getTime() - b.joinedAt.getTime())[0]
             ?.userId;
         }
-        console.log("New owner ID:", newOwnerId);
+        // console.log("New owner ID:", newOwnerId);
 
         // Update the ownerId of the channel
-        console.log("Updating channel owner");
+        // console.log("Updating channel owner");
         await this.prisma.channel.update({
           where: { id: channelId },
           data: { ownerId: newOwnerId },
         });
-        console.log("Channel owner updated successfully");
+        // console.log("Channel owner updated successfully");
 
         // Re-query to get updated channel data
         theChannel = await this.prisma.channel.findUnique({
@@ -759,16 +759,16 @@ export class ChatService {
             admins: true,
           },
         });
-        console.log("Requeried channel data:", JSON.stringify(theChannel));
+        // console.log("Requeried channel data:", JSON.stringify(theChannel));
 
         // Check if the newOwnerId is already an admin
         const isNewOwnerAdmin = theChannel.admins.some(
           (admin) => admin.userId === newOwnerId
         );
-        console.log("Is new owner already an admin:", isNewOwnerAdmin);
+        // console.log("Is new owner already an admin:", isNewOwnerAdmin);
         if (!isNewOwnerAdmin) {
           // If not, add the newOwnerId as an admin
-          console.log("Adding new owner as admin");
+          // console.log("Adding new owner as admin");
           await this.prisma.channelAdmin.create({
             data: {
               userId: newOwnerId,
@@ -776,24 +776,24 @@ export class ChatService {
               assignedAt: new Date(),
             },
           });
-          console.log("New owner added as admin successfully");
+          // console.log("New owner added as admin successfully");
         }
       }
 
-      console.log("Deleting user from channel members and channel admins...");
+      // console.log("Deleting user from channel members and channel admins...");
       await this.prisma.channelMember.deleteMany({
         where: { userId, channelId },
       });
       await this.prisma.channelAdmin.deleteMany({
         where: { userId, channelId },
       });
-      console.log("User deleted from channel members and admins successfully!");
-	  this.userGateway.notifyUser(userId);
-	  await this.userGateway.notifyChannel(channelId);
-      console.log("leaveChannel function completed successfully!");
+      // console.log("User deleted from channel members and admins successfully!");
+      this.userGateway.notifyUser(userId);
+      await this.userGateway.notifyChannel(channelId);
+      // console.log("leaveChannel function completed successfully!");
       return { success: true };
     } catch (error) {
-      console.log("Error in leaveChannel function:", error.message);
+      // console.log("Error in leaveChannel function:", error.message);
       return { success: false, error: error.message };
     }
   }
@@ -905,29 +905,29 @@ export class ChatService {
             break;
           case UserAction.MUTE:
             await this.prisma.channelMute.create({
-				data: {
-				  mutedId: new Date(),
-				  mutedBy: operatorId, // Ensure operatorId is a string
-				  expireAt: duration ? new Date(Date.now() + duration * 1000) : null,
-				  channel: {
-					connect: {
-					  id: channelId, // Ensure channelId is a string
-					},
-				  },
-				  user: {
-					connect: {
-					  id: targetUserId, // Ensure targetUserId is a string
-					},
-				  },
-				},
-			  });
+              data: {
+                mutedId: new Date(),
+                mutedBy: operatorId, // Ensure operatorId is a string
+                expireAt: duration ? new Date(Date.now() + duration * 1000) : null,
+                channel: {
+                  connect: {
+                    id: channelId, // Ensure channelId is a string
+                  },
+                },
+                user: {
+                  connect: {
+                    id: targetUserId, // Ensure targetUserId is a string
+                  },
+                },
+              },
+            });
             break;
           default:
             throw new Error("Invalid action");
         }
       }
-	  await this.userGateway.notifyChannel(channelId);
-	  this.userGateway.notifyUser(targetUserId);
+      await this.userGateway.notifyChannel(channelId);
+      this.userGateway.notifyUser(targetUserId);
       return { success: true };
     } catch (error) {
       return { success: false, error: error.message };

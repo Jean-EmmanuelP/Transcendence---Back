@@ -40,6 +40,8 @@
     "class-validator": "^0.14.0",
     "emoji-picker-element": "^1.18.4",
     "faker": "^5.5.3",
+    "firebase": "^10.5.2",
+    "firebase-admin": "^11.11.0",
     "graphql": "^16.8.1",
     "graphql-tools": "^9.0.0",
     "graphql-upload": "^16.0.2",

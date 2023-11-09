@@ -17,8 +17,7 @@ import { FriendModel } from "src/user/models/user.model";
 
 @WebSocketGateway({ cors: true })
 export class UserStatusGateway
-  implements OnGatewayConnection, OnGatewayDisconnect
-{
+  implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
@@ -26,7 +25,7 @@ export class UserStatusGateway
     @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly prisma: PrismaService
-  ) {}
+  ) { }
   private clients = new Map<string, string>();
   private userSockets = new Map<string, string[]>();
 
@@ -53,9 +52,9 @@ export class UserStatusGateway
 
   async handleConnection(client: Socket, ...args: any[]) {
     try {
-      console.log("-------------SOCKET--------------");
+      // console.log("-------------SOCKET--------------");
       const token = client.handshake.query.token;
-      console.log(token);
+      // console.log(token);
       if (typeof token === "string") {
         const payload = jwt.verify(
           token,
@@ -89,15 +88,15 @@ export class UserStatusGateway
           // 	}
           // });
         } else {
-          console.log("userId is not defined in the token payload");
+          // console.log("userId is not defined in the token payload");
           client.disconnect();
         }
       } else {
-        console.log("Token is not a string");
+        // console.log("Token is not a string");
         client.disconnect();
       }
     } catch (err) {
-      console.log("This is the error from the handleConnection", err);
+      // console.log("This is the error from the handleConnection", err);
       client.disconnect();
     }
   }
@@ -105,12 +104,12 @@ export class UserStatusGateway
   async handleDisconnect(client: Socket) {
     const userId = this.clients.get(client.id);
     if (userId) {
-      console.log("SOCKET_DISCONNECT");
+      // console.log("SOCKET_DISCONNECT");
       this.clients.delete(client.id);
       this.userService.updateUserStatus(userId, "OFFLINE");
       const friends: FriendModel[] =
         await this.userService.getAllFriendOfUser(userId);
-      console.log("Friends:", friends);
+      // console.log("Friends:", friends);
       for (let i = 0; i < friends.length; i++) {
         if (this.userSockets.has(friends[i].id)) {
           const cliendIds = this.userSockets.get(friends[i].id);
@@ -130,31 +129,30 @@ export class UserStatusGateway
         }
       }
     } else {
-      console.log(`userId not found for client.id:`, client.id);
+      // console.log(`userId not found for client.id:`, client.id);
     }
   }
 
   async notifyChannel(channelId: string): Promise<void> {
-	const channel = await this.prisma.channel.findUnique({
-		where: {id: channelId},
-		include: { ChannelMember: true },
-	});
-	for (let i = 0; channel && channel.ChannelMember && i < channel.ChannelMember.length; i++)
-	{
-		if (this.userSockets.has(channel.ChannelMember[i].userId)) {
-			const cliendIds = this.userSockets.get(channel.ChannelMember[i].userId);
-			for (let d = 0; d < cliendIds.length; d++)
-			  this.server.to(cliendIds[d]).emit("updateChat");
-		}
-	}
+    const channel = await this.prisma.channel.findUnique({
+      where: { id: channelId },
+      include: { ChannelMember: true },
+    });
+    for (let i = 0; channel && channel.ChannelMember && i < channel.ChannelMember.length; i++) {
+      if (this.userSockets.has(channel.ChannelMember[i].userId)) {
+        const cliendIds = this.userSockets.get(channel.ChannelMember[i].userId);
+        for (let d = 0; d < cliendIds.length; d++)
+          this.server.to(cliendIds[d]).emit("updateChat");
+      }
+    }
   }
 
   notifyUser(userId: string): void {
-	if (this.userSockets.has(userId)) {
-		const cliendIds = this.userSockets.get(userId);
-		for (let d = 0; d < cliendIds.length; d++)
-			this.server.to(cliendIds[d]).emit("updateChat");
-	}
+    if (this.userSockets.has(userId)) {
+      const cliendIds = this.userSockets.get(userId);
+      for (let d = 0; d < cliendIds.length; d++)
+        this.server.to(cliendIds[d]).emit("updateChat");
+    }
   }
 
   notifyDirectChannelCreated(userId1: string, userId2: string): void {
@@ -185,7 +183,7 @@ export class UserStatusGateway
   ) {
     const userId = this.clients.get(client.id);
     if (!userId) {
-      console.log("User ID not found for client:", client.id);
+      // console.log("User ID not found for client:", client.id);
       return;
     }
     try {

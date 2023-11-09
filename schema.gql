@@ -177,7 +177,7 @@ type Mutation {
   leaveChannel(input: leaveChannelInput!): OperationResult!
   joinChannel(input: joinChannelInput!): OperationResult!
   blockUser(input: blockUserInput!): OperationResult!
-  uploadAvatar(image: Upload!): UserModel!
+  uploadAvatar(avatarUrl: String!): UserModel!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
   rejectFriendRequest(senderPseudo: String!): Boolean!
@@ -245,6 +245,3 @@ input joinChannelInput {
 input blockUserInput {
   blockedId: String!
 }
-
-"""The `Upload` scalar type represents a file upload."""
-scalar Upload
