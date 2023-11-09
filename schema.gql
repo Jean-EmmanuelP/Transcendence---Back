@@ -177,7 +177,7 @@ type Mutation {
   leaveChannel(input: leaveChannelInput!): OperationResult!
   joinChannel(input: joinChannelInput!): OperationResult!
   blockUser(input: blockUserInput!): OperationResult!
-  uploadAvatar(avatarUrl: String!): UserModel!
+  uploadAvatar(avatarUrl: String!): Boolean!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
   rejectFriendRequest(senderPseudo: String!): Boolean!

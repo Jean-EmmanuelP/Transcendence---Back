@@ -46,7 +46,7 @@ export class UserResolver {
 
   // upload an avatar
   // you must find how to test it
-  @Mutation(() => UserModel)
+  @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   async uploadAvatar(
     @Context() context,
@@ -55,11 +55,13 @@ export class UserResolver {
     const req = context.req;
     const userId = req.user.userId;
     try {
-      await this.userService.updateAvatar(userId, avatarUrl);
+      const result = await this.userService.updateAvatar(userId, avatarUrl);
+      if (result instanceof Error) {
+        throw result; // Or handle differently if needed
+      }
       return true;
     } catch (error) {
-      console.log(`There was an error during the upload of the avatar`, error);
-      return false;
+      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
     }
   }
 
