@@ -16,6 +16,9 @@ import { ChatService } from './chat/services/chat/chat.service';
 import { ChatResolver } from './chat/resolvers/chat/chat.resolver';
 import { WebSocketModule } from "./gateways/websocket.module";
 import { ChatModule } from "./chat/chat.module";
+import { GameModule } from "./game/game.module";
+import { GameGateway } from "./game/game.gateway";
+import { GameService } from "./game/game.service";
 
 @Module({
   imports: [
@@ -27,12 +30,13 @@ import { ChatModule } from "./chat/chat.module";
       installSubscriptionHandlers: true,
       playground: true
     }),
-    PassportModule.register({ secret: process.env.JWT_SECRET ,defaultStrategy: "jwt" }),
+    PassportModule.register({ secret: process.env.JWT_SECRET, defaultStrategy: "jwt" }),
     UserModule,
     WebSocketModule,
     PrismaModule,
     AuthModule,
     ChatModule,
+    GameModule,
   ],
   providers: [
     JwtService,
@@ -42,6 +46,8 @@ import { ChatModule } from "./chat/chat.module";
     TokenService,
     ChatService,
     ChatResolver,
+    GameGateway,
+    GameService,
   ],
 })
 export class AppModule implements NestModule {
