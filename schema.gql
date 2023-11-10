@@ -172,6 +172,7 @@ type Query {
   testingConnexion: String!
   getUserMatchHistory: [MatchModel!]!
   userInformation: UserModel!
+  getRanking: UserModel!
   getAllFriendsOfUser: [FriendModel!]!
   getUserInformationWithPseudo(pseudo: String!): UserModel!
   searchUsers(term: String!): [UserModel!]!

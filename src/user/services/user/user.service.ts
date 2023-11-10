@@ -384,6 +384,14 @@ export class UserService {
     return Math.round(playerElo + k * (result - expectedScore));
   }
 
+  async getRanking(): Promise<UserModel[]> {
+    return this.prisma.user.findMany({
+      orderBy: {
+        eloScore: 'desc',
+      },
+    })
+  }
+
   async updateEloScore(
     userId: string,
     newEloScore: number

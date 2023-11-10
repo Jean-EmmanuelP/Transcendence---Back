@@ -101,6 +101,12 @@ export class UserResolver {
     return this.userService.findOne(userId);
   }
 
+  @Query(() => UserModel)
+  @UseGuards(JwtAuthGuard)
+  async getRanking(): Promise<UserModel[]> {
+    return this.userService.getRanking();
+  }
+
   @Query((returns) => [FriendModel])
   @UseGuards(JwtAuthGuard)
   async getAllFriendsOfUser(@Context() context): Promise<FriendModel[]> {
