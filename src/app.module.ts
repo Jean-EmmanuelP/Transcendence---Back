@@ -46,8 +46,6 @@ import { GameService } from "./game/game.service";
     TokenService,
     ChatService,
     ChatResolver,
-    GameGateway,
-    GameService,
   ],
 })
 export class AppModule implements NestModule {
