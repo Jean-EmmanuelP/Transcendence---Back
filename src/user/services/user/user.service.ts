@@ -23,6 +23,7 @@ import * as jwt from "jsonwebtoken";
 import { transporter } from "src/common/transporter";
 import { ChatService } from "./../../../chat/services/chat/chat.service";
 import { CreateDirectChannelInput } from "src/chat/services/chat/dtos/channel-dtos";
+import { MatchModel } from "src/user/models/match.model";
 
 @Injectable()
 export class UserService {
@@ -433,6 +434,33 @@ export class UserService {
       console.log(error);
       return false;
     }
+  }
+
+  async getUserMatchHistory(userId: string): Promise<MatchModel[]> {
+    return this.prisma.match.findMany({
+      where: {
+        OR: [{ player1Id: userId }, { player2Id: userId }],
+      },
+      orderBy: {
+        playedAt: 'desc'
+      },
+      include: {
+        player1: {
+          select: {
+            id: true,
+            pseudo: true,
+            avatar: true,
+          },
+        },
+        player2: {
+          select: {
+            id: true,
+            pseudo: true,
+            avatar: true,
+          }
+        }
+      }
+    });
   }
 
   async findOne(userId: string): Promise<UserModel> {

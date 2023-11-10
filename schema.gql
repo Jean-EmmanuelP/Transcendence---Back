@@ -145,6 +145,22 @@ enum FriendshipStatus {
   REJECTED
 }
 
+type SimpleUserModel {
+  id: ID!
+  pseudo: String!
+  avatar: String!
+}
+
+type MatchModel {
+  id: ID!
+  player1Id: String!
+  player2Id: String!
+  player1: SimpleUserModel!
+  player2: SimpleUserModel!
+  winnerId: String
+  playedAt: DateTime!
+}
+
 type Query {
   getMessages(input: GetMessageInput!): [MessageModel]!
   getChannel(input: GetChannelInput!): ChannelOutputDTO
@@ -154,6 +170,7 @@ type Query {
   getPendingSentFriendRequests: [Friendship!]!
   getPendingFriendRequests: [Friendship!]!
   testingConnexion: String!
+  getUserMatchHistory: [MatchModel!]!
   userInformation: UserModel!
   getAllFriendsOfUser: [FriendModel!]!
   getUserInformationWithPseudo(pseudo: String!): UserModel!
