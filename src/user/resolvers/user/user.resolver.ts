@@ -19,7 +19,7 @@ import { MatchModel } from "src/user/models/match.model";
 
 @Resolver((of) => UserModel)
 export class UserResolver {
-  constructor(private readonly userService: UserService) { }
+  constructor(private readonly userService: UserService) {}
 
   @Query(() => [UserModel])
   @UseGuards(JwtAuthGuard)
@@ -75,11 +75,11 @@ export class UserResolver {
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   async recordMatchResult(
-    @Args('player1Id') player1Id: string,
-    @Args('player2Id') player2Id: string,
-    @Args('winnerId') winnerId: string,
+    @Args("player1Id") player1Id: string,
+    @Args("player2Id") player2Id: string,
+    @Args("winnerId") winnerId: string
   ): Promise<boolean> {
-    return this.userService.recordMatchResult(player1Id, player2Id, winnerId)
+    return this.userService.recordMatchResult(player1Id, player2Id, winnerId);
   }
 
   @Query(() => [MatchModel])
@@ -101,7 +101,7 @@ export class UserResolver {
     return this.userService.findOne(userId);
   }
 
-  @Query(() => UserModel)
+  @Query(() => [UserModel])
   @UseGuards(JwtAuthGuard)
   async getRanking(): Promise<UserModel[]> {
     return this.userService.getRanking();

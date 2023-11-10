@@ -389,7 +389,7 @@ export class UserService {
       orderBy: {
         eloScore: 'desc',
       },
-    })
+    });
   }
 
   async updateEloScore(
