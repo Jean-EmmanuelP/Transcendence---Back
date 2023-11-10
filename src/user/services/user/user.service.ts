@@ -371,6 +371,70 @@ export class UserService {
     throw new Error("User not found");
   }
 
+  /* Related to the game history and the rank actualization */
+  async calculateElo(
+    playerElo: number,
+    opponentElo: number,
+    result: number
+  ): Promise<number> {
+    const k = 32;
+    const expectedScore =
+      1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
+    return Math.round(playerElo + k * (result - expectedScore));
+  }
+
+  async updateEloScore(
+    userId: string,
+    newEloScore: number
+  ): Promise<UserModel> {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { eloScore: newEloScore },
+    });
+  }
+
+  async recordMatchResult(
+    player1Id: string,
+    player2Id: string,
+    winnerId: string
+  ) {
+    try {
+      /* 1. register the winner of the game and the new rank */
+      const player1 = await this.findOne(player1Id);
+      if (!player1) throw new Error("Player 1 was not found");
+      const player2 = await this.findOne(player2Id);
+      if (!player2) throw new Error("Player 2 was not found");
+      const player1NewElo = await this.calculateElo(
+        player1.eloScore,
+        player2.eloScore,
+        winnerId === player1Id ? 1 : 0
+      );
+      const player2NewElo = await this.calculateElo(
+        player2.eloScore,
+        player1.eloScore,
+        winnerId === player2Id ? 1 : 0
+      );
+
+      await this.updateEloScore(player1Id, player1NewElo);
+      await this.updateEloScore(player2Id, player2NewElo);
+
+      /* 1. register the match to have a match history */
+      const match = await this.prisma.match.create({
+        data: {
+          player1Id,
+          player2Id,
+          winnerId,
+        },
+      });
+      if (!match) throw new Error("Match not registered correctly");
+
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
   async findOne(userId: string): Promise<UserModel> {
     return this.prisma.user.findUnique({ where: { id: userId } });
   }

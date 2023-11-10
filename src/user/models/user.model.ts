@@ -28,6 +28,9 @@ export class UserModel {
 
   @Field()
   status: string;
+
+  @Field()
+  eloScore: number;
 }
 
 @ObjectType()

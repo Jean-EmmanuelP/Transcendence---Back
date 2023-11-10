@@ -71,6 +71,16 @@ export class UserResolver {
     return test;
   }
 
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async recordMatchResult(
+    @Args('player1Id') player1Id: string,
+    @Args('player2Id') player2Id: string,
+    @Args('winnerId') winnerId: string,
+  ): Promise<boolean> {
+    return this.userService.recordMatchResult(player1Id, player2Id, winnerId)
+  }
+
   // should be able to check its own information via its id (via jwt token decrypted)
   @Query((returns) => UserModel)
   @UseGuards(JwtAuthGuard)

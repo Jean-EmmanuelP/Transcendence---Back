@@ -12,6 +12,7 @@ type UserModel {
   twoFactorSecret: String!
   isTwoFactorEnabled: Boolean!
   status: String!
+  eloScore: Float!
 }
 
 type FriendModel {
@@ -178,6 +179,7 @@ type Mutation {
   joinChannel(input: joinChannelInput!): OperationResult!
   blockUser(input: blockUserInput!): OperationResult!
   uploadAvatar(avatarUrl: String!): Boolean!
+  recordMatchResult(player1Id: String!, player2Id: String!, winnerId: String!): Boolean!
   sendFriendRequest(receiverPseudo: String!): Boolean!
   acceptFriendRequest(senderPseudo: String!): Boolean!
   rejectFriendRequest(senderPseudo: String!): Boolean!

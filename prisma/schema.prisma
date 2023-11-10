@@ -46,6 +46,25 @@ model User {
   ChannelMember      ChannelMember[]
   ChannelBan         ChannelBan[]
   ChannelMute        ChannelMute[]
+  eloScore           Int             @default(500)
+  player1Matches     Match[]         @relation("Player1Matches")
+  player2Matches     Match[]         @relation("Player2Matches")
+  wonMatches         Match[]         @relation("MatchWinner")
+}
+
+model Match {
+  id        String   @id @default(cuid())
+  player1Id String
+  player2Id String
+  winnerId  String?
+  date      DateTime @default(now())
+
+  player1 User  @relation("Player1Matches", fields: [player1Id], references: [id])
+  player2 User  @relation("Player2Matches", fields: [player2Id], references: [id])
+  winner  User? @relation("MatchWinner", fields: [winnerId], references: [id])
+
+  playedAt DateTime @default(now())
+  @@unique([player1Id, player2Id, date])
 }
 
 model BlockedUser {
