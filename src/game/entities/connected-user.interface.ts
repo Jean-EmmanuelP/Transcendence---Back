@@ -1,15 +1,15 @@
 interface ConnectedUser {
     socketId: string;
     userId: string;
-    room: Room | null;
+    roomId: number;
 }
 
 interface Room {
     roomId: string;
     gameId: number;
-    playerOne: ConnectedUser | null;
+    playerOne: string;
     playerOneReady: boolean;
-    playerTwo: ConnectedUser | null;
+    playerTwo: string;
     playerTwoReady: boolean;
     isLive: boolean;
 }
