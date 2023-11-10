@@ -7,7 +7,8 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 } from '@nestjs/websockets';
-import { Server, Socket } from 'socket.io';
+import { Socket } from 'socket.io';
+import { Server } from 'socket.io';
 import { GameService } from './game.service';
 import * as jwt from 'jsonwebtoken';
 
@@ -115,13 +116,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		else {
 			/* Create a new game and add the players to the room */
+			const opponentToken = this._waitingUser.handshake.query.token.toString();
 			const gameId = this.gameService.create({
 				"playerOneId": token.toString(),
-				"playerTwoId": this._waitingUser.handshake.query.token.toString(),
+				"playerTwoId": opponentToken,
 				"courtScale": 0.5,
 				"maxScore": 7
 			});
-			const opponentToken = this._waitingUser.handshake.query.token.toString();
 
 			this._rooms.set(gameId.toString(), {
 				roomId: gameId.toString(),
@@ -229,6 +230,53 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	@SubscribeMessage('playbot')
 	mode_playBot(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
 		console.log('playWithBot', data);
+	}
+
+	@SubscribeMessage('keyDown')
+	handle_keyDown(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+		const token = socket.handshake.query.token.toString();
+		const roomId = data.roomId;
+		const game = this.gameService.findOne(this._rooms.get(roomId).gameId);
+
+		console.log('[Game] ', socket.id, ' pressed ', data.key, ' in room ', roomId);
+
+		// if (!data || !("room" in data) || !("key" in data)) {
+		// 	return;
+		// } else if (!games[data.room]) {
+		// 	return;
+		// } else if (
+		// 	socket.id !== games[data.room].playerOne &&
+		// 	socket.id !== games[data.room].playerTwo
+		// ) {
+		// 	return;
+		// } else if (games[data.room].isLive === false) {
+		// 	return;
+		// }
+
+		game.handle_event(token, data.key, "pressed");
+	}
+
+	@SubscribeMessage('keyUp')
+	handle_keyUp(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+		const token = socket.handshake.query.token.toString();
+		const roomId = data.roomId.toString();
+		const game = this.gameService.findOne(this._rooms.get(roomId).gameId);
+
+		console.log('[Game] ', socket.id, ' released ', data.key, ' in room ', roomId);
+		// if (!data || !("room" in data) || !("key" in data)) {
+		// 	return;
+		// } else if (!games[data.room]) {
+		// 	return;
+		// } else if (
+		// 	socket.id !== games[data.room].playerOne &&
+		// 	socket.id !== games[data.room].playerTwo
+		// ) {
+		// 	return;
+		// } else if (games[data.room].isLive === false) {
+		// 	return;
+		// }
+
+		game.handle_event(token, data.key, "released");
 	}
 
 	/* ********************************************************************** */
