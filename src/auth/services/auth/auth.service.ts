@@ -60,10 +60,17 @@ export class AuthService {
 				accessToken,
 			});
 		}
-		const jwtToken = this.jwtService.sign(
-			{ userId: user.id, email: user.email, pseudo: user.pseudo },
-			{ secret: process.env.JWT_SECRET }
-		);
+		let jwtToken:string = "";
+		if (user.isTwoFactorEnabled)
+			jwtToken = this.jwtService.sign(
+				{ userId: user.id, email: user.email, pseudo: user.pseud, isTemporary: true },
+				{ secret: process.env.JWT_SECRET }
+			);
+		else
+			jwtToken = this.jwtService.sign(
+				{ userId: user.id, email: user.email, pseudo: user.pseudo },
+				{ secret: process.env.JWT_SECRET }
+			);
 
 		return {
 			message: "User information saved in the database",

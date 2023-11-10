@@ -18,7 +18,7 @@ import { JwtAuthGuard } from "src/guards/jwt.guard";
 
 @Resolver((of) => UserModel)
 export class UserResolver {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService) { }
 
   @Query(() => [UserModel])
   @UseGuards(JwtAuthGuard)
@@ -86,7 +86,7 @@ export class UserResolver {
   @UseGuards(JwtAuthGuard)
   async userInformation(@Context() context): Promise<UserModel> {
     const req = context.req;
-    console.log("This is the information of the user", req);
+    // console.log("This is the information of the user", req);
     const userId = req.user.userId;
     if (!userId) throw new Error("There is no userId in the JWT");
     return this.userService.findOne(userId);
