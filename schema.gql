@@ -163,12 +163,11 @@ type MatchModel {
 
 type UserStatsModel {
   victories: Int!
-  draws: Int!
   losses: Int!
   totalGames: Int!
   winRatio: Int!
-  drawRatio: Int!
   lossRatio: Int!
+  longestStreak: Int!
 }
 
 type Query {

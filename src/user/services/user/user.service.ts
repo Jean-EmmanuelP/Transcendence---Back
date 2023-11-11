@@ -401,30 +401,48 @@ export class UserService {
         player2Matches: true,
       },
     });
-
     if (!user) throw new Error("User not found");
 
     let victories = 0;
-    let draws = 0;
     let losses = 0;
 
     user.player1Matches.forEach((match) => {
       if (match.winnerId === userId) victories++;
-      else if (!match.winnerId) draws++;
       else losses++;
     });
 
     user.player2Matches.forEach((match) => {
       if (match.winnerId === userId) victories++;
-      else if (!match.winnerId) draws++;
       else losses++;
     });
 
-    const totalGames = victories + draws + losses;
-    const winRatio = totalGames > 0 ? (victories / totalGames) * 100 : 50;
-    const drawRatio = totalGames > 0 ? (draws / totalGames) * 100 : 50;
-    const lossRatio = totalGames > 0 ? (losses / totalGames) * 100 : 50;
-    return { victories, draws, losses, totalGames, winRatio, drawRatio, lossRatio  };
+    const totalGames = victories + losses;
+    const winRatio = totalGames > 0 ? Math.round((victories / totalGames) * 100) : 50;
+    const lossRatio = totalGames > 0 ? Math.round((losses / totalGames) * 100) : 50;
+
+    let currentStreak = 0;
+    let longestStreak = 0;
+
+    const matches = [...user.player1Matches, ...user.player2Matches].sort(
+      (a, b) => a.date.getTime() - b.date.getTime()
+    );
+
+    for (const match of matches) {
+      if (match.winnerId === user.id) {
+        currentStreak++;
+        longestStreak = Math.max(longestStreak, currentStreak);
+      } else {
+        currentStreak = 0;
+      }
+    }
+    return {
+      victories,
+      losses,
+      totalGames,
+      winRatio,
+      lossRatio,
+      longestStreak,
+    };
   }
 
   async updateEloScore(
