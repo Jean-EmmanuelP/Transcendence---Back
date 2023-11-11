@@ -24,6 +24,7 @@ import { transporter } from "src/common/transporter";
 import { ChatService } from "./../../../chat/services/chat/chat.service";
 import { CreateDirectChannelInput } from "src/chat/services/chat/dtos/channel-dtos";
 import { MatchModel } from "src/user/models/match.model";
+import { UserStatsModel } from "src/user/models/stats.model";
 
 @Injectable()
 export class UserService {
@@ -387,9 +388,43 @@ export class UserService {
   async getRanking(): Promise<UserModel[]> {
     return this.prisma.user.findMany({
       orderBy: {
-        eloScore: 'desc',
+        eloScore: "desc",
       },
     });
+  }
+
+  async getUserStats(userId: string): Promise<UserStatsModel> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        player1Matches: true,
+        player2Matches: true,
+      },
+    });
+
+    if (!user) throw new Error("User not found");
+
+    let victories = 0;
+    let draws = 0;
+    let losses = 0;
+
+    user.player1Matches.forEach((match) => {
+      if (match.winnerId === userId) victories++;
+      else if (!match.winnerId) draws++;
+      else losses++;
+    });
+
+    user.player2Matches.forEach((match) => {
+      if (match.winnerId === userId) victories++;
+      else if (!match.winnerId) draws++;
+      else losses++;
+    });
+
+    const totalGames = victories + draws + losses;
+    const winRatio = totalGames > 0 ? (victories / totalGames) * 100 : 50;
+    const drawRatio = totalGames > 0 ? (draws / totalGames) * 100 : 50;
+    const lossesRatio = totalGames > 0 ? (losses / totalGames) * 100 : 50;
+    return { victories, draws, losses, totalGames, winRatio, drawRatio, lossesRatio  };
   }
 
   async updateEloScore(
@@ -450,7 +485,7 @@ export class UserService {
         OR: [{ player1Id: userId }, { player2Id: userId }],
       },
       orderBy: {
-        playedAt: 'desc'
+        playedAt: "desc",
       },
       include: {
         player1: {
@@ -465,9 +500,9 @@ export class UserService {
             id: true,
             pseudo: true,
             avatar: true,
-          }
-        }
-      }
+          },
+        },
+      },
     });
   }
 

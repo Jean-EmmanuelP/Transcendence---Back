@@ -16,6 +16,7 @@ import { FileUpload } from "graphql-upload-ts";
 import { UploadImageResponse } from "src/user/interfaces/upload-image-reponse";
 import { JwtAuthGuard } from "src/guards/jwt.guard";
 import { MatchModel } from "src/user/models/match.model";
+import { UserStatsModel } from "src/user/models/stats.model";
 
 @Resolver((of) => UserModel)
 export class UserResolver {
@@ -88,6 +89,14 @@ export class UserResolver {
     const req = context.req;
     const userId = req.user.userId;
     return this.userService.getUserMatchHistory(userId);
+  }
+
+  @Query(() => UserStatsModel)
+  @UseGuards(JwtAuthGuard)
+  async getUserStats(@Context() context): Promise<UserStatsModel> {
+    const req = context.req;
+    const userId = req.user.userId;
+    return this.userService.getUserStats(userId);
   }
 
   // should be able to check its own information via its id (via jwt token decrypted)
