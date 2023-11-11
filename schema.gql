@@ -161,6 +161,16 @@ type MatchModel {
   playedAt: DateTime!
 }
 
+type UserStatsModel {
+  victories: Int!
+  draws: Int!
+  losses: Int!
+  totalGames: Int!
+  winRatio: Int!
+  drawRatio: Int!
+  lossRatio: Int!
+}
+
 type Query {
   getMessages(input: GetMessageInput!): [MessageModel]!
   getChannel(input: GetChannelInput!): ChannelOutputDTO
@@ -171,6 +181,7 @@ type Query {
   getPendingFriendRequests: [Friendship!]!
   testingConnexion: String!
   getUserMatchHistory: [MatchModel!]!
+  getUserStats: UserStatsModel!
   userInformation: UserModel!
   getRanking: [UserModel!]!
   getAllFriendsOfUser: [FriendModel!]!

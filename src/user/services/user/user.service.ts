@@ -423,8 +423,8 @@ export class UserService {
     const totalGames = victories + draws + losses;
     const winRatio = totalGames > 0 ? (victories / totalGames) * 100 : 50;
     const drawRatio = totalGames > 0 ? (draws / totalGames) * 100 : 50;
-    const lossesRatio = totalGames > 0 ? (losses / totalGames) * 100 : 50;
-    return { victories, draws, losses, totalGames, winRatio, drawRatio, lossesRatio  };
+    const lossRatio = totalGames > 0 ? (losses / totalGames) * 100 : 50;
+    return { victories, draws, losses, totalGames, winRatio, drawRatio, lossRatio  };
   }
 
   async updateEloScore(

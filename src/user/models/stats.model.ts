@@ -21,5 +21,5 @@ export class UserStatsModel {
     drawRatio: number
 
     @Field(type => Int)
-    lossesRatio: number
+    lossRatio: number
 }
