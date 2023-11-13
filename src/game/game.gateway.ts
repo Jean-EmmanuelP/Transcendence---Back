@@ -41,6 +41,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
 
 		let token = socket.handshake.query.token;
+		let username = "";
 		if (token === undefined) {
 			console.log('[Connection] Client has no token');
 			socket.disconnect();
@@ -50,9 +51,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		try {
 			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
 			token = payload.userId;
+			username = payload.pseudo;
 		} catch (e) {
 			console.log(e.message);
-			return ;
+			return;
 		}
 
 		if (this._users.has(token.toString())) {
@@ -68,7 +70,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			this._users.set(token.toString(), {
 				userId: token.toString(),
 				socketId: socket.id,
-				username: payload.pseudo,
+				username: username,
 				roomId: "-1",
 				isLive: true,
 			});
@@ -96,7 +98,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			token = payload.userId;
 		} catch (e) {
 			console.log(e.message);
-			return ;
+			return;
 		}
 
 		const user = this._users.get(token.toString());
@@ -127,11 +129,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	matchMaking(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
 		console.log('[Connection] ', socket.id, ' wants to matchmake');
 
+		let username = "";
+		let opponentName = "";
+
 		let token = socket.handshake.query.token;
 		if (token === undefined) { socket.disconnect(); return; }
-		let payloadUser = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		console.log("[Connection] The payload is ", payloadUser);
-		token = payloadUser.userId;
+		try {
+			let payloadUser = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			token = payloadUser.userId;
+			username = payloadUser.pseudo;
+		} catch (e) {
+			console.log(e.message);
+			return;
+		}
 
 		if (this._waitingUser === null) {
 			this._waitingUser = socket;
@@ -147,12 +157,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			}
 
 			try {
-				let payload = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+				let payloadOpponent = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
 				// console.log("[Connection] The payload is ", payload);
-				opponentToken = payload.userId;
+				opponentToken = payloadOpponent.userId;
+				opponentName = payloadOpponent.pseudo;
 			} catch (e) {
 				console.log(e.message);
-				return ;
+				return;
 			}
 
 			const gameId = this.gameService.create({
@@ -182,17 +193,19 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			socket.emit('gameFound', {
 				message: 'Found opponent',
 				opponent: opponentToken.toString(),
-				opponentName: payloadOpponent.pseudo,
-				yourName: payloadUser.pseudo,
+				opponentName: opponentName,
+				yourName: username,
 				side: "left",
 				roomId: gameId.toString()
 			});
+
+
 			this._waitingUser.emit('gameFound', {
 				message: 'Found opponent',
 				opponent: token.toString(),
-				opponentName: payloadUser.pseudo,
-				yourName: payloadOpponent.pseudo,
-				side: "right",
+				opponentName: opponentName,
+				yourName: username,
+				side: "left",
 				roomId: gameId.toString()
 			});
 			// this.server.to(gameId.toString()).emit('gameFound', {
@@ -234,7 +247,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			token = payload.userId;
 		} catch (e) {
 			console.log(e.message);
-			return ;
+			return;
 		}
 
 
@@ -386,7 +399,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			token = payload.userId;
 		} catch (e) {
 			console.log(e.message);
-			return ;
+			return;
 		}
 
 
@@ -410,7 +423,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			token = payload.userId;
 		} catch (e) {
 			console.log(e.message);
-			return ;
+			return;
 		}
 
 
@@ -428,7 +441,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			token = payload.userId;
 		} catch (e) {
 			console.log(e.message);
-			return ;
+			return;
 		}
 
 
