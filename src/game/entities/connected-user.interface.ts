@@ -1,12 +1,15 @@
 interface ConnectedUser {
     socketId: string;
     userId: string;
-    roomId: number;
+    roomId: string;
+    isLive: boolean;
 }
 
 interface Room {
     roomId: string;
     gameId: number;
+    intervalId: NodeJS.Timeout | null;
+
     playerOne: string;
     playerOneReady: boolean;
     playerTwo: string;

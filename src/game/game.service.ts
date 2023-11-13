@@ -67,14 +67,11 @@ export class GameService {
      * @details Only the players can remove the game
      * @details If the game is still on, the game will be stored in history
      */
-    remove(id: number, socketId: string) {
+    remove(id: number) {
         const game = this._games.find(game => game.id === id);
 
         if (game === undefined)
             return;
-        else if (game.playerOne.id === socketId || game.playerTwo.id === socketId)
-            return;
-
         if (game.gameState === GameState.PLAYING) {
             game.finishGame();
 

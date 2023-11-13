@@ -11,6 +11,8 @@ import { Socket } from 'socket.io';
 import { Server } from 'socket.io';
 import { GameService } from './game.service';
 import * as jwt from 'jsonwebtoken';
+import { GameState } from './objects/states/GameState';
+import { UserService } from 'src/user/services/user/user.service';
 
 @WebSocketGateway({
 	namespace: 'game',
@@ -34,30 +36,41 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	/* This is the user that is waiting for a match */
 	private _waitingUser: Socket | null = null;
 
-	constructor(private gameService: GameService) { }
+
+
+	constructor(private gameService: GameService, private userService: UserService) { }
 
 	/**
-	 * @attention When the user reconnects I have to do something
 	 */
 	handleConnection(@ConnectedSocket() socket: Socket, ...args: any[]) {
-		console.log('[Connection] Client connected: ', socket.id, ' ', this._id++);
 
-		const token = socket.handshake.query.token;
+		let token = socket.handshake.query.token;
 		if (token === undefined) {
 			console.log('[Connection] Client has no token');
+
 			socket.disconnect();
 			return;
 		}
 
-		if (this._tokens.has(token.toString())) {
-			// Some hard code here, will do it later
-			this._users.get(token.toString()).socketId = socket.id;
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
+
+		if (this._users.has(token.toString())) {
 			console.log("[Connection] Client reconnected: ", socket.id);
+
+			const user = this._users.get(token.toString());
+
+			user.isLive = true;
+			user.socketId = socket.id;
 		} else {
+			console.log('[Connection] New client connected: ', socket.id, ' ', this._id++);
+
 			this._users.set(token.toString(), {
 				userId: token.toString(),
 				socketId: socket.id,
-				roomId: -1,
+				roomId: "-1",
+				isLive: true,
 			});
 		}
 	}
@@ -65,7 +78,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	/**
 	 * @brief This method is called when the user disconnects from the server
 	 * 
-	 * @attention	If it is not a proper go out, then I have to give some time
 	 * @attention   If it was in the middle of the game, I have to assign the win
 	 * 				automatically
 	 * 
@@ -74,29 +86,34 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	handleDisconnect(@ConnectedSocket() socket: Socket) {
 		console.log('[Connection] Client disconnected: ', socket.id);
 
-		const token = socket.handshake.query.token;
+		let token = socket.handshake.query.token;
 		if (token === undefined) {
 			socket.disconnect();
 			return;
 		}
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
 
 		const user = this._users.get(token.toString());
 
-		if (user === undefined) {
-			if (this._waitingUser !== null && this._waitingUser.id === socket.id) {
+		if (user) {
+			console.log('[Connection] Client disconnected: ', socket.id, 'user ');
+			if (this._waitingUser !== null && this._waitingUser.handshake.query.token.toString() === token.toString()) {
 				this._waitingUser = null;
 			}
-			if (user.roomId !== -1) {
+			if (user.roomId !== "-1") {
 				const room = this._rooms.get(user.roomId.toString());
 
 				socket.leave(room.roomId);
 				this.server.to(room.roomId).emit('opponentLeft', { message: 'Opponent left the game' });
-				this._rooms.delete(room.roomId);
-				/* Stop the game if possible */
+
+				user.isLive = false;
 			}
-			this._users.delete(socket.id);
+			else {
+				this._users.delete(token.toString());
+			}
 		}
-		socket.disconnect();
 	}
 
 	/* ********************************************************************** */
@@ -106,8 +123,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	matchMaking(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
 		console.log('[Connection] ', socket.id, ' wants to matchmake');
 
-		const token = socket.handshake.query.token;
+		let token = socket.handshake.query.token;
 		if (token === undefined) { socket.disconnect(); return; }
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
 
 		if (this._waitingUser === null) {
 			this._waitingUser = socket;
@@ -116,17 +136,26 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		else {
 			/* Create a new game and add the players to the room */
-			const opponentToken = this._waitingUser.handshake.query.token.toString();
+			let opponentToken = this._waitingUser.handshake.query.token.toString();
+			if (opponentToken === token) {
+				socket.emit('waiting', { message: 'Waiting for other player' });
+				return;
+			}
+			let payload = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			// console.log("[Connection] The payload is ", payload);
+			opponentToken = payload.userId;
+
 			const gameId = this.gameService.create({
 				"playerOneId": token.toString(),
 				"playerTwoId": opponentToken,
-				"courtScale": 0.5,
-				"maxScore": 7
+				"courtScale": 9 / 16,
+				"maxScore": 3
 			});
 
 			this._rooms.set(gameId.toString(), {
 				roomId: gameId.toString(),
 				gameId: gameId,
+				intervalId: null,
 				playerOne: token.toString(),
 				playerOneReady: false,
 				playerTwo: opponentToken,
@@ -135,6 +164,8 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			});
 			socket.join(gameId.toString());
 			this._waitingUser.join(gameId.toString());
+			this._users.get(token.toString()).roomId = gameId.toString();
+			this._users.get(opponentToken).roomId = gameId.toString();
 
 			/*	Send the full information about the users	*/
 			this.server.to(gameId.toString()).emit('gameFound', {
@@ -166,10 +197,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log('[Connection] ', socket.id, ' is ready to matchmake');
 
 		const room = this._rooms.get(data.roomId);
-		const token = socket.handshake.query.token;
+		let token = socket.handshake.query.token;
 
-		console.log('[Connection] ', socket.id, ' gave roomId ', data.roomId);
-		console.log('[Connection] my rooms ', this._rooms);
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
 
 		if (room === undefined) {
 			console.log('[Connection] ', socket.id, ' gave wrong roomId');
@@ -177,6 +209,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 
 		if (token.toString() !== room.playerOne && token.toString() !== room.playerTwo) {
+			console.log('[Connection] ', socket.id, ' not participant of the room');
 			return;
 		} else if (token.toString() === room.playerOne) {
 			if (room.playerOneReady) {
@@ -185,6 +218,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				room.playerOneReady = true;
 				if (!room.playerTwoReady) {
 					// socket.emit("waitingOpponent", { message: "Waiting for opponent" });
+					console.log('[Connection] ', socket.id, ' is waiting for readiness opponent');
 					return;
 				}
 			}
@@ -195,11 +229,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				room.playerTwoReady = true;
 				if (!room.playerOneReady) {
 					// socket.emit("waitingOpponent", { message: "Waiting for opponent" });
+					console.log('[Connection] ', socket.id, ' is waiting for readiness opponent')
 					return;
 				}
 			}
 		}
 		if (room.isLive) {
+			console.log('[Connection] ', socket.id, ' is already live');
 			return;
 		} else {
 			room.isLive = true;
@@ -215,15 +251,78 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		game.startGame();
 
 		let roomToEmit = this.server.to(room.roomId);
-		setInterval(() => {
+
+		room.intervalId = setInterval(() => {
 			roomToEmit.emit('gameState', game.liveInfo);
+			if (game.gameState === GameState.GAME_OVER) {
+				roomToEmit.emit('gameOver', game.gameInfo);
+				this._users.get(room.playerOne).roomId = "-1";
+				this._users.get(room.playerTwo).roomId = "-1";
+				clearInterval(room.intervalId);
+
+				console.log("[Game] finished the game");
+				try {
+					this.userService.recordMatchResult(room.playerOne, room.playerTwo, game.gameInfo.winner);
+				} catch (error) {
+					console.log("[Game] error: ", error.message);
+				}
+				this.gameService.remove(room.gameId);
+
+				this._rooms.delete(room.roomId);
+			}
 		}, 1000 / 60);
 	}
 
 	/** @brief In development stage	*/
 	@SubscribeMessage('playfriend')
 	mode_playFriend(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-		console.log('playWithFriend', data);
+		console.log('[Connection] ', socket.id, ' wants to matchmake');
+
+		const token = socket.handshake.query.token;
+		if (token === undefined) { socket.disconnect(); return; }
+
+		socket.emit('waiting', { message: 'Waiting for other player' });
+		/* Create a new game and add the players to the room */
+		const opponentToken = this._waitingUser.handshake.query.token.toString();
+		if (opponentToken === token) {
+			socket.emit('waiting', { message: 'Waiting for other player' });
+			return;
+		}
+
+		const gameId = this.gameService.create({
+			"playerOneId": token.toString(),
+			"playerTwoId": opponentToken,
+			"courtScale": 9 / 16,
+			"maxScore": 7
+		});
+
+		this._rooms.set(gameId.toString(), {
+			roomId: gameId.toString(),
+			gameId: gameId,
+			intervalId: null,
+			playerOne: token.toString(),
+			playerOneReady: false,
+			playerTwo: opponentToken,
+			playerTwoReady: false,
+			isLive: false,
+		});
+		socket.join(gameId.toString());
+		this._waitingUser.join(gameId.toString());
+		this._users.get(token.toString()).roomId = gameId.toString();
+		this._users.get(opponentToken).roomId = gameId.toString();
+
+		/*	Send the full information about the users	*/
+		this.server.to(gameId.toString()).emit('gameFound', {
+			message: 'Found opponent',
+			playerOne: opponentToken.toString(),
+			playerTwo: token.toString(),
+			roomId: gameId.toString()
+		});
+
+		console.log('[Connection] ', socket.id, ' and ',
+			this._waitingUser.id, ' are matched in game ', gameId.toString());
+
+		this._waitingUser = null;
 	}
 
 	/** @brief In development stage	*/
@@ -234,49 +333,57 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	@SubscribeMessage('keyDown')
 	handle_keyDown(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-		const token = socket.handshake.query.token.toString();
+		console.log('[Game] ', socket.id, ' pressed ', data.key, ' in room ', data.roomId);
+
+		let token = socket.handshake.query.token.toString();
 		const roomId = data.roomId;
+		if (this._rooms.has(roomId) === false) {
+			return;
+		}
 		const game = this.gameService.findOne(this._rooms.get(roomId).gameId);
 
-		console.log('[Game] ', socket.id, ' pressed ', data.key, ' in room ', roomId);
-
-		// if (!data || !("room" in data) || !("key" in data)) {
-		// 	return;
-		// } else if (!games[data.room]) {
-		// 	return;
-		// } else if (
-		// 	socket.id !== games[data.room].playerOne &&
-		// 	socket.id !== games[data.room].playerTwo
-		// ) {
-		// 	return;
-		// } else if (games[data.room].isLive === false) {
-		// 	return;
-		// }
+		/** @todo CHeck if the game is still on*/
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
 
 		game.handle_event(token, data.key, "pressed");
 	}
 
 	@SubscribeMessage('keyUp')
 	handle_keyUp(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-		const token = socket.handshake.query.token.toString();
+		console.log('[Game] ', socket.id, ' released ', data.key, ' in room ', data.roomId);
+
+		let token = socket.handshake.query.token.toString();
 		const roomId = data.roomId.toString();
+		if (this._rooms.has(roomId) === false) {
+			return;
+		}
 		const game = this.gameService.findOne(this._rooms.get(roomId).gameId);
 
-		console.log('[Game] ', socket.id, ' released ', data.key, ' in room ', roomId);
-		// if (!data || !("room" in data) || !("key" in data)) {
-		// 	return;
-		// } else if (!games[data.room]) {
-		// 	return;
-		// } else if (
-		// 	socket.id !== games[data.room].playerOne &&
-		// 	socket.id !== games[data.room].playerTwo
-		// ) {
-		// 	return;
-		// } else if (games[data.room].isLive === false) {
-		// 	return;
-		// }
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
 
 		game.handle_event(token, data.key, "released");
+	}
+
+	@SubscribeMessage('checkGame')
+	check_game(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+		let token = socket.handshake.query.token.toString();
+
+		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		// console.log("[Connection] The payload is ", payload);
+		token = payload.userId;
+
+		const user = this._users.get(token);
+		if (user.roomId === "-1") {
+			return { "message": "You are not in a game", "response": false, "roomId": "-1" };
+		}
+		const room = this._rooms.get(user.roomId.toString());
+		socket.join(room.roomId);
+		return { "message": "You are in a game", "response": true, "roomId": room.roomId };
+
 	}
 
 	/* ********************************************************************** */
