@@ -28,15 +28,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	/* socketId to the User object */
 	private _users: Map<string, ConnectedUser> = new Map<string, ConnectedUser>();
-	/* token to the socketId */
-	private _tokens: Map<string, string> = new Map<string, string>();
 	/* roomId to the Room object */
 	private _rooms: Map<string, Room> = new Map<string, Room>();
 
 	/* This is the user that is waiting for a match */
 	private _waitingUser: Socket | null = null;
-
-
 
 	constructor(private gameService: GameService, private userService: UserService) { }
 
@@ -47,13 +43,11 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		let token = socket.handshake.query.token;
 		if (token === undefined) {
 			console.log('[Connection] Client has no token');
-
 			socket.disconnect();
 			return;
 		}
 
 		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
 		token = payload.userId;
 
 		if (this._users.has(token.toString())) {
@@ -69,6 +63,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			this._users.set(token.toString(), {
 				userId: token.toString(),
 				socketId: socket.id,
+				username: payload.pseudo,
 				roomId: "-1",
 				isLive: true,
 			});
@@ -125,9 +120,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		let token = socket.handshake.query.token;
 		if (token === undefined) { socket.disconnect(); return; }
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
-		token = payload.userId;
+		let payloadUser = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		console.log("[Connection] The payload is ", payloadUser);
+		token = payloadUser.userId;
 
 		if (this._waitingUser === null) {
 			this._waitingUser = socket;
@@ -141,9 +136,9 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				socket.emit('waiting', { message: 'Waiting for other player' });
 				return;
 			}
-			let payload = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			let payloadOpponent = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
 			// console.log("[Connection] The payload is ", payload);
-			opponentToken = payload.userId;
+			opponentToken = payloadOpponent.userId;
 
 			const gameId = this.gameService.create({
 				"playerOneId": token.toString(),
@@ -162,18 +157,37 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				playerTwoReady: false,
 				isLive: false,
 			});
+
 			socket.join(gameId.toString());
 			this._waitingUser.join(gameId.toString());
 			this._users.get(token.toString()).roomId = gameId.toString();
 			this._users.get(opponentToken).roomId = gameId.toString();
 
 			/*	Send the full information about the users	*/
-			this.server.to(gameId.toString()).emit('gameFound', {
+			socket.emit('gameFound', {
 				message: 'Found opponent',
-				playerOne: opponentToken.toString(),
-				playerTwo: token.toString(),
+				opponent: opponentToken.toString(),
+				opponentName: payloadOpponent.pseudo,
+				yourName: payloadUser.pseudo,
+				side: "left",
 				roomId: gameId.toString()
 			});
+			this._waitingUser.emit('gameFound', {
+				message: 'Found opponent',
+				opponent: token.toString(),
+				opponentName: payloadUser.pseudo,
+				yourName: payloadOpponent.pseudo,
+				side: "right",
+				roomId: gameId.toString()
+			});
+			// this.server.to(gameId.toString()).emit('gameFound', {
+			// 	message: 'Found opponent',
+			// 	playerOne: oppone	ntToken.toString(),
+			// 	playerOne_username: payloadUser.pseudo,
+			// 	playerTwo: token.toString(),
+			// 	playerTwo_username: payloadOpponent.pseudo,
+			// 	roomId: gameId.toString()
+			// });
 
 			console.log('[Connection] ', socket.id, ' and ',
 				this._waitingUser.id, ' are matched in game ', gameId.toString());
@@ -191,17 +205,21 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	 * @complication	I don't like the fact that abstraction not going to work 
 	 * 					here. I have to combine the parts here
 	 */
-	@SubscribeMessage('ready-mm')
+	@SubscribeMessage('ready')
 	ready_matchmaking(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
 
 		console.log('[Connection] ', socket.id, ' is ready to matchmake');
 
-		const room = this._rooms.get(data.roomId);
 		let token = socket.handshake.query.token;
-
 		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
 		token = payload.userId;
+
+		// const room = this._rooms.get(data.roomId);
+		const user = this._users.get(token.toString());
+		if (user.roomId === "-1") {
+			return;
+		}
+		const room = this._rooms.get(user.roomId);
 
 		if (room === undefined) {
 			console.log('[Connection] ', socket.id, ' gave wrong roomId');
@@ -275,23 +293,26 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	/** @brief In development stage	*/
 	@SubscribeMessage('playfriend')
-	mode_playFriend(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-		console.log('[Connection] ', socket.id, ' wants to matchmake');
+	async mode_playFriend(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+		console.log('[Connection] ', socket.id, ' wants to play with friend');
 
 		const token = socket.handshake.query.token;
-		if (token === undefined) { socket.disconnect(); return; }
+		if (token === undefined) {
+			socket.disconnect(); return;
+		}
+		const payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		const userId = payload.userId;
 
-		socket.emit('waiting', { message: 'Waiting for other player' });
-		/* Create a new game and add the players to the room */
-		const opponentToken = this._waitingUser.handshake.query.token.toString();
-		if (opponentToken === token) {
-			socket.emit('waiting', { message: 'Waiting for other player' });
+		const opponentId = data.opponentId;
+		const opponent = await this.userService.findById(opponentId);
+		if (opponent === undefined) {
+			console.log('[Connection] ', socket.id, ' gave wrong opponentId');
 			return;
 		}
 
 		const gameId = this.gameService.create({
-			"playerOneId": token.toString(),
-			"playerTwoId": opponentToken,
+			"playerOneId": userId,
+			"playerTwoId": opponentId,
 			"courtScale": 9 / 16,
 			"maxScore": 7
 		});
@@ -300,29 +321,20 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			roomId: gameId.toString(),
 			gameId: gameId,
 			intervalId: null,
-			playerOne: token.toString(),
+			playerOne: userId,
 			playerOneReady: false,
-			playerTwo: opponentToken,
+			playerTwo: opponentId,
 			playerTwoReady: false,
 			isLive: false,
 		});
-		socket.join(gameId.toString());
-		this._waitingUser.join(gameId.toString());
-		this._users.get(token.toString()).roomId = gameId.toString();
-		this._users.get(opponentToken).roomId = gameId.toString();
-
-		/*	Send the full information about the users	*/
-		this.server.to(gameId.toString()).emit('gameFound', {
-			message: 'Found opponent',
-			playerOne: opponentToken.toString(),
-			playerTwo: token.toString(),
-			roomId: gameId.toString()
+		this._users.get(userId).roomId = gameId.toString();
+		this._users.set(opponentId, {
+			userId: opponentId,
+			socketId: "-1",
+			username: opponent.pseudo,
+			roomId: gameId.toString(),
+			isLive: false,
 		});
-
-		console.log('[Connection] ', socket.id, ' and ',
-			this._waitingUser.id, ' are matched in game ', gameId.toString());
-
-		this._waitingUser = null;
 	}
 
 	/** @brief In development stage	*/
@@ -344,7 +356,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 		/** @todo CHeck if the game is still on*/
 		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
 		token = payload.userId;
 
 		game.handle_event(token, data.key, "pressed");
@@ -373,7 +384,6 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		let token = socket.handshake.query.token.toString();
 
 		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
 		token = payload.userId;
 
 		const user = this._users.get(token);
@@ -382,7 +392,29 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		const room = this._rooms.get(user.roomId.toString());
 		socket.join(room.roomId);
-		return { "message": "You are in a game", "response": true, "roomId": room.roomId };
+
+
+		let yourName = "";
+		let opponentName = "";
+		let side = "";
+
+		if (token === room.playerOne) {
+			yourName = user.username;
+			opponentName = this._users.get(room.playerTwo).username;
+			side = "left";
+		} else if (token === room.playerTwo) {
+			yourName = user.username;
+			opponentName = this._users.get(room.playerOne).username;
+			side = "right";
+		}
+		return {
+			"message": "You are in a game",
+			"response": true,
+			"roomId": room.roomId,
+			"yourName": yourName,
+			"opponentName": opponentName,
+			"side": side
+		};
 
 	}
 
