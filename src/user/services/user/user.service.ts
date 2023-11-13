@@ -605,6 +605,51 @@ export class UserService {
 		return deletedFriendship.count > 0;
 	}
 
+	async unFriend(
+		senderId: string,
+		receiverId: string,
+		channelId: string
+	): Promise<boolean> {
+		try {
+			await this.prisma.friendship.deleteMany({
+				where: {
+					senderId,
+					receiverId,
+					status: "ACCEPTED",
+				},
+			});
+			await this.prisma.friendship.deleteMany({
+				where: {
+					receiverId: senderId,
+					senderId: receiverId,
+					status: "ACCEPTED",
+				},
+			});
+			const messages = await this.prisma.message.findMany({
+				where: {
+				  channelId: channelId,
+				},
+			  });
+
+			  for (const message of messages) {
+				await this.prisma.message.delete({
+				  where: {
+					id: message.id,
+				  },
+				});
+			  }
+			await this.prisma.channel.delete({
+				where: {
+					id: channelId
+				}
+			});
+			return (true);
+		} catch (e) {
+			console.log(e.message);
+			return (false);
+		}
+	}
+
 	async cancelSentFriendRequest(
 		senderId: string,
 		receiverId: string

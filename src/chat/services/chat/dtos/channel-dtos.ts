@@ -202,6 +202,15 @@ export class UpdateMessageInput {
   newContent: string;
 }
 
+@InputType()
+export class UpdateMessageInviteInput {
+  @Field()
+  messageId: string;
+
+  @Field()
+  accepted: boolean;
+}
+
 @ObjectType()
 export class UpdateMessageOutput {
   @Field()
