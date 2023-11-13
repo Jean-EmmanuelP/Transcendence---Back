@@ -15,6 +15,7 @@ import {
   SendMessageInput,
   SendMessageOutput,
   UpdateMessageInput,
+  UpdateMessageInviteInput,
   UpdateMessageOutput,
   addChannelAdminInput,
   blockUserInput,
@@ -47,6 +48,19 @@ export class ChatResolver {
       input.messageId,
       userId,
       input.newContent
+    );
+  }
+
+  @Mutation(() => UpdateMessageOutput)
+  @UseGuards(JwtAuthGuard)
+  async updateMessageInvite(
+    @Args("input") input: UpdateMessageInviteInput,
+    @User() userId: string
+  ): Promise<UpdateMessageOutput> {
+    return this.chatService.updateMessageInvite(
+      input.messageId,
+      userId,
+      input.accepted
     );
   }
 

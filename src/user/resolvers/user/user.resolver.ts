@@ -223,6 +223,26 @@ export class UserResolver {
     return this.userService.cancelSentFriendRequest(senderId, receiver.id);
   }
 
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  async unFriend(
+    @Context() context,
+    @Args("receiverPseudo") receiverPseudo: string,
+    @Args("channelId") channelId: string,
+  ): Promise<boolean> {
+    const req = context.req;
+    const senderId = req.user.userId;
+    if (!senderId) {
+      throw new Error("Sender not found");
+    }
+    const receiver = await this.userService.findByPseudo(receiverPseudo);
+    if (!receiver) {
+      throw new Error("User not found");
+    }
+    return this.userService.unFriend(senderId, receiver.id, channelId);
+  }
+
   @Mutation(() => Boolean)
   @UseGuards(JwtAuthGuard)
   async updatePseudo(

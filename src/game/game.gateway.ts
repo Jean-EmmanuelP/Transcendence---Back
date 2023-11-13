@@ -47,8 +47,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			return;
 		}
 
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		token = payload.userId;
+		try {
+			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			token = payload.userId;
+		} catch (e) {
+			console.log(e.message);
+			return ;
+		}
 
 		if (this._users.has(token.toString())) {
 			console.log("[Connection] Client reconnected: ", socket.id);
@@ -72,10 +77,10 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	/**
 	 * @brief This method is called when the user disconnects from the server
-	 * 
+	 *
 	 * @attention   If it was in the middle of the game, I have to assign the win
 	 * 				automatically
-	 * 
+	 *
 	 * @todo Stop the game before disconnecting
 	 */
 	handleDisconnect(@ConnectedSocket() socket: Socket) {
@@ -86,9 +91,13 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			socket.disconnect();
 			return;
 		}
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
-		token = payload.userId;
+		try {
+			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			token = payload.userId;
+		} catch (e) {
+			console.log(e.message);
+			return ;
+		}
 
 		const user = this._users.get(token.toString());
 
@@ -136,9 +145,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 				socket.emit('waiting', { message: 'Waiting for other player' });
 				return;
 			}
-			let payloadOpponent = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-			// console.log("[Connection] The payload is ", payload);
-			opponentToken = payloadOpponent.userId;
+
+			try {
+				let payload = jwt.verify(this._waitingUser.handshake.query.token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+				// console.log("[Connection] The payload is ", payload);
+				opponentToken = payload.userId;
+			} catch (e) {
+				console.log(e.message);
+				return ;
+			}
 
 			const gameId = this.gameService.create({
 				"playerOneId": token.toString(),
@@ -197,12 +212,12 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	}
 
 	/**
-	 * @problem inside of setInterval function I have a function that takes 
+	 * @problem inside of setInterval function I have a function that takes
 	 * 			O(n) time.
-	 * @solution	As setInterval catches the reference of the function/object, 
-	 * 				so I have to prepare the proper objects and pass them to 
+	 * @solution	As setInterval catches the reference of the function/object,
+	 * 				so I have to prepare the proper objects and pass them to
 	 * 				the function.
-	 * @complication	I don't like the fact that abstraction not going to work 
+	 * @complication	I don't like the fact that abstraction not going to work
 	 * 					here. I have to combine the parts here
 	 */
 	@SubscribeMessage('ready')
@@ -211,8 +226,17 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		console.log('[Connection] ', socket.id, ' is ready to matchmake');
 
 		let token = socket.handshake.query.token;
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		token = payload.userId;
+
+
+		try {
+			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			// console.log("[Connection] The payload is ", payload);
+			token = payload.userId;
+		} catch (e) {
+			console.log(e.message);
+			return ;
+		}
+
 
 		// const room = this._rooms.get(data.roomId);
 		const user = this._users.get(token.toString());
@@ -355,8 +379,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		const game = this.gameService.findOne(this._rooms.get(roomId).gameId);
 
 		/** @todo CHeck if the game is still on*/
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		token = payload.userId;
+
+		try {
+			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			// console.log("[Connection] The payload is ", payload);
+			token = payload.userId;
+		} catch (e) {
+			console.log(e.message);
+			return ;
+		}
+
 
 		game.handle_event(token, data.key, "pressed");
 	}
@@ -372,9 +404,15 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		}
 		const game = this.gameService.findOne(this._rooms.get(roomId).gameId);
 
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		// console.log("[Connection] The payload is ", payload);
-		token = payload.userId;
+		try {
+			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			// console.log("[Connection] The payload is ", payload);
+			token = payload.userId;
+		} catch (e) {
+			console.log(e.message);
+			return ;
+		}
+
 
 		game.handle_event(token, data.key, "released");
 	}
@@ -383,8 +421,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 	check_game(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
 		let token = socket.handshake.query.token.toString();
 
-		let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
-		token = payload.userId;
+
+		try {
+			let payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+			// console.log("[Connection] The payload is ", payload);
+			token = payload.userId;
+		} catch (e) {
+			console.log(e.message);
+			return ;
+		}
+
 
 		const user = this._users.get(token);
 		if (user.roomId === "-1") {

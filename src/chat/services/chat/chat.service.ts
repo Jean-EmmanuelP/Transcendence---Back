@@ -118,6 +118,45 @@ export class ChatService {
   }
 
   // broadcast to all the channelMembers
+  async updateMessageInvite(
+    messageId: string,
+    userId: string,
+    accepted: boolean
+  ): Promise<UpdateMessageOutput> {
+    try {
+      const existingMessage = await this.prisma.message.findUnique({
+        where: { id: messageId },
+      });
+      if (!existingMessage) {
+        throw new Error("Message not found");
+      }
+      const userInChannel = await this.prisma.channelMember.findUnique({
+        where: {
+          userId_channelId: { userId, channelId: existingMessage.channelId },
+        },
+      });
+      if (!userInChannel) {
+        throw new Error("You are not a member of the channel");
+      }
+
+	if (accepted)
+		await this.prisma.message.update({
+			where: { id: messageId },
+			data: { content: "/invite true" },
+		});
+	else
+		await this.prisma.message.update({
+			where: { id: messageId },
+			data: { content: "/invite false" },
+		});
+      await this.userGateway.notifyChannel(existingMessage.channelId);
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
+  // broadcast to all the channelMembers
   async updateMessage(
     messageId: string,
     userId: string,

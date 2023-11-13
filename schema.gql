@@ -199,6 +199,7 @@ input GetChannelInput {
 type Mutation {
   sendMessage(input: SendMessageInput!): SendMessageOutput!
   updateMessage(input: UpdateMessageInput!): UpdateMessageOutput!
+  updateMessageInvite(input: UpdateMessageInviteInput!): UpdateMessageOutput!
   deleteMessage(input: DeleteMessageInput!): DeleteMessageOutput!
   manageUser(input: ManageUserInput!): OperationResult!
   createChannel(input: CreateChannelInput!): CreateChannelOutput!
@@ -212,6 +213,7 @@ type Mutation {
   acceptFriendRequest(senderPseudo: String!): Boolean!
   rejectFriendRequest(senderPseudo: String!): Boolean!
   cancelSentFriendRequest(receiverPseudo: String!): Boolean!
+  unFriend(receiverPseudo: String!, channelId: String!): Boolean!
   updatePseudo(newPseudo: String!): Boolean!
   forgotPassword(email: String!): Boolean!
   resetPassword(resetToken: String!, newPassword: String!): Boolean!
@@ -227,6 +229,11 @@ input SendMessageInput {
 input UpdateMessageInput {
   messageId: String!
   newContent: String!
+}
+
+input UpdateMessageInviteInput {
+  messageId: String!
+  accepted: Boolean!
 }
 
 input DeleteMessageInput {
