@@ -631,7 +631,7 @@ export class UserService {
 				},
 			  });
 
-			  for (const message of messages) {
+			for (const message of messages) {
 				await this.prisma.message.delete({
 				  where: {
 					id: message.id,
