@@ -60,7 +60,7 @@ export class ChatResolver {
     return this.chatService.updateMessageInvite(
       input.messageId,
       userId,
-      input.accepted
+      input.content
     );
   }
 

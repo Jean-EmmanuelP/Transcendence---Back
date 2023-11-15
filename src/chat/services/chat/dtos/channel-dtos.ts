@@ -208,7 +208,7 @@ export class UpdateMessageInviteInput {
   messageId: string;
 
   @Field()
-  accepted: boolean;
+  content: string;
 }
 
 @ObjectType()

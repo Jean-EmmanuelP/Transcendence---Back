@@ -233,7 +233,7 @@ input UpdateMessageInput {
 
 input UpdateMessageInviteInput {
   messageId: String!
-  accepted: Boolean!
+  content: String!
 }
 
 input DeleteMessageInput {

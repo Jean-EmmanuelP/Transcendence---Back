@@ -625,25 +625,7 @@ export class UserService {
 					status: "ACCEPTED",
 				},
 			});
-			const messages = await this.prisma.message.findMany({
-				where: {
-				  channelId: channelId,
-				},
-			  });
-
-			for (const message of messages) {
-				await this.prisma.message.delete({
-				  where: {
-					id: message.id,
-				  },
-				});
-			  }
-			await this.prisma.channel.delete({
-				where: {
-					id: channelId
-				}
-			});
-			return (true);
+			return (await this.chatService.deleteDirectChannel(senderId, receiverId, channelId));
 		} catch (e) {
 			console.log(e.message);
 			return (false);
