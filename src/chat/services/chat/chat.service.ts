@@ -69,6 +69,41 @@ export class ChatService {
     }
   }
 
+  async deleteDirectChannel(
+	senderId: string,
+	receiverId: string,
+	channelId: string
+): Promise<boolean> {
+	try {
+
+		const messages = await this.prisma.message.findMany({
+			where: {
+				  channelId: channelId,
+			},
+		});
+
+		  for (const message of messages) {
+			await this.prisma.message.delete({
+			  where: {
+				id: message.id,
+			  },
+			});
+		  }
+
+		await this.prisma.channel.delete({
+			where: {
+				id: channelId
+			}
+		});
+		this.userGateway.notifyUser(senderId);
+		this.userGateway.notifyUser(receiverId);
+		return (true);
+	} catch (e) {
+		console.log(e.message);
+		return (false);
+	}
+}
+
   async sendMessage(
     channelId: string,
     userId: string,
@@ -121,7 +156,7 @@ export class ChatService {
   async updateMessageInvite(
     messageId: string,
     userId: string,
-    accepted: boolean
+    content: string
   ): Promise<UpdateMessageOutput> {
     try {
       const existingMessage = await this.prisma.message.findUnique({
@@ -139,15 +174,9 @@ export class ChatService {
         throw new Error("You are not a member of the channel");
       }
 
-	if (accepted)
 		await this.prisma.message.update({
 			where: { id: messageId },
-			data: { content: "/invite true" },
-		});
-	else
-		await this.prisma.message.update({
-			where: { id: messageId },
-			data: { content: "/invite false" },
+			data: { content: content },
 		});
       await this.userGateway.notifyChannel(existingMessage.channelId);
       return { success: true };
