@@ -582,37 +582,7 @@ export class ChatService {
         throw new Error("Password is required for private channels");
       }
       const hashedPassword = password ? await bcrypt.hash(password, 12) : null;
-      // check what its sending back
-      /* possible implementation
-      const newChannel = await this.prisma.channel.create({
-  data: {
-    name,
-    isPrivate,
-    password: hashedPassword,
-    ownerId: userId,
-    ChannelMember: {
-      create: [
-        {
-          userId: userId,
-          joinedAt: new Date(),
-        },
-      ],
-    },
-    admins: {
-      create: [
-        {
-          userId: userId,
-        },
-      ],
-    },
-  },
-  include: {
-    admins: true,
-    members: true,
-    ChannelMember: true,
-  },
-});
-      */
+
       const newChannel = await this.prisma.channel.create({
         data: {
           name,
@@ -778,6 +748,19 @@ export class ChatService {
 
       if (theChannel.ChannelMember.length <= 1) {
         // console.log("Only one member in the channel. Deleting channel...");
+		const messages = await this.prisma.message.findMany({
+			where: {
+				  channelId: channelId,
+			},
+		});
+
+		for (const message of messages) {
+			await this.prisma.message.delete({
+				where: {
+				id: message.id,
+				},
+			});
+		}
         await this.prisma.channel.delete({ where: { id: channelId } });
         // console.log("Channel deleted successfully!");
         this.userGateway.notifyUser(userId);
