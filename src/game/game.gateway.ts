@@ -148,7 +148,7 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 			console.log('[Connection] ', socket.id, ' is waiting for a match');
 			socket.emit('waiting', { message: 'Waiting for other player' });
 		}
-		else {
+		else if (this._waitingUser.handshake.query.token !== socket.handshake.query.token) {
 			/* Create a new game and add the players to the room */
 			let opponentToken = this._waitingUser.handshake.query.token.toString();
 			if (opponentToken === token) {
