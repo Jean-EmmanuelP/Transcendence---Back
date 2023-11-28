@@ -29,8 +29,11 @@ export class Paddle {
     private _rotationSpeed: number = 4;  // degrees
     private _attack: number = 10;
     private _defaultAttack: number = 10;
+    private _isBot: boolean = false;
 
     constructor(game: Game, id, player) {
+        if (id === "bot")
+            this._isBot = true;
         this._id = id;
         this._game = game;
         this._name = player; /* playerOne playerTwo */
@@ -85,6 +88,19 @@ export class Paddle {
                 this._position.y += this._speed;
             }
         }
+        else if (this._isBot === true) {
+            if (this._game.ball.position.y > this._position.y) {
+                let newPosY = this._position.y + this._height / 2 + this._speed;
+                if (newPosY < this._game.court.height) {
+                    this._position.y += this._speed;
+                }
+            } else if (this._game.ball.position.y < this._position.y) {
+                let newPosY = this._position.y - this._height / 2 - this._speed;
+                if (newPosY > 0) {
+                    this._position.y -= this._speed;
+                }
+            }
+        }
     }
 
     updateLeftRight() {
@@ -134,11 +150,13 @@ export class Paddle {
         let statement1 = this._buttons.shoot === ButtonState.DOWN;  // SHOOT is pressed
         let statement2 = this._buttons.shoot === ButtonState.UP;    // SHOOT is released
 
-        if (statement1 && this._attack <= 98) {
+        if (this._isBot === true) {
+            this._attack = 50;
+        } else if (statement1 && this._attack <= 98) {
             this._attack += 2;
         } else if (statement2 && this._attack >= 12) {
             this._attack -= 2;
-        }
+        } 
 
         if (
             this._game.playState === PlayState.SERVE_PLAYER_ONE &&
@@ -148,7 +166,7 @@ export class Paddle {
             this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
         } else if (
             this._game.playState === PlayState.SERVE_PLAYER_TWO &&
-            this._buttons.shoot === ButtonState.DOWN &&
+            (this._buttons.shoot === ButtonState.DOWN || this._isBot === true ) &&
             this._name === "playerTwo"
         ) {
             this._game.playState = PlayState.TOWARDS_PLAYER_ONE;
@@ -202,4 +220,5 @@ export class Paddle {
     get width(): number { return this._width; }
     get height(): number { return this._height; }
     get direction(): Vector { return this._direction; }
+    get isBot(): boolean { return this._isBot; }
 }

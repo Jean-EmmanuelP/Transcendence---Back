@@ -114,6 +114,9 @@ export class Ball {
             this._direction.y *= -1;
             return;
         }
+        // if (object.isBot === true) {
+
+        // }
         this._direction.x = this._direction.x - dotNotation * (normVector.x / normVector.length);
         this._direction.y = this._direction.y - dotNotation * (normVector.y / normVector.length);
         if (this._game.playState === PlayState.TOWARDS_PLAYER_ONE)

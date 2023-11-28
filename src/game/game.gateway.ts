@@ -376,8 +376,65 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
 	/** @brief In development stage	*/
 	@SubscribeMessage('playbot')
-	mode_playBot(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
-		console.log('playWithBot', data);
+	async mode_playBot(@MessageBody() data: any, @ConnectedSocket() socket: Socket) {
+
+		console.log('[Connection] ', socket.id, ' wants to play with bot');
+
+		const token = socket.handshake.query.token;
+		if (token === undefined) {
+			socket.disconnect(); return;
+		}
+		const payload = jwt.verify(token.toString(), process.env.JWT_SECRET) as jwt.JwtPayload;
+		const userId = payload.userId;
+
+		const gameId = this.gameService.create({
+			"playerOneId": userId,
+			"playerTwoId": "bot",
+			"courtScale": 9 / 16,
+			"maxScore": 7
+		});
+
+		this._rooms.set(gameId.toString(), {
+			roomId: gameId.toString(),
+			gameId: gameId,
+			intervalId: null,
+			playerOne: userId,
+			playerOneReady: false,
+			playerTwo: "bot",
+			playerTwoReady: true,
+			isLive: false,
+		});
+		this._users.get(userId).roomId = gameId.toString();
+
+		const game = this.gameService.findOne(gameId);
+		if (game === undefined) {
+			console.log('[Connection] something went wrong, game is undefined');
+			return;
+		}
+		game.startGame();
+
+		const room = this._rooms.get(gameId.toString());
+		let roomToEmit = this.server.to(room.roomId);
+
+		room.intervalId = setInterval(() => {
+			roomToEmit.emit('gameState', game.liveInfo);
+			if (game.gameState === GameState.GAME_OVER) {
+				roomToEmit.emit('gameOver', game.gameInfo);
+				this._users.get(room.playerOne).roomId = "-1";
+				this._users.get(room.playerTwo).roomId = "-1";
+				clearInterval(room.intervalId);
+
+				console.log("[Game] finished the game");
+				try {
+					this.userService.recordMatchResult(room.playerOne, room.playerTwo, game.gameInfo.winner);
+				} catch (error) {
+					console.log("[Game] error: ", error.message);
+				}
+				this.gameService.remove(room.gameId);
+
+				this._rooms.delete(room.roomId);
+			}
+		}, 1000 / 60);
 	}
 
 	@SubscribeMessage('keyDown')
