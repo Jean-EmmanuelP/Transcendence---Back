@@ -406,6 +406,16 @@ export class GameGateway implements OnGatewayConnection, OnGatewayDisconnect {
 		});
 		this._users.get(userId).roomId = gameId.toString();
 
+		/*	Notify the user that he is going to play	*/
+		socket.emit('gameFound', {
+			message: 'Found opponent',
+			opponent: "bot",
+			opponentName: "Mr. Federer",
+			yourName: "You",
+			side: "left",
+			roomId: gameId.toString()
+		});
+
 		const game = this.gameService.findOne(gameId);
 		if (game === undefined) {
 			console.log('[Connection] something went wrong, game is undefined');
