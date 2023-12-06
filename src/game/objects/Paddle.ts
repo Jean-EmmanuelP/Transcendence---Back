@@ -17,159 +17,160 @@ import { PlayState } from "./states/PlayState";
 @Injectable()
 export class Paddle {
 
-    private _id: string;
-    private _game: Game;
-    private _name: string; /* playerOne playerTwo */
-    private _position: Vector;
-    private _direction: Vector;
-    private _buttons: Buttons;
-    private _width: number;
-    private _height: number;
-    private _speed: number;
-    private _rotationSpeed: number = 4;  // degrees
-    private _attack: number = 10;
-    private _defaultAttack: number = 10;
-    private _isBot: boolean = false;
+    public _playerId: string;
+    public game: Game;
+    public team: string;
+    public isBot: boolean = false;
+    
+    public width: number;
+    public height: number;
+    public attackByDefault: number = 10;
+    public speedMovement: number;
+    public speedRotation: number = 4; 
 
-    constructor(game: Game, id, player) {
-        if (id === "bot")
-            this._isBot = true;
-        this._id = id;
-        this._game = game;
-        this._name = player; /* playerOne playerTwo */
+    public position: Vector;  // Position of the paddle
+    public direction: Vector; // Direction of the paddle
+    public buttons: Buttons;  // Button states of the paddle
+    public attackPower: number = 10;
 
-        if (player === "playerOne") {
-            this._position = new Vector(
-                game.court.width / 40 * 2,
-                game.court.height / 2
-            );
-            this._direction = new Vector(1, 0);
-        } else {
-            this._position = new Vector(
-                game.court.width / 40 * 38,
-                game.court.height / 2
-            );
-            this._direction = new Vector(-1, 0);
+    constructor(game: Game, playerId: string, team: string)
+    {
+        let courtWidth = game.court.width;
+        let courtHeight = game.court.height;
+
+        this._playerId = playerId;
+        if (this._playerId === "bot") {
+            this.isBot = true;
+            this.attackPower = 50;
         }
-
-        this._buttons = new Buttons(1, 1, 1);
-        this._width = game.court.width / 80;
-        this._height = game.court.width / 10;
-        this._speed = game.court.width / 200;
+        this.game = game;
+        this.team = team;
+        if (team === "left_team") {
+            this.position = new Vector(courtWidth / 40 * 2, courtHeight / 2);
+            this.direction = new Vector(1, 0);
+        } else {
+            this.position = new Vector(courtWidth / 40 * 38, courtHeight / 2);
+            this.direction = new Vector(-1, 0);
+        }
+        this.buttons = new Buttons(1, 1, 1);
+        this.width = courtWidth / 80;
+        this.height = courtWidth / 10;
+        this.speedMovement = courtWidth / 200;
     }
 
     /**
      * @attention   I don't check for existence of another paddle
      */
     update() {
-        if (this._game.gameState !== GameState.PLAYING) {
-            return;
-        }
+        if (this.game.gameState !== GameState.PLAYING) { return ; }
 
-        this.updateUpDown();
-        this.updateLeftRight();
-        this.updateRotate();
-        this.updateAttack();
+        this.moveVertically();
+        this.moveHorizontally();
+        this.rotation();
+        this.attacking();
     }
 
-    updateUpDown() {
-        let statement1 = this._buttons.up === ButtonState.DOWN;   // UP is pressed
-        let statement2 = this._buttons.down === ButtonState.DOWN; // DOWN is pressed
-
-        if (statement1 && !statement2) {
-            let newPosY = this._position.y - this._height / 2 - this._speed;
+    moveVertically() {
+        /*  Move up or down */
+        if (this.buttons.up === ButtonState.PRESSED) // Move up
+        {
+            // Check the potential position
+            let newPosY = this.position.y - this.height / 2 - this.speedMovement;
             if (newPosY > 0) {
-                this._position.y -= this._speed;
+                this.position.y -= this.speedMovement;
             }
         }
-        else if (statement2 && !statement1) {
-            let newPosY = this._position.y + this._height / 2 + this._speed;
-            if (newPosY < this._game.court.height) {
-                this._position.y += this._speed;
+        else if (this.buttons.down === ButtonState.PRESSED) // Move down
+        {
+            // Check the potential position
+            let newPosY = this.position.y + this.height / 2 + this.speedMovement;
+            if (newPosY < this.game.court.height) {
+                this.position.y += this.speedMovement;
             }
         }
-        else if (this._isBot === true) {
-            if (this._game.ball.position.y > this._position.y) {
-                let newPosY = this._position.y + this._height / 2 + this._speed;
-                if (newPosY < this._game.court.height) {
-                    this._position.y += this._speed;
+
+        // Manage bots movement 
+        if (this.isBot === true) {
+            // Move towards the ball
+            if (this.game.ball.position.y > this.position.y) {
+                let newPosY = this.position.y + this.height / 2 + this.speedMovement;
+
+                if (newPosY < this.game.court.height) {
+                    this.position.y += this.speedMovement;
                 }
-            } else if (this._game.ball.position.y < this._position.y) {
-                let newPosY = this._position.y - this._height / 2 - this._speed;
+            } else if (this.game.ball.position.y < this.position.y) {
+                let newPosY = this.position.y - this.height / 2 - this.speedMovement;
+
                 if (newPosY > 0) {
-                    this._position.y -= this._speed;
+                    this.position.y -= this.speedMovement;
                 }
             }
         }
     }
 
-    updateLeftRight() {
-        let statement1 = this._buttons.left === ButtonState.DOWN;   // LEFT is pressed
-        let statement2 = this._buttons.right === ButtonState.DOWN;  // RIGHT is pressed
-
-        if (statement1 && !statement2) {
-            let newPosX = this._position.x - this._width / 2 - this._speed;
-            if (this._name == "playerOne" && newPosX > this._game.court.width / 40 * 2) {
-                this._position.x -= this._speed;
-            }
-            else if (this._name == "playerTwo" && newPosX > this._game.court.width / 2) {
-                this._position.x -= this._speed;
-            }
-        }
-        else if (statement2 && !statement1) {
-            let newPosX = this._position.x - this._width / 2 - this._speed;
-            if (this._name == "playerOne" && newPosX < this._game.court.width / 2) {
-                this._position.x += this._speed;
-            }
-            else if (this._name == "playerTwo" && newPosX < this._game.court.width / 40 * 38) {
-                this._position.x += this._speed;
+    moveHorizontally() {
+        /* Move left or right */
+        if (this.buttons.left === ButtonState.PRESSED) {
+            // Check the potential position and check which team
+            let newPosX = this.position.x - this.width / 2 - this.speedMovement;
+            
+            if (this.team == "left_team" && newPosX > this.game.court.width / 40 * 2) {
+                this.position.x -= this.speedMovement;
+            } else if (this.team == "right_team" && newPosX > this.game.court.width / 2) {
+                this.position.x -= this.speedMovement;
             }
         }
-    }
+        else if (this.buttons.right === ButtonState.PRESSED) {
+            // Check the potential position
+            let newPosX = this.position.x - this.width / 2 - this.speedMovement;
 
-    updateRotate() {
-        let statement1 = this._buttons.rotateLeft === ButtonState.DOWN;  // LEFT is pressed
-        let statement2 = this._buttons.rotateRight === ButtonState.DOWN; // RIGHT is pressed
-
-        if (statement1 && !statement2) {
-            if (this._name === "playerOne") {
-                this._direction.rotate(-1 * this._rotationSpeed);
-            } else {
-                this._direction.rotate(this._rotationSpeed);
-            }
-        } else if (statement2 && !statement1) {
-            if (this._name === "playerTwo") {
-                this._direction.rotate(-1 * this._rotationSpeed);
-            } else {
-                this._direction.rotate(this._rotationSpeed);
+            // Check which team
+            if (this.team == "left_team" && newPosX < this.game.court.width / 2) {
+                this.position.x += this.speedMovement;
+            } else if (this.team == "right_team" && newPosX < this.game.court.width / 40 * 38) {
+                this.position.x += this.speedMovement;
             }
         }
     }
 
-    updateAttack() {
-        let statement1 = this._buttons.shoot === ButtonState.DOWN;  // SHOOT is pressed
-        let statement2 = this._buttons.shoot === ButtonState.UP;    // SHOOT is released
+    rotation() {
+        if (this.buttons.rotateLeft === ButtonState.PRESSED) {
+            if (this.team === "left_team") {
+                this.direction.rotate(-1 * this.speedRotation);
+            } else {
+                this.direction.rotate(this.speedRotation);
+            }
+        } else if (this.buttons.rotateRight === ButtonState.PRESSED) {
+            if (this.team === "right_team") {
+                this.direction.rotate(-1 * this.speedRotation);
+            } else {
+                this.direction.rotate(this.speedRotation);
+            }
+        }
+    }
 
-        if (this._isBot === true) {
-            this._attack = 50;
-        } else if (statement1 && this._attack <= 98) {
-            this._attack += 2;
-        } else if (statement2 && this._attack >= 12) {
-            this._attack -= 2;
+    /**
+     * @todo    Handle the bot
+     */
+    attacking() {
+        if (this.buttons.shoot === ButtonState.PRESSED && this.attackPower <= 98) {
+            this.attackPower += 2;
+        } else if (this.buttons.shoot === ButtonState.UP && this.attackPower >= 12) {
+            this.attackPower -= 2;
         } 
 
         if (
-            this._game.playState === PlayState.SERVE_PLAYER_ONE &&
-            this._buttons.shoot === ButtonState.DOWN &&
-            this._name === "playerOne"
+            this.game.playState === PlayState.SERVE_PLAYER_ONE &&
+            this.buttons.shoot === ButtonState.PRESSED &&
+            this.team === "left_team"
         ) {
-            this._game.playState = PlayState.TOWARDS_PLAYER_TWO;
+            this.game.playState = PlayState.TOWARDS_PLAYER_TWO;
         } else if (
-            this._game.playState === PlayState.SERVE_PLAYER_TWO &&
-            (this._buttons.shoot === ButtonState.DOWN || this._isBot === true ) &&
-            this._name === "playerTwo"
+            this.game.playState === PlayState.SERVE_PLAYER_TWO &&
+            this.buttons.shoot === ButtonState.PRESSED &&
+            this.team === "right_team"
         ) {
-            this._game.playState = PlayState.TOWARDS_PLAYER_ONE;
+            this.game.playState = PlayState.TOWARDS_PLAYER_ONE;
         }
     }
 
@@ -177,7 +178,7 @@ export class Paddle {
      * @attention   My fucking own implementation!
      */
     isPointInside(x: number, y: number, radius: number): boolean {
-        const hypoVec = new Vector(x - this._position.x, y - this._position.y);
+        const hypoVec = new Vector(x - this.position.x, y - this.position.y);
         let cosAngle = 0;
         let sinAngle = 0;
 
@@ -186,18 +187,18 @@ export class Paddle {
          * 
          * @attention   alpha range is [0, 180]. cos(x) = -1 * cos(180 - x). So take absolute
          */
-        cosAngle = (hypoVec.x * this._direction.x + hypoVec.y * this._direction.y);
-        cosAngle /= hypoVec.length * this._direction.length;
+        cosAngle = (hypoVec.x * this.direction.x + hypoVec.y * this.direction.y);
+        cosAngle /= hypoVec.length * this.direction.length;
         cosAngle = Math.abs(cosAngle);
 
         /**
          * @formula sin(x) = (a X b) / (|a| * |b|)
          */
-        sinAngle = Math.abs(hypoVec.x * this._direction.y - hypoVec.y * this._direction.x);
-        sinAngle /= hypoVec.length * this._direction.length;
+        sinAngle = Math.abs(hypoVec.x * this.direction.y - hypoVec.y * this.direction.x);
+        sinAngle /= hypoVec.length * this.direction.length;
 
-        if (cosAngle * hypoVec.length < this._width / 2 + radius) {
-            if (sinAngle * this._height / 2 + radius > hypoVec.length) {
+        if (cosAngle * hypoVec.length < this.width / 2 + radius) {
+            if (sinAngle * this.height / 2 + radius > hypoVec.length) {
                 return true;
             }
         }
@@ -205,20 +206,13 @@ export class Paddle {
     }
 
     reset() {
-        this._attack = this._defaultAttack;
+        this.attackPower = this.attackByDefault;
     }
 
     /* ********************************************************************** */
     /* Getters and Setters */
     /* ********************************************************************** */
-    get id(): string { return this._id; }
-    get position(): Vector { return this._position; }
-    get x(): number { return this._position.x; }
-    get y(): number { return this._position.y; }
-    get buttons(): Buttons { return this._buttons; }
-    get attack(): number { return Math.floor(this._attack); }
-    get width(): number { return this._width; }
-    get height(): number { return this._height; }
-    get direction(): Vector { return this._direction; }
-    get isBot(): boolean { return this._isBot; }
+    // get position(): Vector { return this.position; }
+    get x(): number { return this.position.x; }
+    get y(): number { return this.position.y; }
 }

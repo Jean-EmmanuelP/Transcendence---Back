@@ -15,6 +15,8 @@ export class Game {
     private _startDate: Date = null;
     private _endDate: Date = null;
     private _maxScore: number;
+    private _playerOneScore: number = 0;
+    private _playerTwoScore: number = 0;
 
     /* Game attributes */
     private _court: Court;
@@ -26,16 +28,14 @@ export class Game {
     private _gameLoop: NodeJS.Timeout | null = null;
     private _gameState: GameState = GameState.WAITING;
     private _playState: PlayState = PlayState.SERVE_PLAYER_ONE;
-    private _playerOneScore: number = 0;
-    private _playerTwoScore: number = 0;
 
     constructor(
         playerOneId: string, playerTwoId: string,
         courtScale: number = 0.5, maxScore: number = 7
     ) {
         this._court = new Court(this, this.checkScale(courtScale));
-        this._playerOne = new Paddle(this, playerOneId, "playerOne");
-        this._playerTwo = new Paddle(this, playerTwoId, "playerTwo");
+        this._playerOne = new Paddle(this, playerOneId, "left_team");
+        this._playerTwo = new Paddle(this, playerTwoId, "right_team");
         this._ball = new Ball(this);
         this._startDate = new Date();
         this._maxScore = maxScore;
@@ -59,7 +59,7 @@ export class Game {
     }
 
     finishGame() {
-        this._gameState = GameState.GAME_OVER;
+        this._gameState = GameState.GAME_OVER
         clearInterval(this._gameLoop);
         this._endDate = new Date();
     }
@@ -97,7 +97,6 @@ export class Game {
     }
 
     /**
-     * 
      * @param {*} playerId  The id of the player who pressed the button
      * @param {*} button    The button that is pressed {w, a, s, d, q, e, space}
      * @param {*} event     is it pressed or released {pressed, released}
@@ -113,77 +112,7 @@ export class Game {
             throw new Error("Player not found");
         }
 
-        switch (button) {
-            case "w":
-                if (event === "pressed") {
-                    player.buttons.pressUp();
-                } else if (event === "released") {
-                    player.buttons.releaseUp();
-                }
-                break;
-
-            case "s":
-                if (event === "pressed") {
-                    player.buttons.pressDown();
-                } else if (event === "released") {
-                    player.buttons.releaseDown();
-                }
-                break;
-
-            case "a":
-                if (event === "pressed") {
-                    player.buttons.pressLeft();
-                } else if (event === "released") {
-                    player.buttons.releaseLeft();
-                }
-                break;
-
-            case "d":
-                if (event === "pressed") {
-                    player.buttons.pressRight();
-                } else if (event === "released") {
-                    player.buttons.releaseRight();
-                }
-                break;
-
-            case "j":
-                if (event === "pressed") {
-                    player.buttons.pressRotateLeft();
-                } else if (event === "released") {
-                    player.buttons.releaseRotateLeft();
-                }
-                break;
-
-            case "n":
-                if (event === "pressed") {
-                    player.buttons.pressRotateRight();
-                } else if (event === "released") {
-                    player.buttons.releaseRotateRight();
-                }
-                break;
-
-            case " ":
-                if (event === "pressed") {
-                    player.buttons.pressShoot();
-                } else if (event === "released") {
-                    player.buttons.releaseShoot();
-                }
-                break;
-
-            case "p":
-                if (event === "pressed") {
-                    player.buttons.pressPause();
-                } else if (event === "released") {
-                    player.buttons.releasePause();
-                    if (this._gameState === GameState.PLAYING) {
-                        this._gameState = GameState.MENU;
-                    } else if (this._gameState === GameState.MENU) {
-                        this._gameState = GameState.PLAYING;
-                    }
-                }
-                break;
-            default:
-        }
+        player.buttons.updateButtonState(button, event);
     }
 
 

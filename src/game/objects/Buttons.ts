@@ -39,6 +39,81 @@ export class Buttons {
         }
     }
 
+    updateButtonState(button: string, event: string) {
+        switch (button) {
+            case "w":
+                if (event === "pressed") {
+                    this.pressUp();
+                } else if (event === "released") {
+                    this.releaseUp();
+                }
+                break;
+
+            case "s":
+                if (event === "pressed") {
+                    this.pressDown();
+                } else if (event === "released") {
+                    this.releaseDown();
+                }
+                break;
+
+            case "a":
+                if (event === "pressed") {
+                    this.pressLeft();
+                } else if (event === "released") {
+                    this.releaseLeft();
+                }
+                break;
+
+            case "d":
+                if (event === "pressed") {
+                    this.pressRight();
+                } else if (event === "released") {
+                    this.releaseRight();
+                }
+                break;
+
+            case "j":
+                if (event === "pressed") {
+                    this.pressRotateLeft();
+                } else if (event === "released") {
+                    this.releaseRotateLeft();
+                }
+                break;
+
+            case "n":
+                if (event === "pressed") {
+                    this.pressRotateRight();
+                } else if (event === "released") {
+                    this.releaseRotateRight();
+                }
+                break;
+
+            case " ":
+                if (event === "pressed") {
+                    this.pressShoot();
+                } else if (event === "released") {
+                    this.releaseShoot();
+                }
+                break;
+
+            // case "p":
+            //     if (event === "pressed") {
+            //         player.buttons.pressPause();
+            //     } else if (event === "released") {
+            //         player.buttons.releasePause();
+            //         if (this._gameState === GameState.PLAYING) {
+            //             this._gameState = GameState.MENU;
+            //         } else if (this._gameState === GameState.MENU) {
+            //             this._gameState = GameState.PLAYING;
+            //         }
+            //     }
+            //     break;
+            default:
+        }
+
+    }
+
     /* ********************************************************************** */
     /* Button interactions */
     /* ********************************************************************** */
