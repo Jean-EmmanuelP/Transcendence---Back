@@ -50,6 +50,7 @@ export class Game {
         this._startDate = new Date();
     }
 
+    
     pauseGame() {
         this._gameState = GameState.MENU;
     }
